@@ -1,9 +1,7 @@
 <p align="center">
     <img src="https://skyinformatics.biz/images/TradeMateLogo.png" width="500" height="125" alt="initial logo"/>
 </p>
-<center> 
-    <p style="font-size:12px">TradeMate PHFT (Automative Predictive High Freq. Trading) </p>
-    </center>
+
 
 ## TradeMate PHFT (Automative Predictive High Freq. Trading)
 ### Software assisting traders and operators in semi/high frequency trading.
