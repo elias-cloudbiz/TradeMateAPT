@@ -2,7 +2,8 @@
     <img src="https://skyinformatics.biz/images/TradeMateLogo.png" width="500" height="125" alt="initial logo"/>
 </p>
 
-## <u>TradeMate PHFT **(Automative Predictive High Freq. Trading)** - Software assisting traders and operators in semi-high frequency trading.</u> 
+## <u>TradeMate PHFT **(Automative Predictive High Freq. Trading)** </u> 
+### Software assisting traders and operators in semi/high frequency trading.
 #### ** The software module is currently an assembly simulation/prototype and is only available for invite only use.
 
 **Table of content:**
