@@ -3,7 +3,7 @@
 </p>
 
 
-## TradeMate PHFT (Automative Predictive High Freq. Trading)
+## TradeMate PHFT (Predictive High Freq. Trading)
 ### Software assisting traders and operators in semi/high frequency trading.
 
 #### ** The software module is at the moment as an assembly prototype and is only available for invite only use.
