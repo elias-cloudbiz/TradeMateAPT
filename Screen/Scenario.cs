@@ -123,7 +123,7 @@ namespace TMPHFT.Screen
 			/// </summary>
 			/// <param name="t"></param>
 			/// <returns></returns>
-			public static string GetName(Type t) => ((ScenarioMetadata)System.Attribute.GetCustomAttributes(t)[0]).Name;
+			public static string GetName(Type t) => ((ScenarioMetadata)GetCustomAttributes(t)[0]).Name;
 
 			/// <summary>
 			/// Static helper function to get the <see cref="Scenario"/> Description given a Type
