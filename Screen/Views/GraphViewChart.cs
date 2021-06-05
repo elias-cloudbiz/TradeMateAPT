@@ -12,7 +12,7 @@ namespace TMPHFT.Screen
 	class GraphViewChart : Scenario
     {
 
-		GraphView graphView;
+		public GraphView graphView;
 		private TextView about;
 
 		int currentGraph = 0;
@@ -52,7 +52,7 @@ namespace TMPHFT.Screen
 				X = 1,
 				Y = 1,
 				Width = Dim.Fill(),
-				Height = 20,
+				Height = Dim.Fill(),
 			};
 
 

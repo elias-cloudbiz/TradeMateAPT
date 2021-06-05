@@ -15,14 +15,12 @@ namespace TMPHFT.Screen
 {
     class ViewScreen 
     {
-
 		private static Toplevel _top;
 		private static MenuBar _menu;
-		private static int _nameColumnWidth;
-		private static FrameView _leftPane;
+		//private static FrameView _leftPane;
+		//private static FrameView _rightPane;
+		private static FrameView _mainPane;
 		private static List<string> _categories;
-		private static ListView _categoryListView;
-		private static FrameView _rightPane;
 		private static List<Type> _scenarios;
 		private static ListView _scenarioListView;
 		private static StatusBar _statusBar;
@@ -49,11 +47,13 @@ namespace TMPHFT.Screen
 
 			_scenarios = Scenario.GetDerivedClasses<Scenario>().OrderBy(t => Scenario.ScenarioMetadata.GetName(t)).ToList();
 
+			// Init args
 			if (args.Length > 0 && args.Contains("-usc"))
 			{
 				_useSystemConsole = true;
 				args = args.Where(val => val != "-usc").ToArray();
 			}
+			// Init args
 			if (args.Length > 0)
 			{
 				var item = _scenarios.FindIndex(t => Scenario.ScenarioMetadata.GetName(t).Equals(args[0], StringComparison.OrdinalIgnoreCase));
@@ -65,11 +65,14 @@ namespace TMPHFT.Screen
 				_runningScenario.Run();
 				_runningScenario = null;
 				Application.Shutdown();
+
 				return;
 			}
 
+			// Statemachine
 			Scenario scenario;
-			while ((scenario = GetScenarioToRun()) != null)
+
+			while ((scenario = RunScenarioStateMachine()) != null)
 			{
 				#if DEBUG_IDISPOSABLE
 				// Validate there are no outstanding Responder-based instances 
@@ -87,7 +90,7 @@ namespace TMPHFT.Screen
 
 				static void LoadedHandler()
 				{
-					_rightPane.SetFocus();
+					_mainPane.SetFocus();
 					_top.Loaded -= LoadedHandler;
 				}
 
@@ -120,7 +123,127 @@ namespace TMPHFT.Screen
 		/// This shows the selection UI. Each time it is run, it calls Application.Init to reset everything.
 		/// </summary>
 		/// <returns></returns>
-		private static Scenario GetScenarioToRun()
+		private static Scenario RunScenarioStateMachine()
+		{
+			Application.UseSystemConsole = _useSystemConsole;
+			Application.Init();
+			Application.HeightAsBuffer = _heightAsBuffer;
+			Application.AlwaysSetPosition = _alwaysSetPosition;
+
+			// Set this here because not initialized until driver is loaded
+			_baseColorScheme = Colors.TopLevel;
+
+			StringBuilder aboutMessage = new StringBuilder();
+			aboutMessage.AppendLine("UI Catalog is a comprehensive sample library for Terminal.Gui");
+			aboutMessage.AppendLine(@"             _           ");
+			aboutMessage.AppendLine(@"  __ _ _   _(_)  ___ ___ ");
+			aboutMessage.AppendLine(@" / _` | | | | | / __/ __|");
+			aboutMessage.AppendLine(@"| (_| | |_| | || (__\__ \");
+			aboutMessage.AppendLine(@" \__, |\__,_|_(_)___|___/");
+			aboutMessage.AppendLine(@" |___/                   ");
+			aboutMessage.AppendLine("");
+			aboutMessage.AppendLine($"Version: {typeof(ViewScreen).Assembly.GetName().Version}");
+			aboutMessage.AppendLine($"Using Terminal.Gui Version: {FileVersionInfo.GetVersionInfo(typeof(Terminal.Gui.Application).Assembly.Location).ProductVersion}");
+			aboutMessage.AppendLine("");
+
+			_menu = new MenuBar(new MenuBarItem[] {
+				new MenuBarItem ("_Program", new MenuItem [] {
+					new MenuItem ("_Service", "", () => Application.RequestStop(), null, null),
+					new MenuItem ("_Quit", "", () => Application.RequestStop(), null, null, Key.Q | Key.CtrlMask)
+				}),
+				new MenuBarItem ("Diag_nostics", CreateDiagnosticMenuItems()),
+				new MenuBarItem ("_Help", new MenuItem [] {
+					new MenuItem ("API Overview", "", () => OpenUrl ("https://migueldeicaza.github.io/gui.cs/articles/overview.html"), null, null, Key.F1),
+					new MenuItem ("TradeMate PHFT Homepage", "", () => OpenUrl ("https://github.com/migueldeicaza/gui.cs"), null, null, Key.F2),
+					new MenuItem ("About", "", () =>  MessageBox.Query ("About TradeMate Software", aboutMessage.ToString(), "_Ok"), null, null, Key.CtrlMask | Key.A),
+				})
+			});
+
+			// Main
+			_mainPane = new FrameView()
+			{
+				X = 0,
+				Y = 1, // for menu
+				Width = Dim.Fill(),
+				Height = Dim.Fill(),
+				CanFocus = false,
+				Shortcut = Key.CtrlMask | Key.C
+			};
+			_mainPane.Title = $"Chart {_mainPane.Title} ({_mainPane.ShortcutTag})";
+			_mainPane.ShortcutAction = () => _mainPane.SetFocus();
+
+			//_nameColumnWidth = Scenario.ScenarioMetadata.GetName(_scenarios.OrderByDescending(t => Scenario.ScenarioMetadata.GetName(t).Length).FirstOrDefault()).Length;
+
+			_scenarioListView = new ListView()
+			{
+				X = 0,
+				Y = 0,
+				Width = Dim.Fill(0),
+				Height = Dim.Fill(0),
+				AllowsMarking = false,
+				CanFocus = true,
+			};
+
+			_scenarioListView.OpenSelectedItem += _scenarioListView_OpenSelectedItem;
+			_mainPane.Add(_scenarioListView);
+
+			//_categoryListView.SelectedItem = _categoryListViewItem;
+			//_categoryListView.OnSelectedChanged();
+
+			_capslock = new StatusItem(Key.CharMask, "Caps", null);
+			_numlock = new StatusItem(Key.CharMask, "Num", null);
+			_scrolllock = new StatusItem(Key.CharMask, "Scroll", null);
+
+			_statusBar = new StatusBar()
+			{
+				Visible = true,
+			};
+			_statusBar.Items = new StatusItem[] {
+				_capslock,
+				_numlock,
+				_scrolllock,
+				new StatusItem(Key.Q | Key.CtrlMask, "~CTRL-Q~ Quit", () => {
+					if (_runningScenario is null){
+						// This causes GetScenarioToRun to return null
+						_runningScenario = null;
+						Application.RequestStop();
+					} else {
+						_runningScenario.RequestStop();
+					}
+				}),
+				new StatusItem(Key.F10, "~F10~ Hide/Show Status Bar", () => {
+					_statusBar.Visible = !_statusBar.Visible;
+					_mainPane.Height = Dim.Fill(_statusBar.Visible ? 1 : 0);
+					_top.LayoutSubviews();
+					_top.SetChildNeedsDisplay();
+				}),
+				new StatusItem (Key.CharMask, Application.Driver.GetType ().Name, null),
+			};
+
+			SetColorScheme();
+			_top = Application.Top;
+			_top.KeyDown += KeyDownHandler;
+			// Menu
+			_top.Add(_menu);
+
+			// Panes
+
+			//_top.Add(_mainPane);
+			_top.Add(_mainPane);
+
+			// Bar
+			_top.Add(_statusBar);
+			_top.Loaded += () => {
+				if (_runningScenario != null)
+				{
+					_runningScenario = null;
+				}
+			};
+
+			Application.Run(_top);
+			return _runningScenario;
+		}
+		/*private static Scenario GetScenarioToRun()
 		{
 			Application.UseSystemConsole = _useSystemConsole;
 			Application.Init();
@@ -167,6 +290,7 @@ namespace TMPHFT.Screen
 				CanFocus = false,
 				Shortcut = Key.CtrlMask | Key.C
 			};
+
 			_leftPane.Title = $"{_leftPane.Title} ({_leftPane.ShortcutTag})";
 			_leftPane.ShortcutAction = () => _leftPane.SetFocus();
 
@@ -251,9 +375,27 @@ namespace TMPHFT.Screen
 			SetColorScheme();
 			_top = Application.Top;
 			_top.KeyDown += KeyDownHandler;
+			// Menu
 			_top.Add(_menu);
-			//_top.Add(_leftPane);
-			//_top.Add(_rightPane);
+
+			// Panes
+
+			FrameView _mainPane = new FrameView()
+			{
+				X = 0,
+				Y = 1, // for menu
+				Width = Dim.Fill(),
+				Height = Dim.Fill(),
+				CanFocus = false,
+				Shortcut = Key.CtrlMask | Key.C
+			};
+
+			
+
+			//_top.Add(_mainPane);
+			_top.Add(_rightPane);
+			
+			// Bar
 			_top.Add(_statusBar);
 			_top.Loaded += () => {
 				if (_runningScenario != null)
@@ -264,7 +406,7 @@ namespace TMPHFT.Screen
 
 			Application.Run(_top);
 			return _runningScenario;
-		}
+		}*/
 
 		static List<MenuItem[]> CreateDiagnosticMenuItems()
 		{
@@ -473,8 +615,7 @@ namespace TMPHFT.Screen
 
 		static void SetColorScheme()
 		{
-			_leftPane.ColorScheme = _baseColorScheme;
-			_rightPane.ColorScheme = _baseColorScheme;
+			_mainPane.ColorScheme = _baseColorScheme;
 			_top?.SetNeedsDisplay();
 		}
 
@@ -482,6 +623,7 @@ namespace TMPHFT.Screen
 		static MenuItem[] CreateColorSchemeMenuItems()
 		{
 			List<MenuItem> menuItems = new List<MenuItem>();
+
 			foreach (var sc in Colors.ColorSchemes)
 			{
 				var item = new MenuItem();
@@ -497,8 +639,10 @@ namespace TMPHFT.Screen
 						menuItem.Checked = menuItem.Title.Equals($"_{sc.Key}") && sc.Value == _baseColorScheme;
 					}
 				};
+
 				menuItems.Add(item);
 			}
+
 			return menuItems.ToArray();
 		}
 
@@ -507,7 +651,7 @@ namespace TMPHFT.Screen
 			if (_runningScenario is null)
 			{
 				_scenarioListViewItem = _scenarioListView.SelectedItem;
-				var source = _scenarioListView.Source as ScenarioListDataSource;
+				ScenarioListDataSource source = _scenarioListView.Source as ScenarioListDataSource;
 				_runningScenario = (Scenario)Activator.CreateInstance(source.Scenarios[_scenarioListView.SelectedItem]);
 				Application.RequestStop();
 			}
@@ -525,25 +669,25 @@ namespace TMPHFT.Screen
 
 			public int Length => len;
 
-			public ScenarioListDataSource(List<Type> itemList)
+/*			public ScenarioListDataSource(List<Type> itemList)
 			{
 				Scenarios = itemList;
 				len = GetMaxLengthItem();
-			}
+			}*/
 
 			public void Render(ListView container, ConsoleDriver driver, bool selected, int item, int col, int line, int width, int start = 0)
 			{
 				container.Move(col, line);
 				// Equivalent to an interpolated string like $"{Scenarios[item].Name, -widtestname}"; if such a thing were possible
-				var s = String.Format(String.Format("{{0,{0}}}", -_nameColumnWidth), Scenario.ScenarioMetadata.GetName(Scenarios[item]));
-				RenderUstr(driver, $"{s}  {Scenario.ScenarioMetadata.GetDescription(Scenarios[item])}", col, line, width, start);
+				//var s = String.Format(String.Format("{{0,{0}}}", -_nameColumnWidth), Scenario.ScenarioMetadata.GetName(Scenarios[item]));
+				RenderUstr(driver, $"Render  {Scenario.ScenarioMetadata.GetDescription(Scenarios[item])}", col, line, width, start);
 			}
 
 			public void SetMark(int item, bool value)
 			{
 			}
 
-			int GetMaxLengthItem()
+			/*int GetMaxLengthItem()
 			{
 				if (Scenarios?.Count == 0)
 				{
@@ -563,7 +707,7 @@ namespace TMPHFT.Screen
 				}
 
 				return maxLength;
-			}
+			}*/
 
 			// A slightly adapted method from: https://github.com/migueldeicaza/gui.cs/blob/fc1faba7452ccbdf49028ac49f0c9f0f42bbae91/Terminal.Gui/Views/ListView.cs#L433-L461
 			private void RenderUstr(ConsoleDriver driver, ustring ustr, int col, int line, int width, int start = 0)
@@ -643,7 +787,7 @@ namespace TMPHFT.Screen
 			}
 		}
 
-		private static void CategoryListView_SelectedChanged(ListViewItemEventArgs e)
+		/*private static void CategoryListView_SelectedChanged(ListViewItemEventArgs e)
 		{
 			if (_categoryListViewItem != _categoryListView.SelectedItem)
 			{
@@ -664,7 +808,7 @@ namespace TMPHFT.Screen
 			_scenarioListView.Source = new ScenarioListDataSource(newlist);
 			_scenarioListView.SelectedItem = _scenarioListViewItem;
 
-		}
+		}*/
 
 		private static void OpenUrl(string url)
 		{
