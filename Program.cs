@@ -12,7 +12,7 @@ namespace TMPHFT
     {
 
         static Library na = new Library();
-        static ViewScreen2 screen = new ViewScreen2();
+        static ViewScreen screen = new ViewScreen();
 
         static void Main(string[] args)
         {

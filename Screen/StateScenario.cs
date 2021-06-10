@@ -11,9 +11,9 @@ namespace TMPHFT.Screen
 	/// <para>
 	///  To define a new scenario:
 	///  <list type="number">
-	///  <item><description>Create a new <c>.cs</c> file in the <cs>Scenarios</cs> directory that derives from <see cref="Scenario"/>.</description></item>
-	///  <item><description>Annotate the <see cref="Scenario"/> derived class with a <see cref="Scenario.ScenarioMetaData"/> attribute specifying the scenario's name and description.</description></item>
-	///  <item><description>Add one or more <see cref="Scenario.ScenarioCategory"/> attributes to the class specifying which categories the sceanrio belongs to. If you don't specify a category the sceanrio will show up in "All".</description></item>
+	///  <item><description>Create a new <c>.cs</c> file in the <cs>Scenarios</cs> directory that derives from <see cref="StateScenario"/>.</description></item>
+	///  <item><description>Annotate the <see cref="StateScenario"/> derived class with a <see cref="StateScenario.ScenarioMetaData"/> attribute specifying the scenario's name and description.</description></item>
+	///  <item><description>Add one or more <see cref="StateScenario.ScenarioCategory"/> attributes to the class specifying which categories the sceanrio belongs to. If you don't specify a category the sceanrio will show up in "All".</description></item>
 	///  <item><description>Implement the <see cref="Setup"/> override which will be called when a user selects the scenario to run.</description></item>
 	///  <item><description>Optionally, implement the <see cref="Init(Toplevel)"/> and/or <see cref="Run"/> overrides to provide a custom implementation.</description></item>
 	///  </list>
@@ -45,23 +45,23 @@ namespace TMPHFT.Screen
 	/// }
 	/// </code>
 	/// </example>
-	public class Scenario : IDisposable
+	public class StateScenario : IDisposable
 	{
 		private bool _disposedValue;
 
 		/// <summary>
-		/// The Top level for the <see cref="Scenario"/>. This should be set to <see cref="Terminal.Gui.Application.Top"/> in most cases.
+		/// The Top level for the <see cref="StateScenario"/>. This should be set to <see cref="Terminal.Gui.Application.Top"/> in most cases.
 		/// </summary>
 		public Toplevel Top { get; set; }
 
 		/// <summary>
-		/// The Window for the <see cref="Scenario"/>. This should be set within the <see cref="Terminal.Gui.Application.Top"/> in most cases.
+		/// The Window for the <see cref="StateScenario"/>. This should be set within the <see cref="Terminal.Gui.Application.Top"/> in most cases.
 		/// </summary>
 		public Window Win { get; set; }
 
 		/// <summary>
 		/// Helper that provides the default <see cref="Terminal.Gui.Window"/> implementation with a frame and 
-		/// label showing the name of the <see cref="Scenario"/> and logic to exit back to 
+		/// label showing the name of the <see cref="StateScenario"/> and logic to exit back to 
 		/// the Scenario picker UI.
 		/// Override <see cref="Init(Toplevel)"/> to provide any <see cref="Terminal.Gui.Toplevel"/> behavior needed.
 		/// </summary>
@@ -97,18 +97,18 @@ namespace TMPHFT.Screen
 		}
 
 		/// <summary>
-		/// Defines the metadata (Name and Description) for a <see cref="Scenario"/>
+		/// Defines the metadata (Name and Description) for a <see cref="StateScenario"/>
 		/// </summary>
 		[System.AttributeUsage(System.AttributeTargets.Class)]
 		public class ScenarioMetadata : System.Attribute
 		{
 			/// <summary>
-			/// <see cref="Scenario"/> Name
+			/// <see cref="StateScenario"/> Name
 			/// </summary>
 			public string Name { get; set; }
 
 			/// <summary>
-			/// <see cref="Scenario"/> Description
+			/// <see cref="StateScenario"/> Description
 			/// </summary>
 			public string Description { get; set; }
 
@@ -119,14 +119,14 @@ namespace TMPHFT.Screen
 			}
 
 			/// <summary>
-			/// Static helper function to get the <see cref="Scenario"/> Name given a Type
+			/// Static helper function to get the <see cref="StateScenario"/> Name given a Type
 			/// </summary>
 			/// <param name="t"></param>
 			/// <returns></returns>
 			public static string GetName(Type t) => ((ScenarioMetadata)GetCustomAttributes(t)[0]).Name;
 
 			/// <summary>
-			/// Static helper function to get the <see cref="Scenario"/> Description given a Type
+			/// Static helper function to get the <see cref="StateScenario"/> Description given a Type
 			/// </summary>
 			/// <param name="t"></param>
 			/// <returns></returns>
@@ -134,19 +134,19 @@ namespace TMPHFT.Screen
 		}
 
 		/// <summary>
-		/// Helper to get the <see cref="Scenario"/> Name (defined in <see cref="ScenarioMetadata"/>)
+		/// Helper to get the <see cref="StateScenario"/> Name (defined in <see cref="ScenarioMetadata"/>)
 		/// </summary>
 		/// <returns></returns>
 		public string GetName() => ScenarioMetadata.GetName(this.GetType());
 
 		/// <summary>
-		/// Helper to get the <see cref="Scenario"/> Description (defined in <see cref="ScenarioMetadata"/>)
+		/// Helper to get the <see cref="StateScenario"/> Description (defined in <see cref="ScenarioMetadata"/>)
 		/// </summary>
 		/// <returns></returns>
 		public string GetDescription() => ScenarioMetadata.GetDescription(this.GetType());
 
 		/// <summary>
-		/// Defines the category names used to catagorize a <see cref="Scenario"/>
+		/// Defines the category names used to catagorize a <see cref="StateScenario"/>
 		/// </summary>
 		[System.AttributeUsage(System.AttributeTargets.Class, AllowMultiple = true)]
 		public class ScenarioCategory : System.Attribute
@@ -159,14 +159,14 @@ namespace TMPHFT.Screen
 			public ScenarioCategory(string Name) => this.Name = Name;
 
 			/// <summary>
-			/// Static helper function to get the <see cref="Scenario"/> Name given a Type
+			/// Static helper function to get the <see cref="StateScenario"/> Name given a Type
 			/// </summary>
 			/// <param name="t"></param>
 			/// <returns>Name of the category</returns>
 			public static string GetName(Type t) => ((ScenarioCategory)System.Attribute.GetCustomAttributes(t)[0]).Name;
 
 			/// <summary>
-			/// Static helper function to get the <see cref="Scenario"/> Categories given a Type
+			/// Static helper function to get the <see cref="StateScenario"/> Categories given a Type
 			/// </summary>
 			/// <param name="t"></param>
 			/// <returns>list of category names</returns>
@@ -178,16 +178,16 @@ namespace TMPHFT.Screen
 		}
 
 		/// <summary>
-		/// Helper function to get the list of categories a <see cref="Scenario"/> belongs to (defined in <see cref="ScenarioCategory"/>)
+		/// Helper function to get the list of categories a <see cref="StateScenario"/> belongs to (defined in <see cref="ScenarioCategory"/>)
 		/// </summary>
 		/// <returns>list of category names</returns>
 		public List<string> GetCategories() => ScenarioCategory.GetCategories(this.GetType());
 
 		/// <inheritdoc/>
-		public override string ToString() => $"{GetName(),-30}{GetDescription()}";
+		public override string ToString() => $"{GetName(), -30}{GetDescription()}";
 
 		/// <summary>
-		/// Override this to implement the <see cref="Scenario"/> setup logic (create controls, etc...). 
+		/// Override this to implement the <see cref="StateScenario"/> setup logic (create controls, etc...). 
 		/// </summary>
 		/// <remarks>This is typically the best place to put scenario logic code.</remarks>
 		public virtual void Setup()
@@ -195,7 +195,7 @@ namespace TMPHFT.Screen
 		}
 
 		/// <summary>
-		/// Runs the <see cref="Scenario"/>. Override to start the <see cref="Scenario"/> using a <see cref="Toplevel"/> different than `Top`.
+		/// Runs the <see cref="StateScenario"/>. Override to start the <see cref="StateScenario"/> using a <see cref="Toplevel"/> different than `Top`.
 		/// 
 		/// </summary>
 		/// <remarks>
@@ -208,7 +208,7 @@ namespace TMPHFT.Screen
 		}
 
 		/// <summary>
-		/// Stops the scenario. Override to change shutdown behavior for the <see cref="Scenario"/>.
+		/// Stops the scenario. Override to change shutdown behavior for the <see cref="StateScenario"/>.
 		/// </summary>
 		public virtual void RequestStop()
 		{
@@ -216,13 +216,13 @@ namespace TMPHFT.Screen
 		}
 
 		/// <summary>
-		/// Returns a list of all Categories set by all of the <see cref="Scenario"/>s defined in the project.
+		/// Returns a list of all Categories set by all of the <see cref="StateScenario"/>s defined in the project.
 		/// </summary>
 		internal static List<string> GetAllCategories()
 		{
 			List<string> categories = new List<string>() { "All" };
-			foreach (Type type in typeof(Scenario).Assembly.GetTypes()
-			 .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(Scenario))))
+			foreach (Type type in typeof(StateScenario).Assembly.GetTypes()
+			 .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(StateScenario))))
 			{
 				List<System.Attribute> attrs = System.Attribute.GetCustomAttributes(type).ToList();
 				categories = categories.Union(attrs.Where(a => a is ScenarioCategory).Select(a => ((ScenarioCategory)a).Name)).ToList();
@@ -231,7 +231,7 @@ namespace TMPHFT.Screen
 		}
 
 		/// <summary>
-		/// Returns an instance of each <see cref="Scenario"/> defined in the project. 
+		/// Returns an instance of each <see cref="StateScenario"/> defined in the project. 
 		/// https://stackoverflow.com/questions/5411694/get-all-inherited-classes-of-an-abstract-class
 		/// </summary>
 		public static List<Type> GetDerivedClasses<T>()

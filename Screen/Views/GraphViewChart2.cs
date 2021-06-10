@@ -7,9 +7,9 @@ using TMPHFT.Screen;
 
 namespace TMPHFT.Screen
 {
-	[ScenarioMetadata(Name: "Graph View", Description: "Demos GraphView control")]
-	[ScenarioCategory("Controls")]
-	class GraphViewChart : StateScenario
+	[ScenarioMetadata(Name: "Graph View 2", Description: "Demos GraphView control")]
+	[ScenarioCategory("Controls 3")]
+	class GraphViewChart2 : StateScenario
     {
 
 		public GraphView graphView;
