@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Terminal.Gui;
 
-namespace TMPHFT.Screen
+namespace TMPFT.Screen
 {
 	/// <summary>
 	/// <para>Base class for each demo/scenario.</para>

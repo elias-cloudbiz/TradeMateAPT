@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-	<AssemblyName>TMPHFT.Exchanges</AssemblyName>
-    <RootNamespace>TMPHFT.Exchanges</RootNamespace>
+	<AssemblyName>TMPFT.Extensions</AssemblyName>
+    <RootNamespace>TMPFT.Extensions</RootNamespace>
 	<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo> 
 	<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute> 

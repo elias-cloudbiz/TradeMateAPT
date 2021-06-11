@@ -11,7 +11,7 @@ using System.Text;
 using Terminal.Gui;
 using Rune = System.Rune;
 
-namespace TMPHFT.Screen
+namespace TMPFT.Screen
 {
 	class ViewStateMachine
 	{

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TMPHFT
+namespace TMPFT
 {
     public class Library
     {

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Terminal.Gui;
 using Terminal.Gui.Graphs;
-using TMPHFT.Screen;
+using TMPFT.Screen;
 
-namespace TMPHFT
+namespace TMPFT
 {
 
     class Program

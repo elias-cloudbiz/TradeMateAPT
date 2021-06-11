@@ -1,9 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-	<AssemblyName>TMPHFT.TMML</AssemblyName>
-    <RootNamespace>TMPHFT.TMML</RootNamespace>
+	<AssemblyName>TMPFT.Exchanges</AssemblyName>
+    <RootNamespace>TMPFT.Exchanges</RootNamespace>
 	<GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo> 
 	<GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute> 

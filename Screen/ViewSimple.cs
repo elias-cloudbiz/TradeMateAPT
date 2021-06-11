@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace TMPHFT.Screen
+namespace TMPFT.Screen
 {
     class ViewSimple
     {

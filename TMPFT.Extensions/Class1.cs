@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TMPHFT.TMML
+namespace TMPFT.TMML
 {
     public class Class1
     {
