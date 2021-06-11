@@ -8,10 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="TMPFT.Core\**" />
     <Compile Remove="TMPFT.Exchanges\**" />
     <Compile Remove="TMPFT.Extensions\**" />
+    <EmbeddedResource Remove="TMPFT.Core\**" />
     <EmbeddedResource Remove="TMPFT.Exchanges\**" />
     <EmbeddedResource Remove="TMPFT.Extensions\**" />
+    <None Remove="TMPFT.Core\**" />
     <None Remove="TMPFT.Exchanges\**" />
     <None Remove="TMPFT.Extensions\**" />
   </ItemGroup>
