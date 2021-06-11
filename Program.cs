@@ -1,16 +1,31 @@
 ﻿using System;
-using TMPHFT;
+using System.Collections.Generic;
+using System.Linq;
+using Terminal.Gui;
+using Terminal.Gui.Graphs;
+using TMPHFT.Screen;
 
-namespace TradeMateHFT
+namespace TMPHFT
 {
+
     class Program
     {
 
-        static Library na = new Library();
+        //static Library na = new Library();
+        static ViewStateMachine screen = new ViewStateMachine();
 
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World! " + na.getNumber());
+
+            screen.Start(args);
+		}
+
+		static bool Quit()
+        {
+            var n = MessageBox.Query(50, 7, "Quit Demo", "Are you sure you want to quit this demo?", "Yes", "No");
+            return n == 0;
         }
+
+
     }
 }

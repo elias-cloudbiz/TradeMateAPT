@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>TMPHFT.TradeMate</AssemblyName>
+    <RootNamespace>TMPHFT</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="TMPHFT.Exchanges\**" />
+    <Compile Remove="TMPHFT.Extensions\**" />
+    <EmbeddedResource Remove="TMPHFT.Exchanges\**" />
+    <EmbeddedResource Remove="TMPHFT.Extensions\**" />
+    <None Remove="TMPHFT.Exchanges\**" />
+    <None Remove="TMPHFT.Extensions\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Terminal.Gui" Version="1.1.1" />
+  </ItemGroup>
+
+</Project>
