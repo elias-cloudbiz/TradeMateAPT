@@ -7,7 +7,7 @@ using TMPFT.Screen;
 
 namespace TMPFT.Screen
 {
-	[ScenarioMetadata(Name: "Graph View", Description: "Demos GraphView control")]
+	[ScenarioMetadata(Name: "Graph View x", Description: "Demos GraphView control")]
 	[ScenarioCategory("Controls")]
 	class GraphViewChart : StateScenario
     {
@@ -64,7 +64,7 @@ namespace TMPFT.Screen
 				X = Pos.Right(graphView) + 1,
 				Y = 0,
 				Width = 25,
-				Height = Dim.Fill(),
+				Height = Dim.Fill(5),
 			};
 
 
@@ -81,6 +81,7 @@ namespace TMPFT.Screen
 				new StatusItem(Key.CtrlMask | Key.Q, "~^Q~ Quit", () => Quit()),
 				new StatusItem(Key.CtrlMask | Key.G, "~^G~ Next", ()=>graphs[currentGraph++%graphs.Length]()),
 			});
+
 			Top.Add(statusBar);
 		}
 
