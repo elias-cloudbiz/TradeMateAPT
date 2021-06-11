@@ -13,7 +13,7 @@ using Rune = System.Rune;
 
 namespace TMPHFT.Screen
 {
-	class ViewScreen
+	class ViewStateMachine
 	{
 		private static Toplevel _top;
 		private static MenuBar _menu;
@@ -23,7 +23,7 @@ namespace TMPHFT.Screen
 		private static ListView _categoryListView;
 		private static FrameView _rightPane;
 		private static List<Type> _scenarios;
-		private static ListView _scenarioListView;
+		private static ListView _scenarioListView { get; set; }
 		private static StatusBar _statusBar;
 		private static StatusItem _capslock;
 		private static StatusItem _numlock;
@@ -51,26 +51,26 @@ namespace TMPHFT.Screen
 				_useSystemConsole = true;
 				args = args.Where(val => val != "-usc").ToArray();
 			}
-			if (args.Length > 0)
+			if (args.Length > 0 || true)
 			{
-				var item = _scenarios.FindIndex(t => StateScenario.ScenarioMetadata.GetName(t).Equals(args[0], StringComparison.OrdinalIgnoreCase));
-				_runningScenario = (StateScenario)Activator.CreateInstance(_scenarios[item]);
+				//var item = _scenarios.FindIndex(t => StateScenario.ScenarioMetadata.GetName(t).Equals(args[0], StringComparison.OrdinalIgnoreCase));
+				_runningScenario = (StateScenario)Activator.CreateInstance(_scenarios[0]);
 				Application.UseSystemConsole = _useSystemConsole;
 				Application.Init();
 				_runningScenario.Init(Application.Top, _baseColorScheme);
 				_runningScenario.Setup();
 				_runningScenario.Run();
 				_runningScenario = null;
+
 				Application.Shutdown();
-				return;
+				//return;
 			}
 
 			StateScenario scenario;
-
 			// Run StateMachine
 			while ((scenario = ScenarioStateMachine()) != null)
 			{
-#if DEBUG_IDISPOSABLE
+				#if DEBUG_IDISPOSABLE
 				// Validate there are no outstanding Responder-based instances gui 
 				// after a scenario was selected to run. This proves the main UI Catalog
 				// 'app' closed cleanly.
@@ -79,7 +79,7 @@ namespace TMPHFT.Screen
 					Debug.Assert (inst.WasDisposed);
 				}
 				Responder.Instances.Clear ();
-#endif
+				#endif
 
 				scenario.Init(Application.Top, _baseColorScheme);
 				scenario.Setup();
@@ -93,28 +93,29 @@ namespace TMPHFT.Screen
 
 				_top.Loaded += LoadedHandler;
 
-#if DEBUG_IDISPOSABLE
+				#if DEBUG_IDISPOSABLE
 				// After the scenario runs, validate all Responder-based instances
 				// were disposed. This proves the scenario 'app' closed cleanly.
 				foreach (var inst in Responder.Instances) {
 					Debug.Assert (inst.WasDisposed);
 				}
 				Responder.Instances.Clear ();
-#endif
+				#endif
+
+
 			}
 
 			Application.Shutdown();
 
-#if DEBUG_IDISPOSABLE
+			#if DEBUG_IDISPOSABLE
 			// This proves that when the user exited the UI Catalog app
 			// it cleaned up properly.
 			foreach (var inst in Responder.Instances) {
 				Debug.Assert (inst.WasDisposed);
 			}
 			Responder.Instances.Clear ();
-#endif
+			#endif
 		}
-
 		/// <summary>
 		/// This shows the selection UI. Each time it is run, it calls Application.Init to reset everything.
 		/// </summary>
@@ -141,7 +142,7 @@ namespace TMPHFT.Screen
 			aboutMessage.AppendLine(@" \__, |\__,_|_(_)___|___/");
 			aboutMessage.AppendLine(@" |___/                   ");
 			aboutMessage.AppendLine("");
-			aboutMessage.AppendLine($"Version: {typeof(ViewScreen2).Assembly.GetName().Version}");
+			aboutMessage.AppendLine($"Version: {typeof(ViewStateMachine).Assembly.GetName().Version}");
 			aboutMessage.AppendLine($"Using Terminal.Gui Version: {FileVersionInfo.GetVersionInfo(typeof(Terminal.Gui.Application).Assembly.Location).ProductVersion}");
 			aboutMessage.AppendLine("");
 
@@ -284,7 +285,6 @@ namespace TMPHFT.Screen
 
 			return _runningScenario;
 		}
-
 		static List<MenuItem[]> CreateDiagnosticMenuItems()
 		{
 			List<MenuItem[]> menuItems = new List<MenuItem[]>();

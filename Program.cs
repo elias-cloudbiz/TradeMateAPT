@@ -11,8 +11,8 @@ namespace TMPHFT
     class Program
     {
 
-        static Library na = new Library();
-        static ViewScreen screen = new ViewScreen();
+        //static Library na = new Library();
+        static ViewStateMachine screen = new ViewStateMachine();
 
         static void Main(string[] args)
         {
