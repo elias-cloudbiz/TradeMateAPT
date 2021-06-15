@@ -9,7 +9,7 @@ namespace TMPFT.Screen
 {
 	[ScenarioMetadata(Name: "Graph View x", Description: "Demos GraphView control")]
 	[ScenarioCategory("Controls")]
-	class GraphViewChart : StateScenario
+	class GraphViewChart : Scenarios
     {
 
 		public GraphView graphView;
