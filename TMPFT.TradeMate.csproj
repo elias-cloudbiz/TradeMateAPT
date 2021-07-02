@@ -27,4 +27,8 @@
     <Folder Include="Logs\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="TMPFT.Core\TMPFT.Core.csproj" />
+  </ItemGroup>
+
 </Project>

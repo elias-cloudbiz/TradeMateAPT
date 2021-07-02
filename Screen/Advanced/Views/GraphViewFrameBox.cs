@@ -9,7 +9,7 @@ namespace TMPFT.Screen
 {
 	[ScenarioMetadata(Name: "Graph View x", Description: "Demos GraphView control")]
 	[ScenarioCategory("Controls")]
-	class GraphViewChart : Scenarios
+	class GraphViewFrameBox : Scenarios
     {
 
 		public GraphView graphView;
@@ -51,7 +51,7 @@ namespace TMPFT.Screen
 			{
 				X = 1,
 				Y = 1,
-				Width = Dim.Fill(),
+				Width = Dim.Fill(25),
 				Height = Dim.Fill(),
 			};
 
@@ -64,7 +64,7 @@ namespace TMPFT.Screen
 				X = Pos.Right(graphView) + 1,
 				Y = 0,
 				Width = 25,
-				Height = Dim.Fill(5),
+				Height = Dim.Fill(),
 			};
 
 
@@ -73,6 +73,10 @@ namespace TMPFT.Screen
 				Width = Dim.Fill(),
 				Height = Dim.Fill()
 			});
+
+			var labelHL = new Label($"Data: {999}") { X = 0, Y = 2, Width = 12, Height = 1, TextAlignment = TextAlignment.Left, ColorScheme = Colors.ColorSchemes["Base"] };
+
+			frameRight.Add(labelHL);
 
 			Win.Add(frameRight);
 
@@ -83,28 +87,33 @@ namespace TMPFT.Screen
 			});
 
 			Top.Add(statusBar);
+
+			SetupLineGraph();
 		}
 
 		private void SetupLineGraph()
 		{
 			graphView.Reset();
 
-			about.Text = "Price/Position prediction chart";
+			//about.Text = "Metrics graph and robotstate";
 
 			var black = Application.Driver.MakeAttribute(graphView.ColorScheme.Normal.Foreground, Color.Black);
 			var cyan = Application.Driver.MakeAttribute(Color.BrightCyan, Color.Black);
 			var magenta = Application.Driver.MakeAttribute(Color.BrightMagenta, Color.Black);
 			var red = Application.Driver.MakeAttribute(Color.BrightRed, Color.Black);
+			var white = Application.Driver.MakeAttribute(Color.White, Color.Black);
 
 			graphView.GraphColor = black;
 
 			List<PointF> randomPoints = new List<PointF>();
+			List<PointF> randomLive = new List<PointF>();
 
 			Random r = new Random();
 
-			for (int i = 0; i < 10; i++)
+			for (int i = 0; i < 25; i++)
 			{
-				randomPoints.Add(new PointF(r.Next(100), r.Next(100)));
+				randomPoints.Add(new PointF(r.Next(10000), r.Next(60000)));
+				randomLive.Add(new PointF(r.Next(10000), r.Next(60000)));
 			}
 
 			var points = new ScatterSeries()
@@ -114,8 +123,8 @@ namespace TMPFT.Screen
 
 			var line = new PathAnnotation()
 			{
-				LineColor = cyan,
-				Points = randomPoints.OrderBy(p => p.X).ToList(),
+				LineColor = white,
+				Points = randomLive.OrderBy(p => p.X).ToList(),
 				BeforeSeries = true,
 			};
 
@@ -127,7 +136,7 @@ namespace TMPFT.Screen
 
 			for (int i = 0; i < 10; i++)
 			{
-				randomPoints.Add(new PointF(r.Next(100), r.Next(100)));
+				randomPoints.Add(new PointF(r.Next(10000), r.Next(60000)));
 			}
 
 
@@ -145,23 +154,23 @@ namespace TMPFT.Screen
 			};
 
 			graphView.Series.Add(points2);
-			graphView.Annotations.Add(line2);
+			//graphView.Annotations.Add(line2);
 
 			// How much graph space each cell of the console depicts
-			graphView.CellSize = new PointF(2, 5);
+			graphView.CellSize = new PointF(100, 2500);
 
 			// leave space for axis labels
 			graphView.MarginBottom = 2;
 			graphView.MarginLeft = 3;
 
 			// One axis tick/label per
-			graphView.AxisX.Increment = 20;
-			graphView.AxisX.ShowLabelsEvery = 1;
-			graphView.AxisX.Text = "X →";
+			graphView.AxisX.Increment = 250;
+			graphView.AxisX.ShowLabelsEvery = 5;
+			graphView.AxisX.Text = "Time →";
 
-			graphView.AxisY.Increment = 20;
-			graphView.AxisY.ShowLabelsEvery = 1;
-			graphView.AxisY.Text = "↑Y";
+			graphView.AxisY.Increment = 5000;
+			graphView.AxisY.ShowLabelsEvery = 3;
+			graphView.AxisY.Text = "↑ Y";
 
 			var max = line.Points.Union(line2.Points).OrderByDescending(p => p.Y).First();
 			graphView.Annotations.Add(new TextAnnotation() { Text = "(Max)", GraphPosition = new PointF(max.X + (2 * graphView.CellSize.X), max.Y) });
