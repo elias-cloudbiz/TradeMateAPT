@@ -4,6 +4,7 @@ using System.Linq;
 using Terminal.Gui;
 using Terminal.Gui.Graphs;
 using TMPFT.Screen;
+using TMPFT.Core;
 
 namespace TMPFT.Screen
 {
@@ -12,8 +13,8 @@ namespace TMPFT.Screen
 	class GraphViewFrameBox : Scenarios
     {
 
-		public GraphView graphView;
-		private TextView about;
+		private GraphView graphView { get; set; }
+		private TextView about { get; set; }
 
 		int currentGraph = 0;
 		Action[] graphs;
@@ -49,9 +50,9 @@ namespace TMPFT.Screen
 
 			graphView = new GraphView()
 			{
-				X = 1,
+				X = 0,
 				Y = 1,
-				Width = Dim.Fill(25),
+				Width = Dim.Fill(1),
 				Height = Dim.Fill(),
 			};
 
@@ -62,19 +63,19 @@ namespace TMPFT.Screen
 			var frameRight = new FrameView("About")
 			{
 				X = Pos.Right(graphView) + 1,
-				Y = 0,
-				Width = 25,
+				Y = 1,
+				Width = Dim.Fill(),
 				Height = Dim.Fill(),
 			};
 
 
 			frameRight.Add(about = new TextView()
 			{
-				Width = Dim.Fill(),
+				Width = 25,
 				Height = Dim.Fill()
 			});
 
-			var labelHL = new Label($"Data: {999}") { X = 0, Y = 2, Width = 12, Height = 1, TextAlignment = TextAlignment.Left, ColorScheme = Colors.ColorSchemes["Base"] };
+			var labelHL = new Label($"Data: {999}") { X = 0, Y = 1, Width = 12, Height = 1, TextAlignment = TextAlignment.Left, ColorScheme = Colors.ColorSchemes["Base"] };
 
 			frameRight.Add(labelHL);
 
@@ -83,7 +84,7 @@ namespace TMPFT.Screen
 
 			var statusBar = new StatusBar(new StatusItem[] {
 				new StatusItem(Key.CtrlMask | Key.Q, "~^Q~ Quit", () => Quit()),
-				new StatusItem(Key.CtrlMask | Key.G, "~^G~ Next", ()=>graphs[currentGraph++%graphs.Length]()),
+				new StatusItem(Key.CtrlMask | Key.G, "~^G~ Next", () => graphs[currentGraph++%graphs.Length]()),
 			});
 
 			Top.Add(statusBar);
