@@ -8,9 +8,9 @@ using TMPFT.Core;
 
 namespace TMPFT.Screen
 {
-	[ScenarioMetadata(Name: "Graph View x", Description: "Demos GraphView control")]
+	[ScenarioMetadata(Name: "Main Window", Description: "Main Window Live Graph and Orders")]
 	[ScenarioCategory("Controls")]
-	class GraphViewFrameBox : Scenarios
+	class MainWindow : Scenarios
     {
 
 		private GraphView graphView { get; set; }
@@ -27,9 +27,9 @@ namespace TMPFT.Screen
 			Top.LayoutSubviews();
 
 			graphs = new Action[] {
-				 ()=>SetupPeriodicTableScatterPlot(),    //0
-				 ()=>SetupLineGraph(),                   //4
-				 ()=>MultiBarGraph()                     //7
+				 () => SetupPeriodicTableScatterPlot(),    //0
+				 () => SetupLineGraph(),                   //4
+				 () => MultiBarGraph()                     //7
 			};
 
 
@@ -48,38 +48,103 @@ namespace TMPFT.Screen
 				});
 			Top.Add(menu);
 
-			graphView = new GraphView()
+			var frameTop = new FrameView("Data")
+			{
+				X = 1,
+				Y = 2,
+				Width = Dim.Fill(1),
+				Height = Dim.Sized(3),
+			};
+
+			var labelHL2 = new Label($"XXX") { X = 0, Y = 0, Width = Dim.Fill(), Height = 1, TextAlignment = TextAlignment.Left, /**ColorScheme = Colors.ColorSchemes["Base"]**/ };
+			var labelHL3 = new Label($"XXX1") { X = 0, Y = 0, Width = Dim.Fill(), Height = 1, TextAlignment = TextAlignment.Centered, /**ColorScheme = Colors.ColorSchemes["Base"]**/ };
+			frameTop.Add(labelHL2);
+			frameTop.Add(labelHL3);
+			Top.Add(frameTop);
+
+
+
+			var frameLeft = new FrameView("Live")
 			{
 				X = 0,
-				Y = 1,
-				Width = Dim.Fill(1),
+				Y = 3,
+				Width = Dim.Percent(70),
 				Height = Dim.Fill(),
 			};
 
-
-			Win.Add(graphView);
-
-
-			var frameRight = new FrameView("About")
+			graphView = new GraphView()
 			{
-				X = Pos.Right(graphView) + 1,
+				X = 0,
 				Y = 1,
 				Width = Dim.Fill(),
 				Height = Dim.Fill(),
 			};
 
 
-			frameRight.Add(about = new TextView()
+
+			Win.Add(frameLeft);
+
+			frameLeft.Add(graphView);
+
+
+			var frameRight = new FrameView("Orders")
 			{
-				Width = 25,
-				Height = Dim.Fill()
-			});
+				X = Pos.Right(frameLeft) + 1,
+				Y = 3,
+				Width = Dim.Percent(30),
+				Height = Dim.Fill(),
+			};
 
-			var labelHL = new Label($"Data: {999}") { X = 0, Y = 1, Width = 12, Height = 1, TextAlignment = TextAlignment.Left, ColorScheme = Colors.ColorSchemes["Base"] };
 
-			frameRight.Add(labelHL);
+			/*			frameRight.Add(about = new TextView()
+						{
+							Width = 25,
+							Height = Dim.Fill()
+						});*/
+
+
 
 			Win.Add(frameRight);
+
+			var labelHL = new Label($"Syncinc in {" X "} sec.") { X = 0, Y = 0, Width = Dim.Fill(), Height = 1, TextAlignment = TextAlignment.Centered, /**ColorScheme = Colors.ColorSchemes["Base"]**/ };
+			frameRight.Add(labelHL);
+
+			ListView _listView = new ListView()
+			{
+				X = 1,
+				Y = 2,
+				Height = Dim.Fill(),
+				Width = Dim.Fill(5),
+				//ColorScheme = Colors.TopLevel,
+				AllowsMarking = false,
+				AllowsMultipleSelection = false
+			};
+
+			List<Type> Orders = Scenarios.GetDerivedClasses<Scenarios>().OrderBy(t => Scenarios.ScenarioMetadata.GetName(t)).ToList();
+			
+
+			var defaultButton = new Button("Cancel all")
+			{
+				X = 0,
+				//TODO: Change to use Pos.AnchorEnd()
+				Y = Pos.Y(_listView) + 1 + Orders.Count,
+				IsDefault = false,
+			};
+
+			var colorButton = new Button($"Create")
+			{
+				//X = Pos.Right (prev) + 2,
+				X = Pos.X(defaultButton) + 10,
+				Y = Pos.Y(_listView) + 1 + Orders.Count,
+			};
+
+
+			frameRight.Add(colorButton);
+			
+			_listView.SetSource(Orders);
+
+			frameRight.Add(_listView);
+			frameRight.Add(defaultButton);
 
 
 			var statusBar = new StatusBar(new StatusItem[] {

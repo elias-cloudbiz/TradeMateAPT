@@ -54,7 +54,7 @@ namespace TMPFT.Screen
 			if (args.Length > 0 || true)
 			{
 				//var item = _scenarios.FindIndex(t => StateScenario.ScenarioMetadata.GetName(t).Equals(args[0], StringComparison.OrdinalIgnoreCase));
-				_runningScenario = (Scenarios)Activator.CreateInstance(_scenarios[0]);
+				_runningScenario = (Scenarios)Activator.CreateInstance(_scenarios[1]);
 				Application.UseSystemConsole = _useSystemConsole;
 				Application.Init();
 				_runningScenario.Init(Application.Top, Colors.TopLevel);

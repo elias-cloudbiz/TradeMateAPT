@@ -11,7 +11,7 @@ namespace TMPFT.Screen.Advanced.Views
 {
 	[ScenarioMetadata(Name: "List View With Selection", Description: "ListView with columns and selection")]
 	[ScenarioCategory("Controls")]
-	class ListViewFrameBox : Scenarios
+	class ListViewWindow : Scenarios
     {
 
 			public CheckBox _customRenderCB;
