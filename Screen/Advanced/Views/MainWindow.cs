@@ -5,11 +5,13 @@ using Terminal.Gui;
 using Terminal.Gui.Graphs;
 using TMPFT.Screen;
 using TMPFT.Core;
+using System.Data;
+using System.Globalization;
 
 namespace TMPFT.Screen
 {
 	[ScenarioMetadata(Name: "Main Window", Description: "Main Window Live Graph and Orders")]
-	[ScenarioCategory("Controls")]
+	[ScenarioCategory("Live Controls")]
 	class MainWindow : Scenarios
     {
 
@@ -53,22 +55,32 @@ namespace TMPFT.Screen
 				X = 1,
 				Y = 2,
 				Width = Dim.Fill(1),
-				Height = Dim.Sized(3),
+				Height = Dim.Sized(4),
 			};
 
-			var labelHL2 = new Label($"XXX") { X = 0, Y = 0, Width = Dim.Fill(), Height = 1, TextAlignment = TextAlignment.Left, /**ColorScheme = Colors.ColorSchemes["Base"]**/ };
-			var labelHL3 = new Label($"XXX1") { X = 0, Y = 0, Width = Dim.Fill(), Height = 1, TextAlignment = TextAlignment.Centered, /**ColorScheme = Colors.ColorSchemes["Base"]**/ };
-			frameTop.Add(labelHL2);
-			frameTop.Add(labelHL3);
-			Top.Add(frameTop);
+			//var labelHL2 = new Label($"XXX") { X = 0, Y = 0, Width = Dim.Fill(), Height = 1, TextAlignment = TextAlignment.Left, /**ColorScheme = Colors.ColorSchemes["Base"]**/ };
+			//var labelHL3 = new Label($"XXX1") { X = 0, Y = 0, Width = Dim.Fill(), Height = 1, TextAlignment = TextAlignment.Centered, /**ColorScheme = Colors.ColorSchemes["Base"]**/ };
+			//frameTop.Add(labelHL2);
+			//frameTop.Add(labelHL3);
+			//Top.Add(frameTop);
 
+			TableView tableView = new TableView()
+			{
+				X = 0,
+				Y = 0,
+				Width = Dim.Fill(),
+				Height = Dim.Sized(5),
+			};
+
+			OpenExample(tableView);
+			Win.Add(tableView);
 
 
 			var frameLeft = new FrameView("Live")
 			{
 				X = 0,
-				Y = 3,
-				Width = Dim.Percent(70),
+				Y = 5,
+				Width = Dim.Percent(75),
 				Height = Dim.Fill(),
 			};
 
@@ -81,17 +93,15 @@ namespace TMPFT.Screen
 			};
 
 
-
 			Win.Add(frameLeft);
-
 			frameLeft.Add(graphView);
 
 
 			var frameRight = new FrameView("Orders")
 			{
 				X = Pos.Right(frameLeft) + 1,
-				Y = 3,
-				Width = Dim.Percent(30),
+				Y = 5,
+				Width = Dim.Percent(25),
 				Height = Dim.Fill(),
 			};
 
@@ -123,28 +133,29 @@ namespace TMPFT.Screen
 			List<Type> Orders = Scenarios.GetDerivedClasses<Scenarios>().OrderBy(t => Scenarios.ScenarioMetadata.GetName(t)).ToList();
 			
 
-			var defaultButton = new Button("Cancel all")
+
+			var createButton = new Button($"Create")
 			{
+				//X = Pos.Right (prev) + 2,
 				X = 0,
+				Y = Pos.Y(_listView) + 1 + Orders.Count,
+			};
+
+			var cancelButton = new Button("Cancel all")
+			{
+				X = Pos.X(createButton) + 10,
 				//TODO: Change to use Pos.AnchorEnd()
 				Y = Pos.Y(_listView) + 1 + Orders.Count,
 				IsDefault = false,
 			};
 
-			var colorButton = new Button($"Create")
-			{
-				//X = Pos.Right (prev) + 2,
-				X = Pos.X(defaultButton) + 10,
-				Y = Pos.Y(_listView) + 1 + Orders.Count,
-			};
 
-
-			frameRight.Add(colorButton);
-			
 			_listView.SetSource(Orders);
 
 			frameRight.Add(_listView);
-			frameRight.Add(defaultButton);
+
+			frameRight.Add(createButton);
+			frameRight.Add(cancelButton);
 
 
 			var statusBar = new StatusBar(new StatusItem[] {
@@ -156,7 +167,6 @@ namespace TMPFT.Screen
 
 			SetupLineGraph();
 		}
-
 		private void SetupLineGraph()
 		{
 			graphView.Reset();
@@ -243,12 +253,98 @@ namespace TMPFT.Screen
 
 			graphView.SetNeedsDisplay();
 		}
+		private void OpenExample(TableView TableView)
+		{
+			TableView.Table = BuildDemoDataTable(10, 1);
+			//SetDemoTableStyles(TableView);
+		}
+		private void SetDemoTableStyles(TableView tableView)
+		{
+			var alignMid = new TableView.ColumnStyle()
+			{
+				Alignment = TextAlignment.Centered
+			};
+			var alignRight = new TableView.ColumnStyle()
+			{
+				Alignment = TextAlignment.Right
+			};
 
+			var dateFormatStyle = new TableView.ColumnStyle()
+			{
+				Alignment = TextAlignment.Right,
+				RepresentationGetter = (v) => v is DateTime d ? d.ToString("yyyy-MM-dd") : v.ToString()
+			};
+
+			var negativeRight = new TableView.ColumnStyle()
+			{
+
+				Format = "0.##",
+				MinWidth = 10,
+				AlignmentGetter = (v) => v is double d ?
+								// align negative values right
+								d < 0 ? TextAlignment.Right :
+								// align positive values left
+								TextAlignment.Left :
+								// not a double
+								TextAlignment.Left
+			};
+
+			tableView.Style.ColumnStyles.Add(tableView.Table.Columns["AVG"], dateFormatStyle);
+			tableView.Style.ColumnStyles.Add(tableView.Table.Columns["CC"], negativeRight);
+			tableView.Style.ColumnStyles.Add(tableView.Table.Columns["Pred. UP"], alignMid);
+			tableView.Style.ColumnStyles.Add(tableView.Table.Columns["Pred. LB"], alignRight);
+
+			tableView.Update();
+		}
+		public static DataTable BuildDemoDataTable(int cols, int rows)
+		{
+			var dt = new DataTable();
+
+			int explicitCols = 6;
+			dt.Columns.Add(new DataColumn("Connection state", typeof(string)));
+			dt.Columns.Add(new DataColumn("Live Bid/Ask", typeof(string)));
+			dt.Columns.Add(new DataColumn("$Live Profit", typeof(string)));
+			dt.Columns.Add(new DataColumn("$Balance", typeof(string)));
+			dt.Columns.Add(new DataColumn("$Change", typeof(double)));
+			dt.Columns.Add(new DataColumn("Active (B/S)", typeof(string)));
+			dt.Columns.Add(new DataColumn("Filled (B/S)", typeof(string)));
+			dt.Columns.Add(new DataColumn("Orders (A/F/$)", typeof(string)));
+
+
+			for (int i = 0; i < cols - explicitCols; i++)
+			{
+				dt.Columns.Add("Column" + (i + explicitCols));
+			}
+
+			var r = new Random(100);
+
+			for (int i = 0; i < rows; i++)
+			{
+
+				List<object> row = new List<object>(){
+					"Some long t",
+					new DateTime(2000+i,12,25),
+					r.Next(i),
+					(r.NextDouble()*i)-0.5 /*add some negatives to demo styles*/,
+					DBNull.Value,
+					"Les Mise" + Char.ConvertFromUtf32(Int32.Parse("0301", NumberStyles.HexNumber)) + "rables"
+				};
+
+				for (int j = 0; j < cols - explicitCols; j++)
+				{
+					row.Add("SomeValue" + r.Next(100));
+				}
+
+				dt.Rows.Add(row.ToArray());
+			}
+
+			return dt;
+		}
 		private void MultiBarGraph()
 		{
 			graphView.Reset();
 
-			about.Text = "Housing Expenditures by income thirds 1996-2003";
+			//about.Text = "Housing Expenditures by income thirds 1996-2003";
 
 			var black = Application.Driver.MakeAttribute(graphView.ColorScheme.Normal.Foreground, Color.Black);
 			var cyan = Application.Driver.MakeAttribute(Color.BrightCyan, Color.Black);
@@ -293,12 +389,11 @@ namespace TMPFT.Screen
 			legend.AddEntry(new GraphCellToRender(stiple, series.SubSeries.ElementAt(2).OverrideBarColor), "Upper Third");
 			graphView.Annotations.Add(legend);
 		}
-
 		private void SetupPeriodicTableScatterPlot()
 		{
 			graphView.Reset();
 
-			about.Text = "This graph shows the atomic weight of each element in the periodic table.\nStarting with Hydrogen (atomic Number 1 with a weight of 1.007)";
+			//about.Text = "This graph shows the atomic weight of each element in the periodic table.\nStarting with Hydrogen (atomic Number 1 with a weight of 1.007)";
 
 			//AtomicNumber and AtomicMass of all elements in the periodic table
 			graphView.Series.Add(
@@ -347,20 +442,18 @@ namespace TMPFT.Screen
 
 			graphView.SetNeedsDisplay();
 		}
-
 		private void Zoom(float factor)
 		{
 			graphView.CellSize = new PointF(
 				graphView.CellSize.X * factor,
-				graphView.CellSize.Y * factor
+				graphView.CellSize.Y * (factor / 2)
 			);
 
 			graphView.AxisX.Increment *= factor;
-			graphView.AxisY.Increment *= factor;
+			graphView.AxisY.Increment *= (factor / 2);
 
 			graphView.SetNeedsDisplay();
 		}
-
 		private void Quit()
 		{
 			Application.RequestStop();

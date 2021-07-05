@@ -13,7 +13,7 @@ using Rune = System.Rune;
 
 namespace TMPFT.Screen
 {
-	class ViewStateMachine
+	class StateMachine
 	{
 		private static Toplevel _top;
 		private static MenuBar _menu;
@@ -142,7 +142,7 @@ namespace TMPFT.Screen
 			aboutMessage.AppendLine(@" \__, |\__,_|_(_)___|___/");
 			aboutMessage.AppendLine(@" |___/                   ");
 			aboutMessage.AppendLine("");
-			aboutMessage.AppendLine($"Version: {typeof(ViewStateMachine).Assembly.GetName().Version}");
+			aboutMessage.AppendLine($"Version: {typeof(StateMachine).Assembly.GetName().Version}");
 			aboutMessage.AppendLine($"Using Terminal.Gui Version: {FileVersionInfo.GetVersionInfo(typeof(Terminal.Gui.Application).Assembly.Location).ProductVersion}");
 			aboutMessage.AppendLine("");
 

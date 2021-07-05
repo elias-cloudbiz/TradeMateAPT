@@ -12,7 +12,7 @@ namespace TMPFT
     {
 
         //static Library na = new Library();
-        static ViewStateMachine screen = new ViewStateMachine();
+        static StateMachine screen = new StateMachine();
 
         static void Main(string[] args)
         {
