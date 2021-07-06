@@ -30,7 +30,7 @@ namespace TMPFT.Screen
 
 			graphs = new Action[] {
 				 () => SetupPeriodicTableScatterPlot(),    //0
-				 () => SetupLineGraph(),                   //4
+				 () => setupLiveGraph(),                   //4
 				 () => MultiBarGraph()                     //7
 			};
 
@@ -40,7 +40,7 @@ namespace TMPFT.Screen
 					new MenuItem ("Scatter _Plot", "",()=>graphs[currentGraph = 0]()),
 					new MenuItem ("_Line Graph","",()=>graphs[currentGraph = 1]()),
 					new MenuItem ("_Multi Bar Graph","",()=>graphs[currentGraph = 2]()),
-					new MenuItem ("_Quit", "", () => Quit()),
+					new MenuItem ("_Quit", "", () => QuitWindow()),
 				}),
 				new MenuBarItem ("_View", new MenuItem [] {
 					new MenuItem ("Zoom _In", "", () => Zoom(0.5f)),
@@ -159,15 +159,15 @@ namespace TMPFT.Screen
 
 
 			var statusBar = new StatusBar(new StatusItem[] {
-				new StatusItem(Key.CtrlMask | Key.Q, "~^Q~ Quit", () => Quit()),
+				new StatusItem(Key.CtrlMask | Key.Q, "~^Q~ Quit", () => QuitWindow()),
 				new StatusItem(Key.CtrlMask | Key.G, "~^G~ Next", () => graphs[currentGraph++%graphs.Length]()),
 			});
 
 			Top.Add(statusBar);
 
-			SetupLineGraph();
+			setupLiveGraph();
 		}
-		private void SetupLineGraph()
+		private void setupLiveGraph()
 		{
 			graphView.Reset();
 
@@ -253,93 +253,8 @@ namespace TMPFT.Screen
 
 			graphView.SetNeedsDisplay();
 		}
-		private void OpenExample(TableView TableView)
-		{
-			TableView.Table = BuildDemoDataTable(10, 1);
-			//SetDemoTableStyles(TableView);
-		}
-		private void SetDemoTableStyles(TableView tableView)
-		{
-			var alignMid = new TableView.ColumnStyle()
-			{
-				Alignment = TextAlignment.Centered
-			};
-			var alignRight = new TableView.ColumnStyle()
-			{
-				Alignment = TextAlignment.Right
-			};
-
-			var dateFormatStyle = new TableView.ColumnStyle()
-			{
-				Alignment = TextAlignment.Right,
-				RepresentationGetter = (v) => v is DateTime d ? d.ToString("yyyy-MM-dd") : v.ToString()
-			};
-
-			var negativeRight = new TableView.ColumnStyle()
-			{
-
-				Format = "0.##",
-				MinWidth = 10,
-				AlignmentGetter = (v) => v is double d ?
-								// align negative values right
-								d < 0 ? TextAlignment.Right :
-								// align positive values left
-								TextAlignment.Left :
-								// not a double
-								TextAlignment.Left
-			};
-
-			tableView.Style.ColumnStyles.Add(tableView.Table.Columns["AVG"], dateFormatStyle);
-			tableView.Style.ColumnStyles.Add(tableView.Table.Columns["CC"], negativeRight);
-			tableView.Style.ColumnStyles.Add(tableView.Table.Columns["Pred. UP"], alignMid);
-			tableView.Style.ColumnStyles.Add(tableView.Table.Columns["Pred. LB"], alignRight);
-
-			tableView.Update();
-		}
-		public static DataTable BuildDemoDataTable(int cols, int rows)
-		{
-			var dt = new DataTable();
-
-			int explicitCols = 6;
-			dt.Columns.Add(new DataColumn("Connection state", typeof(string)));
-			dt.Columns.Add(new DataColumn("Live Bid/Ask", typeof(string)));
-			dt.Columns.Add(new DataColumn("$Live Profit", typeof(string)));
-			dt.Columns.Add(new DataColumn("$Balance", typeof(string)));
-			dt.Columns.Add(new DataColumn("$Change", typeof(double)));
-			dt.Columns.Add(new DataColumn("Active (B/S)", typeof(string)));
-			dt.Columns.Add(new DataColumn("Filled (B/S)", typeof(string)));
-			dt.Columns.Add(new DataColumn("Orders (A/F/$)", typeof(string)));
-
-
-			for (int i = 0; i < cols - explicitCols; i++)
-			{
-				dt.Columns.Add("Column" + (i + explicitCols));
-			}
-
-			var r = new Random(100);
-
-			for (int i = 0; i < rows; i++)
-			{
-
-				List<object> row = new List<object>(){
-					"Some long t",
-					new DateTime(2000+i,12,25),
-					r.Next(i),
-					(r.NextDouble()*i)-0.5 /*add some negatives to demo styles*/,
-					DBNull.Value,
-					"Les Mise" + Char.ConvertFromUtf32(Int32.Parse("0301", NumberStyles.HexNumber)) + "rables"
-				};
-
-				for (int j = 0; j < cols - explicitCols; j++)
-				{
-					row.Add("SomeValue" + r.Next(100));
-				}
-
-				dt.Rows.Add(row.ToArray());
-			}
-
-			return dt;
-		}
+		private void createOrder() { }
+		private void cancelOrder() { }
 		private void MultiBarGraph()
 		{
 			graphView.Reset();
@@ -442,21 +357,112 @@ namespace TMPFT.Screen
 
 			graphView.SetNeedsDisplay();
 		}
-		private void Zoom(float factor)
-		{
-			graphView.CellSize = new PointF(
-				graphView.CellSize.X * factor,
-				graphView.CellSize.Y * (factor / 2)
-			);
-
-			graphView.AxisX.Increment *= factor;
-			graphView.AxisY.Increment *= (factor / 2);
-
-			graphView.SetNeedsDisplay();
-		}
-		private void Quit()
+		private void QuitWindow()
 		{
 			Application.RequestStop();
+		}
+
+		partial class Misc {
+			private void Zoom(GraphView graphView, float factor)
+			{
+				graphView.CellSize = new PointF(
+					graphView.CellSize.X * factor,
+					graphView.CellSize.Y * factor
+				);
+
+				graphView.AxisX.Increment *= factor;
+				graphView.AxisY.Increment *= factor;
+
+				graphView.SetNeedsDisplay();
+			}
+			private void OpenExample(TableView TableView)
+			{
+				TableView.Table = BuildDemoDataTable(10, 1);
+				//SetDemoTableStyles(TableView);
+			}
+			public static DataTable BuildDemoDataTable(int cols, int rows)
+			{
+				var dt = new DataTable();
+
+				int explicitCols = 6;
+				dt.Columns.Add(new DataColumn("Connection (Cl/Pb/Pr)", typeof(string)));
+				dt.Columns.Add(new DataColumn("Live Bid/Ask (AVG)", typeof(string)));
+				dt.Columns.Add(new DataColumn("$Live Profit", typeof(string)));
+				dt.Columns.Add(new DataColumn("$Balance ($/%)", typeof(string)));
+				dt.Columns.Add(new DataColumn("$Change ($/%)", typeof(double)));
+				dt.Columns.Add(new DataColumn("Active (B/S/$)", typeof(string)));
+				dt.Columns.Add(new DataColumn("Filled (B/S/$)", typeof(string)));
+				dt.Columns.Add(new DataColumn("Orders (A/F/$)", typeof(string)));
+
+
+				for (int i = 0; i < cols - explicitCols; i++)
+				{
+					dt.Columns.Add("Column" + (i + explicitCols));
+				}
+
+				var r = new Random(100);
+
+				for (int i = 0; i < rows; i++)
+				{
+
+					List<object> row = new List<object>(){
+					"Some long t",
+					new DateTime(2000+i,12,25),
+					r.Next(i),
+					(r.NextDouble()*i)-0.5 /*add some negatives to demo styles*/,
+					DBNull.Value,
+					"Les Mise" + Char.ConvertFromUtf32(Int32.Parse("0301", NumberStyles.HexNumber)) + "rables"
+				};
+
+					for (int j = 0; j < cols - explicitCols; j++)
+					{
+						row.Add("SomeValue" + r.Next(100));
+					}
+
+					dt.Rows.Add(row.ToArray());
+				}
+
+				return dt;
+			}
+			private void SetDemoTableStyles(TableView tableView)
+			{
+				var alignMid = new TableView.ColumnStyle()
+				{
+					Alignment = TextAlignment.Centered
+				};
+				var alignRight = new TableView.ColumnStyle()
+				{
+					Alignment = TextAlignment.Right
+				};
+
+				var dateFormatStyle = new TableView.ColumnStyle()
+				{
+					Alignment = TextAlignment.Right,
+					RepresentationGetter = (v) => v is DateTime d ? d.ToString("yyyy-MM-dd") : v.ToString()
+				};
+
+				var negativeRight = new TableView.ColumnStyle()
+				{
+
+					Format = "0.##",
+					MinWidth = 10,
+					AlignmentGetter = (v) => v is double d ?
+									// align negative values right
+									d < 0 ? TextAlignment.Right :
+									// align positive values left
+									TextAlignment.Left :
+									// not a double
+									TextAlignment.Left
+				};
+
+				tableView.Style.ColumnStyles.Add(tableView.Table.Columns["AVG"], dateFormatStyle);
+				tableView.Style.ColumnStyles.Add(tableView.Table.Columns["CC"], negativeRight);
+				tableView.Style.ColumnStyles.Add(tableView.Table.Columns["Pred. UP"], alignMid);
+				tableView.Style.ColumnStyles.Add(tableView.Table.Columns["Pred. LB"], alignRight);
+
+				tableView.Update();
+			}
+
 		}
 	}
 }

@@ -9,8 +9,7 @@ using static TMPFT.Screen.Scenarios;
 
 namespace TMPFT.Screen.Advanced.Views
 {
-	[ScenarioMetadata(Name: "List View With Selection", Description: "ListView with columns and selection")]
-	[ScenarioCategory("Controls")]
+
 	class ListViewWindow : Scenarios
     {
 

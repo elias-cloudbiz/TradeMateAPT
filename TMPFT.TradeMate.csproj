@@ -20,11 +20,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Screen\Advanced\Demos\ListViewWindow.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Terminal.Gui" Version="1.1.1" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Logs\" />
+    <Folder Include="Screen\Advanced\Demos\" />
   </ItemGroup>
 
   <ItemGroup>
