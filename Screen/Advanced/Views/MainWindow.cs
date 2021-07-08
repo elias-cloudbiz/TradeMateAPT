@@ -11,12 +11,22 @@ using System.Globalization;
 namespace TMPFT.Screen
 {
 	[ScenarioMetadata(Name: "Main Window", Description: "Main Window Live Graph and Orders")]
-	[ScenarioCategory("Live Controls")]
+	[ScenarioCategory("Main Controls")]
 	class MainWindow : Scenarios
     {
 
 		private GraphView graphView { get; set; }
-		private TextView about { get; set; }
+		private FrameView frameTop { get; set; }
+		private FrameView frameLeft { get; set; }
+		private FrameView frameRight { get; set; }
+
+		private TableView tableView { get; set; } = new TableView()
+		{
+			X = 0,
+			Y = 0,
+			Width = Dim.Fill(),
+			Height = Dim.Sized(5),
+		};
 
 		int currentGraph = 0;
 		Action[] graphs;
@@ -43,14 +53,14 @@ namespace TMPFT.Screen
 					new MenuItem ("_Quit", "", () => QuitWindow()),
 				}),
 				new MenuBarItem ("_View", new MenuItem [] {
-					new MenuItem ("Zoom _In", "", () => Zoom(0.5f)),
-					 new MenuItem ("Zoom _Out", "", () =>  Zoom(2f)),
+					new MenuItem ("Zoom _In", "", () => Misc.Zoom(graphView, 0.5f)),
+					 new MenuItem ("Zoom _Out", "", () =>  Misc.Zoom(graphView, 2f)),
 				}),
 
 				});
 			Top.Add(menu);
 
-			var frameTop = new FrameView("Data")
+			frameTop = new FrameView("Data")
 			{
 				X = 1,
 				Y = 2,
@@ -64,19 +74,13 @@ namespace TMPFT.Screen
 			//frameTop.Add(labelHL3);
 			//Top.Add(frameTop);
 
-			TableView tableView = new TableView()
-			{
-				X = 0,
-				Y = 0,
-				Width = Dim.Fill(),
-				Height = Dim.Sized(5),
-			};
 
-			OpenExample(tableView);
+
+			Misc.OpenExample(tableView);
 			Win.Add(tableView);
 
 
-			var frameLeft = new FrameView("Live")
+			frameLeft = new FrameView("Live")
 			{
 				X = 0,
 				Y = 5,
@@ -97,23 +101,13 @@ namespace TMPFT.Screen
 			frameLeft.Add(graphView);
 
 
-			var frameRight = new FrameView("Orders")
+			frameRight = new FrameView("Orders")
 			{
 				X = Pos.Right(frameLeft) + 1,
 				Y = 5,
 				Width = Dim.Percent(25),
 				Height = Dim.Fill(),
 			};
-
-
-			/*			frameRight.Add(about = new TextView()
-						{
-							Width = 25,
-							Height = Dim.Fill()
-						});*/
-
-
-
 			Win.Add(frameRight);
 
 			var labelHL = new Label($"Syncinc in {" X "} sec.") { X = 0, Y = 0, Width = Dim.Fill(), Height = 1, TextAlignment = TextAlignment.Centered, /**ColorScheme = Colors.ColorSchemes["Base"]**/ };
@@ -132,13 +126,17 @@ namespace TMPFT.Screen
 
 			List<Type> Orders = Scenarios.GetDerivedClasses<Scenarios>().OrderBy(t => Scenarios.ScenarioMetadata.GetName(t)).ToList();
 			
-
-
 			var createButton = new Button($"Create")
 			{
 				//X = Pos.Right (prev) + 2,
 				X = 0,
 				Y = Pos.Y(_listView) + 1 + Orders.Count,
+			};
+
+			createButton.Clicked += () => {
+				// Create Clicked
+				setupLiveGraph();
+				frameLeft.SetNeedsDisplay();
 			};
 
 			var cancelButton = new Button("Cancel all")
@@ -148,7 +146,9 @@ namespace TMPFT.Screen
 				Y = Pos.Y(_listView) + 1 + Orders.Count,
 				IsDefault = false,
 			};
-
+			createButton.Clicked += () => {
+				// Cancel Clicked
+			};
 
 			_listView.SetSource(Orders);
 
@@ -363,7 +363,7 @@ namespace TMPFT.Screen
 		}
 
 		partial class Misc {
-			private void Zoom(GraphView graphView, float factor)
+			public static void Zoom(GraphView graphView, float factor)
 			{
 				graphView.CellSize = new PointF(
 					graphView.CellSize.X * factor,
@@ -375,7 +375,7 @@ namespace TMPFT.Screen
 
 				graphView.SetNeedsDisplay();
 			}
-			private void OpenExample(TableView TableView)
+			public static void OpenExample(TableView TableView)
 			{
 				TableView.Table = BuildDemoDataTable(10, 1);
 				//SetDemoTableStyles(TableView);
@@ -424,7 +424,7 @@ namespace TMPFT.Screen
 
 				return dt;
 			}
-			private void SetDemoTableStyles(TableView tableView)
+			private static void SetDemoTableStyles(TableView tableView)
 			{
 				var alignMid = new TableView.ColumnStyle()
 				{

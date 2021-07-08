@@ -3,21 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using Terminal.Gui;
 using Terminal.Gui.Graphs;
+using TMPFT.Core;
 using TMPFT.Screen;
 
 namespace TMPFT
 {
 
-    class Program
+    class Run
     {
 
         //static Library na = new Library();
-        static StateMachine screen = new StateMachine();
+        static StateMachine StateMachineView = new StateMachine();
+        static CoreUI CoreUI = new CoreUI(); 
 
         static void Main(string[] args)
         {
 
-            screen.Start(args);
+            StateMachineView.Start(args);
+            CoreUI.Start();
 		}
 
 		static bool Quit()

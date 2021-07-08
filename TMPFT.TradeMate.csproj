@@ -29,7 +29,6 @@
 
   <ItemGroup>
     <Folder Include="Logs\" />
-    <Folder Include="Screen\Advanced\Demos\" />
   </ItemGroup>
 
   <ItemGroup>
