@@ -85,7 +85,7 @@ namespace TMPFT.Screen
 				Top = Application.Top;
 			}
 
-			Win = new Window($"CTRL-Q to Close - Scenario: {GetName()}")
+			Win = new Window($"{GetName()} (CTRL-Q to Close)")
 			{
 				X = 0,
 				Y = 0,

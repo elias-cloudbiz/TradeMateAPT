@@ -8,9 +8,7 @@ using Terminal.Gui;
 
 namespace TMPFT.Screen.Advanced.Views
 {
-    [ScenarioMetadata(Name: "Client/Software", Description: "Startup/Authentication")]
-    [ScenarioCategory("Client")]
-    class StartupWindow : Scenarios
+    class StartupWindow
     {
 		FrameView FrameView = new FrameView();
         internal ProgressBar ActivityProgressBar { get; private set; }
@@ -72,7 +70,7 @@ namespace TMPFT.Screen.Advanced.Views
 			}
 		}
 
-		public override void Setup()
+		public void Setup()
 		{
 			// Demo #1 - Use System.Timer (and threading)
 			this.StartBtnClick = () => {
@@ -91,7 +89,7 @@ namespace TMPFT.Screen.Advanced.Views
 
 
 
-			
+			Application.RequestStop();
 
 			this.StopBtnClick = () => {
 				_systemTimer?.Dispose();
@@ -118,7 +116,8 @@ namespace TMPFT.Screen.Advanced.Views
 					System.Diagnostics.Debug.WriteLine("bad entry");
 				}
 			};*/
-			Win.Add(FrameView);
+			
+			//Top.Add(ActivityProgressBar);
 
 			//FrameView.Add(ActivityProgressBar);
 
@@ -130,16 +129,7 @@ namespace TMPFT.Screen.Advanced.Views
 			startBoth.Clicked += () => {
 				this.Start();
 			};
-			Win.Add(startBoth);
-		}
-
-		protected override void Dispose(bool disposing)
-		{
-			foreach (var v in Win.Subviews.OfType<StartupWindow>())
-			{
-				v?.StopBtnClick();
-			}
-			base.Dispose(disposing);
+			//Win.Add(startBoth);
 		}
 	}
 }

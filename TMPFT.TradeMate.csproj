@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Screen\Advanced\Demos\ListViewWindow.cs" />
+    <Compile Remove="Screen\Advanced\Views\StartupWindow.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <Folder Include="Logs\" />
+    <Folder Include="Software\" />
   </ItemGroup>
 
   <ItemGroup>
