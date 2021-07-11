@@ -11,7 +11,7 @@ using System.Text;
 using Terminal.Gui;
 using Rune = System.Rune;
 
-namespace TMPFT.Screen
+namespace TMPFT.Display
 {
 	class StateMachine
 	{
@@ -640,8 +640,8 @@ namespace TMPFT.Screen
 			{
 				container.Move(col, line);
 				// Equivalent to an interpolated string like $"{Scenarios[item].Name, -widtestname}"; if such a thing were possible
-				var s = string.Format(string.Format("{{0,{0}}}", -_nameColumnWidth), Screen.Scenarios.ScenarioMetadata.GetName(Scenarios[item]));
-                RenderUstr(driver, $"{s}  {Screen.Scenarios.ScenarioMetadata.GetDescription(Scenarios[item])}", col, line, width, start);
+				var s = string.Format(string.Format("{{0,{0}}}", -_nameColumnWidth), Display.Scenarios.ScenarioMetadata.GetName(Scenarios[item]));
+                RenderUstr(driver, $"{s}  {Display.Scenarios.ScenarioMetadata.GetDescription(Scenarios[item])}", col, line, width, start);
 			}
 			public void SetMark(int item, bool value)
 			{
@@ -656,8 +656,8 @@ namespace TMPFT.Screen
 				int maxLength = 0;
 				for (int i = 0; i < Scenarios.Count; i++)
 				{
-					var s = string.Format(string.Format("{{0,{0}}}", -_nameColumnWidth), Screen.Scenarios.ScenarioMetadata.GetName(Scenarios[i]));
-					var sc = $"{s}  {Screen.Scenarios.ScenarioMetadata.GetDescription(Scenarios[i])}";
+					var s = string.Format(string.Format("{{0,{0}}}", -_nameColumnWidth), Display.Scenarios.ScenarioMetadata.GetName(Scenarios[i]));
+					var sc = $"{s}  {Display.Scenarios.ScenarioMetadata.GetDescription(Scenarios[i])}";
 					var l = sc.Length;
 					if (l > maxLength)
 					{

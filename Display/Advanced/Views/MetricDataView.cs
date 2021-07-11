@@ -4,7 +4,7 @@ using System.Data;
 using System.Text;
 using Terminal.Gui;
 
-namespace TMPFT.Screen.Advanced.Views
+namespace TMPFT.Display.Advanced.Views
 {
     [ScenarioMetadata(Name: "Performance Metrics", Description: "Performance Data and Statistics")]
     [ScenarioCategory("Statistics")]

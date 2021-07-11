@@ -20,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Screen\Advanced\Views\StartupWindow.cs" />
+    <Compile Remove="Display\Advanced\Views\StartupWindow.cs" />
   </ItemGroup>
 
   <ItemGroup>

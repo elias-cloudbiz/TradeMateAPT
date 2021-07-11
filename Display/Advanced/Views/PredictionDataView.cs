@@ -5,7 +5,7 @@ using Terminal.Gui;
 using System.Linq;
 using System.Globalization;
 
-namespace TMPFT.Screen.Advanced.Views
+namespace TMPFT.Display.Advanced.Views
 {
 	[ScenarioMetadata(Name: "Prediction DataView (NN/ML)", Description: "View Prediction Data and Statistics")]
 	[ScenarioCategory("Statistics")]

@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Terminal.Gui;
 using Terminal.Gui.Graphs;
-using TMPFT.Screen;
+using TMPFT.Display;
 using TMPFT.Core;
 using System.Data;
 using System.Globalization;
 using NStack;
 
-namespace TMPFT.Screen
+namespace TMPFT.Display
 {
     [ScenarioMetadata(Name: "Main Window", Description: "Main Window Live Graph and Orders")]
     [ScenarioCategory("Main Controls")]

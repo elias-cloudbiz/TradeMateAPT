@@ -4,7 +4,7 @@ using System.Linq;
 using Terminal.Gui;
 using Terminal.Gui.Graphs;
 using TMPFT.Core;
-using TMPFT.Screen;
+using TMPFT.Display;
 
 namespace TMPFT
 {
@@ -14,13 +14,14 @@ namespace TMPFT
 
         //static Library na = new Library();
         static StateMachine StateMachineView = new StateMachine();
-        static CoreUI CoreUI = new CoreUI(); 
+        static CoreLib CoreUI = new CoreLib();
 
         static void Main(string[] args)
         {
 
             StateMachineView.Start(args);
-            CoreUI.Start();
+            
+            //CoreUI.Start();
 		}
 
 		static bool Quit()

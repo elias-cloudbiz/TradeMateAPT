@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using Terminal.Gui;
 
-namespace TMPFT.Screen.Advanced.Views
+namespace TMPFT.Display.Advanced.Views
 {
     [ScenarioMetadata(Name: "Console", Description: "View Prediction Data and Statistics")]
     [ScenarioCategory("Debug/Developer")]
     public class ConsoleWindow : Scenarios
     {
+        private static Import Module = new Import();
         private static ListView _listView;
         private static List<string> consoleOutput = new List<string>();
         public override void Setup()
@@ -26,7 +27,7 @@ namespace TMPFT.Screen.Advanced.Views
             };
             consoleOutput = new List<string>() { "Console output initialized ... " };
 
-            _listView.SetSource(consoleOutput);
+            _listView.SetSource(Module.ConsoleoutList);
 
             Win.Add(_listView);
 
@@ -43,7 +44,7 @@ namespace TMPFT.Screen.Advanced.Views
 
         public static void writeLine(string line)
         {
-            consoleOutput.Add(line);
+            //consoleOutput.Add(line);
 
             _listView.SetSource(consoleOutput);
             //Top.SetNeedsDisplay();
