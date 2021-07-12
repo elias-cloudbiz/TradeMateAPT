@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Terminal.Gui;
+using TMPFT.Core;
 
 namespace TMPFT.Display
 {
@@ -48,7 +49,15 @@ namespace TMPFT.Display
 	public class Scenarios : IDisposable
 	{
 		private bool _disposedValue;
-
+		/// <summary>
+		/// Module Import for dynamic and static import of modules <see cref="ModuleImport"/>. This should be set to Import default function.
+		/// </summary>
+		protected ModuleImport Module = new ModuleImport();
+		
+		/// <summary>
+		/// Used for development purposes only see cref="CoreLib"/>. 
+		/// </summary>
+		protected CoreLib coreLib = new CoreLib();
 		/// <summary>
 		/// The Top level for the <see cref="Scenarios"/>. This should be set to <see cref="Terminal.Gui.Application.Top"/> in most cases.
 		/// </summary>

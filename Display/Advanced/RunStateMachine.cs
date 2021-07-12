@@ -9,11 +9,12 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using Terminal.Gui;
+using TMPFT.Core;
 using Rune = System.Rune;
 
 namespace TMPFT.Display
 {
-	class StateMachine
+	class RunStateMachine
 	{
 		private static Toplevel _top;
 		private static MenuBar _menu;
@@ -53,8 +54,8 @@ namespace TMPFT.Display
 			}
 			if (args.Length > 0 || true)
 			{
-				//var item = _scenarios.FindIndex(t => StateScenario.ScenarioMetadata.GetName(t).Equals(args[0], StringComparison.OrdinalIgnoreCase));
-				_runningScenario = (Scenarios)Activator.CreateInstance(_scenarios[0]);
+				var item = _scenarios.FindIndex(t => Scenarios.ScenarioMetadata.GetName(t).Equals("Startup", StringComparison.OrdinalIgnoreCase));
+				_runningScenario = (Scenarios)Activator.CreateInstance(_scenarios[item]);
 				Application.UseSystemConsole = _useSystemConsole;
 				Application.Init();
 				_runningScenario.Init(Application.Top, Colors.TopLevel);
@@ -142,7 +143,7 @@ namespace TMPFT.Display
 			aboutMessage.AppendLine(@" \__, |\__,_|_(_)___|___/");
 			aboutMessage.AppendLine(@" |___/                   ");
 			aboutMessage.AppendLine("");
-			aboutMessage.AppendLine($"Version: {typeof(StateMachine).Assembly.GetName().Version}");
+			aboutMessage.AppendLine($"Version: {typeof(RunStateMachine).Assembly.GetName().Version}");
 			aboutMessage.AppendLine($"Using Terminal.Gui Version: {FileVersionInfo.GetVersionInfo(typeof(Terminal.Gui.Application).Assembly.Location).ProductVersion}");
 			aboutMessage.AppendLine("");
 
