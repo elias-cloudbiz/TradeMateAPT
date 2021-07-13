@@ -53,7 +53,6 @@ namespace TMPFT.Display.Advanced.Views
         public static void clearLines()
         {
             CoreLib.DebugOutputList.Clear();
-
         }
 
         public static void stopApplication()

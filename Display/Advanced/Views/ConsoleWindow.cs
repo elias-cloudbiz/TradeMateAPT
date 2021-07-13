@@ -28,36 +28,38 @@ namespace TMPFT.Display.Advanced.Views
             };
 
             _listView.SetSource(CoreLib.ConsoleOutputList);
-            
+
             Win.Add(_listView);
 
-            CoreLib.onUpdate += (sender, e) => ConsoleAddLine(e.Value);
+            CoreLib.Exchange.onPublicComplete += (sender, e) => ConsoleAddLine(e.Value);
+
+            var statusBar = new StatusBar(new StatusItem[] {
+                           new StatusItem(Key.CtrlMask | Key.R, "~^R~ Refresh", null),
+                           new StatusItem(Key.CtrlMask | Key.S, "~^S~ Sync",  () => ConsoleAddLine("Eee")),
+                           new StatusItem(Key.CtrlMask | Key.Q, "~^Q~ Quit", () => StopApplication()),
+                       });
+            statusBar.ColorScheme = Colors.TopLevel;
+            Top.Add(statusBar);
         }
 
         public void ConsoleAddLine(string e)
         {
-            Application.Refresh();                
+          Application.Refresh();
         }
 
-        public static void ClearWindow()
+        public void ClearWindow()
         {
             CoreLib.ConsoleOutputList.Clear();
         }
 
-        public static void StopApplication()
+        public void StopApplication()
         {
             Application.RequestStop();
         }
 
 
 
-        /*            var statusBar = new StatusBar(new StatusItem[] {
-                                   new StatusItem(Key.CtrlMask | Key.R, "~^R~ Refresh", ()  => coreLib.Start()),
-                                   new StatusItem(Key.CtrlMask | Key.S, "~^S~ Sync",  () => ConsoleAddLine("Eee")),
-                                   new StatusItem(Key.CtrlMask | Key.Q, "~^Q~ Quit", null),
-                               });
-            statusBar.ColorScheme = Colors.TopLevel;
-            Top.Add(statusBar);*/
+
 
     }
 }

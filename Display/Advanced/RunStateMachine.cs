@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 using Terminal.Gui;
 using TMPFT.Core;
 using Rune = System.Rune;
@@ -16,6 +17,8 @@ namespace TMPFT.Display
 {
 	class RunStateMachine
 	{
+
+
 		private static Toplevel _top;
 		private static MenuBar _menu;
 		private static int _nameColumnWidth;
@@ -54,14 +57,16 @@ namespace TMPFT.Display
 			}
 			if (args.Length > 0 || true)
 			{
-				var item = _scenarios.FindIndex(t => Scenarios.ScenarioMetadata.GetName(t).Equals("Startup", StringComparison.OrdinalIgnoreCase));
-				_runningScenario = (Scenarios)Activator.CreateInstance(_scenarios[item]);
+				//var item = _scenarios.FindIndex(t => Scenarios.ScenarioMetadata.GetName(t).Equals("ConsoleWindow", StringComparison.OrdinalIgnoreCase));
+				_runningScenario = (Scenarios)Activator.CreateInstance(_scenarios[4]);
 				Application.UseSystemConsole = _useSystemConsole;
 				Application.Init();
+				_runningScenario.ModuleInit();
 				_runningScenario.Init(Application.Top, Colors.TopLevel);
 				_runningScenario.Setup();
 				_runningScenario.Run();
 				_runningScenario = null;
+
 
 				Application.Shutdown();
 				//return;
@@ -86,12 +91,14 @@ namespace TMPFT.Display
 				scenario.Setup();
 				scenario.Run();
 
+/*				if(scenario.CoreLibStateMachine.IsCompleted)
+					scenario.CoreLibStateMachine = Task.Run(() => scenario.CoreLib.ConstructAsync());*/
+
 				static void LoadedHandler()
 				{
 					_rightPane.SetFocus();
 					_top.Loaded -= LoadedHandler;
 				}
-
 				_top.Loaded += LoadedHandler;
 
 				#if DEBUG_IDISPOSABLE
