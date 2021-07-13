@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Terminal.Gui;
 using TMPFT.Core;
@@ -92,6 +93,17 @@ namespace TMPFT.Display
             Task.Run(() => CoreLib.ConstructModule());
         }
 
+        private async Task Refresh()
+        {
+            //Win.SetNeedsDisplay();
+            Top.SetNeedsDisplay();
+            Application.Refresh();
+
+            await Task.Delay(1000);
+
+            await Task.Run(() => Refresh());
+        }
+
         public virtual void Init(Toplevel top, ColorScheme colorScheme)
         {
             Application.Init();
@@ -111,6 +123,8 @@ namespace TMPFT.Display
                 ColorScheme = colorScheme,
             };
             Top.Add(Win);
+
+            Refresh();
         }
 
         /// <summary>

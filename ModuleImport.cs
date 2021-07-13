@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Terminal.Gui;
 using TMPFT.Core;
@@ -14,8 +15,8 @@ namespace TMPFT
 
         public ModuleImport()
         {
-            ConsoleoutList = CoreLib.ConsoleOutputList;
-            DebugoutputList = CoreLib.DebugOutputList;
+            ConsoleoutList = CoreLib.ConsoleOut.ToList();
+            DebugoutputList = CoreLib.DebugOut.ToList();
 
 
 

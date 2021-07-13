@@ -61,9 +61,9 @@ namespace TMPFT.Display
 				_runningScenario = (Scenarios)Activator.CreateInstance(_scenarios[4]);
 				Application.UseSystemConsole = _useSystemConsole;
 				Application.Init();
-				_runningScenario.ModuleInit();
 				_runningScenario.Init(Application.Top, Colors.TopLevel);
 				_runningScenario.Setup();
+				_runningScenario.ModuleInit();
 				_runningScenario.Run();
 				_runningScenario = null;
 

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading;
 using Terminal.Gui;
 using TMPFT.Core;
 
@@ -26,33 +28,35 @@ namespace TMPFT.Display.Advanced.Views
                 AllowsMultipleSelection = false
             };
 
-            _listView.SetSource(CoreLib.DebugOutputList);
-
+            _listView.SetSource(CoreLib.DebugOut.ToList());
 
             Win.Add(_listView);
 
-/*            var statusBar = new StatusBar(new StatusItem[] {
-                                   new StatusItem(Key.CtrlMask | Key.R, "~^R~ Refresh", ()  => coreLib.Start()),
-                                   new StatusItem(Key.CtrlMask | Key.S, "~^S~ Sync",  () => DebugAddline("Eee")),
-                                   new StatusItem(Key.CtrlMask | Key.Q, "~^Q~ Quit", null),
-                               });
-            statusBar.ColorScheme = Colors.TopLevel;
-            Top.Add(statusBar);*/
-
-
-
-            CoreLib.onUpdate += (sender, e) => DebugAddline(e.Value);
+            //CoreLib.Exchange.onPrivateComplete += (sender, e) => Refresh();
+            //CoreLib.Exchange.onPublicComplete += (sender, e) => Refresh();
+            CoreLib.onUpdate += (sender, e) => Refresh(sender);
 
         }
 
-        public void DebugAddline(string e)
+        public void Refresh(object sender)
         {
-            Application.Refresh();
+            _listView.SetSource(CoreLib.DebugOut.ToList());
+        }
+
+        private void CreateStatusBar()
+        {
+            /*            var statusBar = new StatusBar(new StatusItem[] {
+                                       new StatusItem(Key.CtrlMask | Key.R, "~^R~ Refresh", null),
+                                       new StatusItem(Key.CtrlMask | Key.S, "~^S~ Sync",  () => Refresh("Eee")),
+                                       new StatusItem(Key.CtrlMask | Key.Q, "~^Q~ Quit", () => StopApplication()),
+                                   });
+                        statusBar.ColorScheme = Colors.TopLevel;
+                        Top.Add(statusBar);*/
         }
 
         public static void clearLines()
         {
-            CoreLib.DebugOutputList.Clear();
+            CoreLib.DebugOut.Clear();
         }
 
         public static void stopApplication()

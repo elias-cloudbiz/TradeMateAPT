@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using Terminal.Gui;
 using TMPFT.Core;
 
@@ -27,29 +28,35 @@ namespace TMPFT.Display.Advanced.Views
                 AllowsMultipleSelection = false
             };
 
-            _listView.SetSource(CoreLib.ConsoleOutputList);
+            _listView.SetSource(CoreLib.ConsoleOut.ToList());
 
             Win.Add(_listView);
 
-            CoreLib.Exchange.onPublicComplete += (sender, e) => ConsoleAddLine(e.Value);
+            CoreLib.onUpdate += (sender, e) => Refresh(sender);
 
-            var statusBar = new StatusBar(new StatusItem[] {
-                           new StatusItem(Key.CtrlMask | Key.R, "~^R~ Refresh", null),
-                           new StatusItem(Key.CtrlMask | Key.S, "~^S~ Sync",  () => ConsoleAddLine("Eee")),
-                           new StatusItem(Key.CtrlMask | Key.Q, "~^Q~ Quit", () => StopApplication()),
-                       });
-            statusBar.ColorScheme = Colors.TopLevel;
-            Top.Add(statusBar);
+
+            CreateStatusBar();
         }
 
-        public void ConsoleAddLine(string e)
+        private void CreateStatusBar()
         {
-          Application.Refresh();
+            /*            var statusBar = new StatusBar(new StatusItem[] {
+                                       new StatusItem(Key.CtrlMask | Key.R, "~^R~ Refresh", null),
+                                       new StatusItem(Key.CtrlMask | Key.S, "~^S~ Sync",  () => Refresh("Eee")),
+                                       new StatusItem(Key.CtrlMask | Key.Q, "~^Q~ Quit", () => StopApplication()),
+                                   });
+                        statusBar.ColorScheme = Colors.TopLevel;
+                        Top.Add(statusBar);*/
+        }
+
+        public void Refresh(object sender)
+        {
+            _listView.SetSource(CoreLib.ConsoleOut.ToList());
         }
 
         public void ClearWindow()
         {
-            CoreLib.ConsoleOutputList.Clear();
+            CoreLib.ConsoleOut.Clear();
         }
 
         public void StopApplication()

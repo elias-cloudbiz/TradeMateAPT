@@ -76,7 +76,7 @@ namespace TMPFT.Display
             //frameTop.Add(labelHL3);
             //Top.Add(frameTop);
 
-            
+
 
             Misc.OpenExample(tableView);
             Win.Add(tableView);
@@ -156,14 +156,15 @@ namespace TMPFT.Display
 
             _listView.SetSource(Orders);
 
-            _listView.OpenSelectedItem += (e) => {
+            _listView.OpenSelectedItem += (e) =>
+            {
                 SelectedItemIndex = _listView.SelectedItem;
 
                 var cancel = "Proceed";
                 var ignore = "Ignore";
 
-                var q = MessageBox.Query(0, 0, "Cancel order request", $"Are you sure you to cancel order {SelectedItemIndex} ?",  cancel, ignore);
-                
+                var q = MessageBox.Query(0, 0, "Cancel order request", $"Are you sure you to cancel order {SelectedItemIndex} ?", cancel, ignore);
+
 
 
             };
@@ -198,26 +199,26 @@ namespace TMPFT.Display
 
             graphView.GraphColor = black;
 
-            List<PointF> randomPoints = new List<PointF>();
-            List<PointF> randomLive = new List<PointF>();
+            List<PointF> OrderPoints = new List<PointF>();
+            List<PointF> PriceLine = new List<PointF>();
 
             Random r = new Random();
 
             for (int i = 0; i < 25; i++)
             {
-                randomPoints.Add(new PointF(r.Next(10000), r.Next(60000)));
-                randomLive.Add(new PointF(r.Next(10000), r.Next(60000)));
+                OrderPoints.Add(new PointF(r.Next(10000), r.Next(60000)));
+                PriceLine.Add(new PointF(r.Next(10000), r.Next(60000)));
             }
 
             var points = new ScatterSeries()
             {
-                Points = randomPoints
+                Points = OrderPoints
             };
 
             var line = new PathAnnotation()
             {
                 LineColor = white,
-                Points = randomLive.OrderBy(p => p.X).ToList(),
+                Points = PriceLine.OrderBy(p => p.X).ToList(),
                 BeforeSeries = true,
             };
 
@@ -225,24 +226,24 @@ namespace TMPFT.Display
             graphView.Annotations.Add(line);
 
 
-            randomPoints = new List<PointF>();
+            OrderPoints = new List<PointF>();
 
             for (int i = 0; i < 10; i++)
             {
-                randomPoints.Add(new PointF(r.Next(10000), r.Next(60000)));
+                OrderPoints.Add(new PointF(r.Next(10000), r.Next(60000)));
             }
 
 
             var points2 = new ScatterSeries()
             {
-                Points = randomPoints,
+                Points = OrderPoints,
                 Fill = new GraphCellToRender('x', red)
             };
 
             var line2 = new PathAnnotation()
             {
                 LineColor = magenta,
-                Points = randomPoints.OrderBy(p => p.X).ToList(),
+                Points = OrderPoints.OrderBy(p => p.X).ToList(),
                 BeforeSeries = true,
             };
 
@@ -258,11 +259,11 @@ namespace TMPFT.Display
 
             // One axis tick/label per
             graphView.AxisX.Increment = 250;
-            graphView.AxisX.ShowLabelsEvery = 5;
+            graphView.AxisX.ShowLabelsEvery = 10;
             graphView.AxisX.Text = "Time →";
 
             graphView.AxisY.Increment = 5000;
-            graphView.AxisY.ShowLabelsEvery = 3;
+            graphView.AxisY.ShowLabelsEvery = 2;
             graphView.AxisY.Text = "↑ Y";
 
             var max = line.Points.Union(line2.Points).OrderByDescending(p => p.Y).First();
@@ -279,7 +280,7 @@ namespace TMPFT.Display
             // the buttons are laid out correctly
             var dialog = new Dialog($"Create new order", 50, 10,
                 buttons.ToArray());
-            
+
 
             var tPrice = new TextField("Price")
             {
@@ -444,52 +445,47 @@ namespace TMPFT.Display
             }
             public static void OpenExample(TableView TableView)
             {
-                TableView.Table = BuildDemoDataTable(10, 1);
+                TableView.Table = BuildTable(10, 1);
                 //SetDemoTableStyles(TableView);
             }
-            public static DataTable BuildDemoDataTable(int cols, int rows)
+            public static DataTable BuildTable(int cols, int rows)
             {
-                var dt = new DataTable();
+                var Table = new DataTable();
 
-                int explicitCols = 6;
-                dt.Columns.Add(new DataColumn("Connection (Cl/Pb/Pr)", typeof(string)));
-                dt.Columns.Add(new DataColumn("Live Bid/Ask (AVG)", typeof(string)));
-                dt.Columns.Add(new DataColumn("$Live Profit", typeof(string)));
-                dt.Columns.Add(new DataColumn("$Balance ($/%)", typeof(string)));
-                dt.Columns.Add(new DataColumn("$Change ($/%)", typeof(double)));
-                dt.Columns.Add(new DataColumn("Active (B/S/$)", typeof(string)));
-                dt.Columns.Add(new DataColumn("Filled (B/S/$)", typeof(string)));
-                dt.Columns.Add(new DataColumn("Orders (A/F/$)", typeof(string)));
+                Table.Columns.Add(new DataColumn("Connection (Cl/Pb/Pr)", typeof(string)));
+                Table.Columns.Add(new DataColumn("Live Bid/Ask (AVG)", typeof(string)));
+                Table.Columns.Add(new DataColumn("$Live Profit", typeof(string)));
+                Table.Columns.Add(new DataColumn("$Balance ($/%)", typeof(string)));
+                Table.Columns.Add(new DataColumn("$Change ($/%)", typeof(string)));
+                Table.Columns.Add(new DataColumn("Active (B/S/$)", typeof(string)));
+                Table.Columns.Add(new DataColumn("Filled (B/S/$)", typeof(string)));
+                Table.Columns.Add(new DataColumn("Pred. NN (Y/X)", typeof(string)));
+                Table.Columns.Add(new DataColumn("Pred. ML (LB/UP)", typeof(string)));
 
 
-                for (int i = 0; i < cols - explicitCols; i++)
+                List<object> row = new List<object>(){
+                    "1/1/1",
+                    "999999999",
+                    "45",
+                    "4/23%", /*add some negatives to demo styles*/
+                    "4/32%",
+                    "8/5/92342",
+                    "8/3/42342",
+                    "45235/353",
+                    "23253/92342",
+
+                   };
+
+/*                for (int j = 0; j < cols - explicitCols; j++)
                 {
-                    dt.Columns.Add("Column" + (i + explicitCols));
-                }
+                    row.Add("SomeValue" + r.Next(100));
+                }*/
 
-                var r = new Random(100);
 
-                for (int i = 0; i < rows; i++)
-                {
+                Table.Rows.Add(row.ToArray());
 
-                    List<object> row = new List<object>(){
-                    "Some long t",
-                    new DateTime(2000+i,12,25),
-                    r.Next(i),
-                    (r.NextDouble()*i)-0.5 /*add some negatives to demo styles*/,
-                    DBNull.Value,
-                    "Les Mise" + Char.ConvertFromUtf32(Int32.Parse("0301", NumberStyles.HexNumber)) + "rables"
-                };
 
-                    for (int j = 0; j < cols - explicitCols; j++)
-                    {
-                        row.Add("SomeValue" + r.Next(100));
-                    }
-
-                    dt.Rows.Add(row.ToArray());
-                }
-
-                return dt;
+                return Table;
             }
             private static void SetDemoTableStyles(TableView tableView)
             {
