@@ -58,7 +58,7 @@ namespace TMPFT.Display
         /// <summary>
         /// Used for development purposes only see cref="CoreLib"/>. 
         /// </summary>
-        public CoreLib CoreLib = new CoreLib();
+        public CoreLib _CoreLib = new CoreLib();
         ///
         private bool _disposedValue;
 
@@ -90,7 +90,7 @@ namespace TMPFT.Display
         /// </remarks>
         public virtual void ModuleInit()
         {
-            Task.Run(() => CoreLib.ConstructModule());
+            Task.Run(() => _CoreLib.ConstructModule());
         }
 
         private async Task Refresh()

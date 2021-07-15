@@ -32,9 +32,7 @@ namespace TMPFT.Display.Advanced.Views
 
             Win.Add(_listView);
 
-            //CoreLib.Exchange.onPrivateComplete += (sender, e) => Refresh();
-            //CoreLib.Exchange.onPublicComplete += (sender, e) => Refresh();
-            CoreLib.onUpdate += (sender, e) => Refresh(sender);
+            CoreLib.SoftwareEvents.onUpdate += (sender, e) => Refresh(sender);
 
         }
 
