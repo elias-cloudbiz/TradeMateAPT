@@ -90,18 +90,18 @@ namespace TMPFT.Display
         /// </remarks>
         public virtual void ModuleInit()
         {
-            Task.Run(() => _CoreLib.ConstructModule());
+            Task.Run(() => _CoreLib.ConstructConnection());
         }
 
         private async Task Refresh()
         {
             //Win.SetNeedsDisplay();
-            Top.SetNeedsDisplay();
+            //Top.SetNeedsDisplay();
             Application.Refresh();
 
             await Task.Delay(1000);
 
-            await Task.Run(() => Refresh());
+            await Refresh();
         }
 
         public virtual void Init(Toplevel top, ColorScheme colorScheme)

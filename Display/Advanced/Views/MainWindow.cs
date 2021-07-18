@@ -6,6 +6,7 @@ using Terminal.Gui.Graphs;
 using TMPFT.Display;
 using TMPFT.Core;
 using TMPFT.Core.Models;
+using TMPFT.Core.Exchanges;
 using System.Data;
 using System.Globalization;
 using NStack;
@@ -42,9 +43,9 @@ namespace TMPFT.Display
         {
             var menu = new MenuBar(new MenuBarItem[] {
                 new MenuBarItem ("_File", new MenuItem [] {
-                    new MenuItem ("Scatter _Plot", "",()=>graphs[currentGraph = 0]()),
-                    new MenuItem ("_Line Graph","",()=>graphs[currentGraph = 1]()),
-                    new MenuItem ("_Multi Bar Graph","",()=>graphs[currentGraph = 2]()),
+                    new MenuItem ("Scatter _Plot", "",()=>Graphs.SetupPeriodicTableScatterPlot(GraphView)),
+                    new MenuItem ("_Line Graph","",()=>Graphs.setupLiveGraph(GraphView)),
+                    new MenuItem ("_Multi Bar Graph","",()=>Graphs.SetupPeriodicTableScatterPlot(GraphView)),
                     new MenuItem ("_Quit", "", () => QuitWindow()),
                 }),
                 new MenuBarItem ("_View", new MenuItem [] {
@@ -173,16 +174,29 @@ namespace TMPFT.Display
 
             CreateStatusBar();
 
-            CoreLib.SoftwareEvents.onScreenUpdate += (sender, e) => UpdateTableGroup();
+            CoreLib.SoftwareEvents.onScreenUpdate += (sender, e) => UpdateMainWindowMetrics();
 
             Graphs.setupLiveGraph(GraphView);
         }
-        public void UpdateTableGroup() {
-            UpdateTableCell(0, Parameters.API.PrivateConnection.ToString());
-        }
-        public void UpdateTableCell(int ColNr = 0, string Value = "Default", int RowIndex = 0)
-        {
+        public void UpdateMainWindowMetrics() {
 
+            string ConnectionState = $"1/{Parameters.API.PublicConnection}/{Parameters.API.PrivateConnection}";
+            string LivePrice = $"{Exchange.LastCoin.getBaseValueRounded}";
+
+            UpdateTableCell(0, ConnectionState);
+            UpdateTableCell(1, LivePrice);
+
+            /*            UpdateTableCell(1, Parameters.API.PublicReconn.ToString());
+                        UpdateTableCell(2, Parameters.API.PublicSyncs.ToString());
+                        UpdateTableCell(3, );
+                        UpdateTableCell(4, Parameters.API.PrivateReconn.ToString());
+                        UpdateTableCell(5, Parameters.API.PrivateSyncs.ToString());
+                        UpdateTableCell(6, Parameters.API.PrivateConnection.ToString());
+                        UpdateTableCell(7, Parameters.API.PrivateConnection.ToString());*/
+
+        }
+        private void UpdateTableCell(int ColNr = 0, string Value = "Default", int RowIndex = 0)
+        {
             switch (ColNr)
             {
                 case 0:
