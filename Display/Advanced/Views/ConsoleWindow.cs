@@ -32,8 +32,7 @@ namespace TMPFT.Display.Advanced.Views
 
             Win.Add(_listView);
 
-            CoreLib.SoftwareEvents.onUpdate += (sender, e) => Refresh(sender);
-
+            CoreLib.SoftwareEvents.onScreenUpdate += (sender, e) => Refresh(sender);
 
             CreateStatusBar();
         }

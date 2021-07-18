@@ -32,31 +32,29 @@ namespace TMPFT.Display.Advanced.Views
 
             Win.Add(_listView);
 
-            CoreLib.SoftwareEvents.onUpdate += (sender, e) => Refresh(sender);
-
+            CoreLib.SoftwareEvents.onScreenUpdate += (sender, e) => Refresh(sender);
         }
 
         public void Refresh(object sender)
         {
             _listView.SetSource(CoreLib.DebugOut.ToList());
         }
-
         private void CreateStatusBar()
         {
-            /*            var statusBar = new StatusBar(new StatusItem[] {
-                                       new StatusItem(Key.CtrlMask | Key.R, "~^R~ Refresh", null),
-                                       new StatusItem(Key.CtrlMask | Key.S, "~^S~ Sync",  () => Refresh("Eee")),
-                                       new StatusItem(Key.CtrlMask | Key.Q, "~^Q~ Quit", () => StopApplication()),
-                                   });
-                        statusBar.ColorScheme = Colors.TopLevel;
-                        Top.Add(statusBar);*/
+            /*
+             var statusBar = new StatusBar(new StatusItem[] {
+                        new StatusItem(Key.CtrlMask | Key.R, "~^R~ Refresh", null),
+                        new StatusItem(Key.CtrlMask | Key.S, "~^S~ Sync",  () => Refresh("Eee")),
+                        new StatusItem(Key.CtrlMask | Key.Q, "~^Q~ Quit", () => StopApplication()),
+                    });
+            statusBar.ColorScheme = Colors.TopLevel;
+            Top.Add(statusBar);
+            */
         }
-
         public static void clearLines()
         {
             CoreLib.DebugOut.Clear();
         }
-
         public static void stopApplication()
         {
             Application.RequestStop();

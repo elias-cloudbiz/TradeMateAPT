@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Terminal.Gui;
 using TMPFT.Core;
+using TMPFT.Core.Models;
 
 namespace TMPFT
 {

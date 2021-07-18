@@ -57,16 +57,6 @@ namespace TMPFT.Display.Advanced.Views
 			});
 			Top.Add(menu);
 
-
-
-			var statusBar = new StatusBar(new StatusItem[] {
-				new StatusItem(Key.F2, "~F2~ Refresh", () => OpenExample(true)),
-				new StatusItem(Key.F3, "~F3~ Close", () => CloseExample()),
-				new StatusItem(Key.F4, "~F4~ Exit", () => OpenSimple(true)),
-				new StatusItem(Key.CtrlMask | Key.Q, "~^Q~ Quit", () => Quit()),
-			});
-			Top.Add(statusBar);
-
 			Win.Add(tableView);
 
 			var selectedCellLabel = new Label()
@@ -86,6 +76,64 @@ namespace TMPFT.Display.Advanced.Views
 			tableView.KeyPress += TableViewKeyPress;
 
 			SetupScrollBar();
+
+			var statusBar = new StatusBar(new StatusItem[] {
+				new StatusItem(Key.CtrlMask | Key.R, "~^R~ Train", null),
+				new StatusItem(Key.CtrlMask | Key.Q, "~^Q~ Quit", null),
+			});
+
+			Top.Add(statusBar);
+		}
+
+	
+
+		/// <summary>
+		/// Generates a new demo <see cref="DataTable"/> with the given number of <paramref name="cols"/> (min 5) and <paramref name="rows"/>
+		/// </summary>
+		/// <param name="cols"></param>
+		/// <param name="rows"></param>
+		/// <returns></returns>
+		public static DataTable BuildTable(int cols, int rows)
+		{
+			var dt = new DataTable();
+
+			dt.Columns.Add(new DataColumn("Index", typeof(int)));
+			dt.Columns.Add(new DataColumn("Price (ML/NN)", typeof(string)));
+			dt.Columns.Add(new DataColumn("Neural Prediction Ratio", typeof(string)));
+
+
+
+			return dt;
+		}
+
+		/// <summary>
+		/// Builds a simple table in which cell values contents are the index of the cell.  This helps testing that scrolling etc is working correctly and not skipping out any rows/columns when paging
+		/// </summary>
+		/// <param name="cols"></param>
+		/// <param name="rows"></param>
+		/// <returns></returns>
+		public static DataTable BuildSimpleDataTable(int cols, int rows)
+		{
+			var dt = new DataTable();
+
+			for (int c = 0; c < cols; c++)
+			{
+				dt.Columns.Add("Col" + c);
+			}
+
+			for (int r = 0; r < rows; r++)
+			{
+				var newRow = dt.NewRow();
+
+				for (int c = 0; c < cols; c++)
+				{
+					newRow[c] = $"R{r}C{c}";
+				}
+
+				dt.Rows.Add(newRow);
+			}
+
+			return dt;
 		}
 
 		private void SetupScrollBar()
@@ -118,7 +166,6 @@ namespace TMPFT.Display.Advanced.Views
 			};
 
 		}
-
 		private void TableViewKeyPress(View.KeyEventEventArgs e)
 		{
 			if (e.KeyEvent.Key == Key.DeleteChar)
@@ -146,20 +193,17 @@ namespace TMPFT.Display.Advanced.Views
 
 
 		}
-
 		private void ClearColumnStyles()
 		{
 			tableView.Style.ColumnStyles.Clear();
 			tableView.Update();
 		}
-
 		private void ToggleAlwaysShowHeader()
 		{
 			miAlwaysShowHeaders.Checked = !miAlwaysShowHeaders.Checked;
 			tableView.Style.AlwaysShowHeaders = miAlwaysShowHeaders.Checked;
 			tableView.Update();
 		}
-
 		private void ToggleOverline()
 		{
 			miHeaderOverline.Checked = !miHeaderOverline.Checked;
@@ -184,7 +228,6 @@ namespace TMPFT.Display.Advanced.Views
 			tableView.FullRowSelect = miFullRowSelect.Checked;
 			tableView.Update();
 		}
-
 		private void ToggleExpandLastColumn()
 		{
 			miExpandLastColumn.Checked = !miExpandLastColumn.Checked;
@@ -227,24 +270,19 @@ namespace TMPFT.Display.Advanced.Views
 
 			tableView.Update();
 		}
-
-
 		private void CloseExample()
 		{
 			tableView.Table = null;
 		}
-
 		private void Quit()
 		{
 			Application.RequestStop();
 		}
-
 		private void OpenExample(bool big)
 		{
-			tableView.Table = BuildDemoDataTable(2, 10000);
+			tableView.Table = BuildTable(2, 10000);
 			//SetDemoTableStyles();
 		}
-
 		private void SetDemoTableStyles()
 		{
 			var alignMid = new TableView.ColumnStyle()
@@ -283,12 +321,10 @@ namespace TMPFT.Display.Advanced.Views
 
 			tableView.Update();
 		}
-
 		private void OpenSimple(bool big)
 		{
 			tableView.Table = BuildSimpleDataTable(big ? 30 : 5, big ? 1000 : 5);
 		}
-
 		private void EditCurrentCell(TableView.CellActivatedEventArgs e)
 		{
 			if (e.Table == null)
@@ -339,80 +375,11 @@ namespace TMPFT.Display.Advanced.Views
 			}
 		}
 
-		/// <summary>
-		/// Generates a new demo <see cref="DataTable"/> with the given number of <paramref name="cols"/> (min 5) and <paramref name="rows"/>
-		/// </summary>
-		/// <param name="cols"></param>
-		/// <param name="rows"></param>
-		/// <returns></returns>
-		public static DataTable BuildDemoDataTable(int cols, int rows)
-		{
-			var dt = new DataTable();
+		public partial class Table {
 
-			int explicitCols = 6;
-			dt.Columns.Add(new DataColumn("Index", typeof(int)));
-			dt.Columns.Add(new DataColumn("Price (ML/NN)", typeof(string)));
-			dt.Columns.Add(new DataColumn("Neural Prediction Ratio", typeof(string)));
-			/*dt.Columns.Add(new DataColumn("IntCol", typeof(string)));
-			dt.Columns.Add(new DataColumn("DoubleCol", typeof(string)));
-			dt.Columns.Add(new DataColumn("NullsCol", typeof(string)));
-			dt.Columns.Add(new DataColumn("Unicode", typeof(string)));
+			TableView tableView;
 
-			for (int i = 0; i < cols - explicitCols; i++)
-			{
-				dt.Columns.Add("Column" + (i + explicitCols));
-			}*/
 
-			var r = new Random(100);
-
-			for (int i = 0; i < rows; i++)
-			{
-
-				List<object> row = new List<object>(){
-					i,
-					"Text " + i,
-					"Data 000",
-				};
-
-				for (int j = 0; j < cols - explicitCols; j++)
-				{
-					row.Add("SomeValue" + r.Next(100));
-				}
-
-				dt.Rows.Add(row.ToArray());
-			}
-
-			return dt;
-		}
-
-		/// <summary>
-		/// Builds a simple table in which cell values contents are the index of the cell.  This helps testing that scrolling etc is working correctly and not skipping out any rows/columns when paging
-		/// </summary>
-		/// <param name="cols"></param>
-		/// <param name="rows"></param>
-		/// <returns></returns>
-		public static DataTable BuildSimpleDataTable(int cols, int rows)
-		{
-			var dt = new DataTable();
-
-			for (int c = 0; c < cols; c++)
-			{
-				dt.Columns.Add("Col" + c);
-			}
-
-			for (int r = 0; r < rows; r++)
-			{
-				var newRow = dt.NewRow();
-
-				for (int c = 0; c < cols; c++)
-				{
-					newRow[c] = $"R{r}C{c}";
-				}
-
-				dt.Rows.Add(newRow);
-			}
-
-			return dt;
 		}
 	}
 }

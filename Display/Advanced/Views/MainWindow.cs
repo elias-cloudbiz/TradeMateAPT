@@ -5,6 +5,7 @@ using Terminal.Gui;
 using Terminal.Gui.Graphs;
 using TMPFT.Display;
 using TMPFT.Core;
+using TMPFT.Core.Models;
 using System.Data;
 using System.Globalization;
 using NStack;
@@ -20,32 +21,25 @@ namespace TMPFT.Display
         private FrameView FrameLeft { get; set; }
         private FrameView FrameRight { get; set; }
         private int SelectedItemIndex { get; set; }
-
-        private TableView tableView { get; set; } = new TableView()
+        private TableView TableView { get; set; } = new TableView()
         {
             X = 0,
             Y = 0,
             Width = Dim.Fill(),
             Height = Dim.Sized(5),
         };
-
-        int currentGraph = 0;
         Action[] graphs;
-
-        public override void Setup()
+        private void CreateStatusBar()
         {
-            Win.Title = this.GetName();
-            Win.Y = 1; // menu
-            Win.Height = Dim.Fill(1); // status bar
-            Top.LayoutSubviews();
-
-            graphs = new Action[] {
-                 () => Graphs.SetupPeriodicTableScatterPlot(GraphView),    //0
-				 () => Graphs.setupLiveGraph(GraphView),                   //4
-				 () => Graphs.MultiBarGraph(GraphView)                     //7
-			};
-
-
+            var statusBar = new StatusBar(new StatusItem[] {
+                new StatusItem(Key.CtrlMask | Key.R, "~^R~ Test 1", () => UpdateTableCell(0, "D1")),
+                new StatusItem(Key.CtrlMask | Key.S, "~^S~ Test 2",  () => UpdateTableCell(0, "! D3 !"))
+            });
+            statusBar.ColorScheme = Colors.TopLevel;
+            Top.Add(statusBar);
+        }
+        void createMenuBar()
+        {
             var menu = new MenuBar(new MenuBarItem[] {
                 new MenuBarItem ("_File", new MenuItem [] {
                     new MenuItem ("Scatter _Plot", "",()=>graphs[currentGraph = 0]()),
@@ -61,6 +55,22 @@ namespace TMPFT.Display
                 });
             Top.Add(menu);
 
+        }
+        public override void Setup()
+        {
+            Win.Title = this.GetName();
+            Win.Y = 1; // menu
+            Win.Height = Dim.Fill(1); // status bar
+            Top.LayoutSubviews();
+
+            graphs = new Action[] {
+                 () => Graphs.SetupPeriodicTableScatterPlot(GraphView),    //0
+				 () => Graphs.setupLiveGraph(GraphView),                   //4
+				 () => Graphs.MultiBarGraph(GraphView)                     //7
+			};
+
+            createMenuBar();
+
             FrameTop = new FrameView("Data")
             {
                 X = 1,
@@ -69,18 +79,11 @@ namespace TMPFT.Display
                 Height = Dim.Sized(4),
             };
 
-            //var labelHL2 = new Label($"XXX") { X = 0, Y = 0, Width = Dim.Fill(), Height = 1, TextAlignment = TextAlignment.Left, /**ColorScheme = Colors.ColorSchemes["Base"]**/ };
-            //var labelHL3 = new Label($"XXX1") { X = 0, Y = 0, Width = Dim.Fill(), Height = 1, TextAlignment = TextAlignment.Centered, /**ColorScheme = Colors.ColorSchemes["Base"]**/ };
-            //frameTop.Add(labelHL2);
-            //frameTop.Add(labelHL3);
-            //Top.Add(frameTop);
+            // Create default table
+            Table.BuildDefaultTable(TableView);
+            Win.Add(TableView);
 
-
-
-            Misc.OpenExample(tableView);
-            Win.Add(tableView);
-
-
+            // Create Frame for Graph
             FrameLeft = new FrameView("Live")
             {
                 X = 0,
@@ -88,7 +91,7 @@ namespace TMPFT.Display
                 Width = Dim.Percent(75),
                 Height = Dim.Fill(),
             };
-
+            /// Add Graph
             GraphView = new GraphView()
             {
                 X = 0,
@@ -96,12 +99,10 @@ namespace TMPFT.Display
                 Width = Dim.Fill(),
                 Height = Dim.Fill(),
             };
-
-
             Win.Add(FrameLeft);
             FrameLeft.Add(GraphView);
 
-
+            // Create orders frame
             FrameRight = new FrameView("Orders")
             {
                 X = Pos.Right(FrameLeft) + 1,
@@ -114,6 +115,7 @@ namespace TMPFT.Display
             var labelHL = new Label($"Syncinc in {" X "} sec.") { X = 0, Y = 0, Width = Dim.Fill(), Height = 1, TextAlignment = TextAlignment.Centered, /**ColorScheme = Colors.ColorSchemes["Base"]**/ };
             FrameRight.Add(labelHL);
 
+            // Create ListView For orders
             ListView _listView = new ListView()
             {
                 X = 1,
@@ -124,7 +126,6 @@ namespace TMPFT.Display
                 AllowsMarking = false,
                 AllowsMultipleSelection = false
             };
-
             List<Type> Orders = Scenarios.GetDerivedClasses<Scenarios>().OrderBy(t => Scenarios.ScenarioMetadata.GetName(t)).ToList();
 
             var createButton = new Button($"Create")
@@ -133,7 +134,6 @@ namespace TMPFT.Display
                 X = 0,
                 Y = Pos.Y(_listView) + 1 + Orders.Count,
             };
-
 
             createButton.Clicked += () =>
             {
@@ -148,6 +148,7 @@ namespace TMPFT.Display
                 Y = Pos.Y(_listView) + 1 + Orders.Count,
                 IsDefault = false,
             };
+
             createButton.Clicked += () =>
             {
                 // Cancel Clicked
@@ -170,18 +171,51 @@ namespace TMPFT.Display
             FrameRight.Add(createButton);
             FrameRight.Add(cancelButton);
 
+            CreateStatusBar();
 
-            var statusBar = new StatusBar(new StatusItem[] {
-                new StatusItem(Key.CtrlMask | Key.R, "~^R~ Refresh", () => graphs[currentGraph++%graphs.Length]()),
-                new StatusItem(Key.CtrlMask | Key.R, "~^R~ Sync", () => graphs[currentGraph++%graphs.Length]()),
-                new StatusItem(Key.CtrlMask | Key.Q, "~^Q~ Quit", () => QuitWindow()),
-            });
-
-            Top.Add(statusBar);
+            CoreLib.SoftwareEvents.onScreenUpdate += (sender, e) => UpdateTableGroup();
 
             Graphs.setupLiveGraph(GraphView);
         }
+        public void UpdateTableGroup() {
+            UpdateTableCell(0, Parameters.API.PrivateConnection.ToString());
+        }
+        public void UpdateTableCell(int ColNr = 0, string Value = "Default", int RowIndex = 0)
+        {
 
+            switch (ColNr)
+            {
+                case 0:
+                    TableView.Table.Rows[RowIndex]["Connection (Cl/Pb/Pr)"] = Value;
+                    break;
+                case 1:
+                    TableView.Table.Rows[RowIndex]["Live Bid/Ask"] = Value;
+                    break;
+                case 2:
+                    TableView.Table.Rows[RowIndex]["Live Profit"] = Value;
+                    break;
+                case 3:
+                    TableView.Table.Rows[RowIndex]["Balance ($/%)"] = Value;
+                    break;
+                case 4:
+                    TableView.Table.Rows[RowIndex]["Change ($/%)"] = Value;
+                    break;
+                case 5:
+                    TableView.Table.Rows[RowIndex]["Active (B/S/$)"] = Value;
+                    break;
+                case 6:
+                    TableView.Table.Rows[RowIndex]["Filled (B/S/$)"] = Value;
+                    break;
+                case 7:
+                    TableView.Table.Rows[RowIndex]["Pred. NN (Y/X)"] = Value;
+                    break;
+                case 8:
+                    TableView.Table.Rows[RowIndex]["Pred. ML (LB/UP)"] = Value;
+                    break;
+                default:
+                    break;
+            }
+        }
         private void createOrder()
         {
             var buttons = new List<Button>();
@@ -238,42 +272,37 @@ namespace TMPFT.Display
             Application.RequestStop();
         }
 
-        partial class Misc
+        private partial class Table
         {
-            public static void Zoom(GraphView graphView, float factor)
-            {
-                graphView.CellSize = new PointF(
-                    graphView.CellSize.X * factor,
-                    graphView.CellSize.Y * factor
-                );
-
-                graphView.AxisX.Increment *= factor;
-                graphView.AxisY.Increment *= factor;
-
-                graphView.SetNeedsDisplay();
-            }
-            public static void OpenExample(TableView TableView)
-            {
-                TableView.Table = BuildDefaultTable();
-                //SetDemoTableStyles(TableView);
-            }
-            public static DataTable BuildDefaultTable()
+            public static void BuildDefaultTable(TableView tableView)
             {
                 var Table = new DataTable();
 
                 Table.Columns.Add(new DataColumn("Connection (Cl/Pb/Pr)", typeof(string)));
-                Table.Columns.Add(new DataColumn("Live Bid/Ask (AVG)", typeof(string)));
-                Table.Columns.Add(new DataColumn("$Live Profit", typeof(string)));
-                Table.Columns.Add(new DataColumn("$Balance ($/%)", typeof(string)));
-                Table.Columns.Add(new DataColumn("$Change ($/%)", typeof(string)));
+                Table.Columns.Add(new DataColumn("Live Bid/Ask", typeof(string)));
+                Table.Columns.Add(new DataColumn("Live Profit", typeof(string)));
+                Table.Columns.Add(new DataColumn("Balance ($/%)", typeof(string)));
+                Table.Columns.Add(new DataColumn("Change ($/%)", typeof(string)));
                 Table.Columns.Add(new DataColumn("Active (B/S/$)", typeof(string)));
                 Table.Columns.Add(new DataColumn("Filled (B/S/$)", typeof(string)));
                 Table.Columns.Add(new DataColumn("Pred. NN (Y/X)", typeof(string)));
                 Table.Columns.Add(new DataColumn("Pred. ML (LB/UP)", typeof(string)));
 
-                List<object> row = new List<object>(){
+                List<object> rowOne = new List<object>(){
                     "1/1/1",
-                    "999999999",
+                    "9999999.00",
+                    "45$/-5%",
+                    "44$/-23%", /*add some negatives to demo styles*/
+                    "2.2/32%",
+                    "8/5/9234$",
+                    "8/3/4234$",
+                    "45235Y/353X",
+                    "23253.1/92342.2",
+                   };
+
+                List<object> rowTwo = new List<object>(){
+                    "Crypt",
+                    "LW:{}/UP:{}",
                     "45",
                     "4/23%", /*add some negatives to demo styles*/
                     "4/32%",
@@ -283,6 +312,7 @@ namespace TMPFT.Display
                     "23253/92342",
                    };
 
+
                 /*                
                  for (int j = 0; j < cols - explicitCols; j++)
                 {
@@ -290,14 +320,12 @@ namespace TMPFT.Display
                 }
                 */
 
-                Table.Rows.Add(row.ToArray());
+                Table.Rows.Add(rowOne.ToArray());
 
-                Table.Rows[0]["Connection (Cl/Pb/Pr)"] = "cde"; 
-
-
-                return Table;
+                tableView.Table = Table;
             }
-            public static DataTable UpdateDataTable(DataTable Table) {
+            public static DataTable UpdateDataTable(DataTable Table)
+            {
 
 
                 Table.Rows[0]["Connection (Cl/Pb/Pr)"] = "cde";
@@ -344,8 +372,6 @@ namespace TMPFT.Display
 
                 tableView.Update();
             }
-
-
         }
         private partial class Graphs
         {
@@ -538,6 +564,20 @@ namespace TMPFT.Display
                 GraphView.SetNeedsDisplay();
             }
         }
+        partial class Misc
+        {
+            public static void Zoom(GraphView graphView, float factor)
+            {
+                graphView.CellSize = new PointF(
+                    graphView.CellSize.X * factor,
+                    graphView.CellSize.Y * factor
+                );
 
+                graphView.AxisX.Increment *= factor;
+                graphView.AxisY.Increment *= factor;
+
+                graphView.SetNeedsDisplay();
+            }
+        }
     }
 }
