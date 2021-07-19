@@ -180,20 +180,13 @@ namespace TMPFT.Display
         }
         public void UpdateMainWindowMetrics() {
 
-            string ConnectionState = $"1/{Parameters.API.PublicConnection}/{Parameters.API.PrivateConnection}";
+            string ConnectionState = $"0/{Parameters.API.PublicConnection}/{Parameters.API.PrivateConnection}";
             string LivePrice = $"{Exchange.LastCoin.getBaseValueRounded}";
+            string Profit = $"{Parameters.Wallet.Profit}/{Parameters.Wallet.BalanceChangeValue}";
 
             UpdateTableCell(0, ConnectionState);
             UpdateTableCell(1, LivePrice);
-
-            /*            UpdateTableCell(1, Parameters.API.PublicReconn.ToString());
-                        UpdateTableCell(2, Parameters.API.PublicSyncs.ToString());
-                        UpdateTableCell(3, );
-                        UpdateTableCell(4, Parameters.API.PrivateReconn.ToString());
-                        UpdateTableCell(5, Parameters.API.PrivateSyncs.ToString());
-                        UpdateTableCell(6, Parameters.API.PrivateConnection.ToString());
-                        UpdateTableCell(7, Parameters.API.PrivateConnection.ToString());*/
-
+            UpdateTableCell(2, Profit);
         }
         private void UpdateTableCell(int ColNr = 0, string Value = "Default", int RowIndex = 0)
         {
@@ -233,7 +226,6 @@ namespace TMPFT.Display
         private void createOrder()
         {
             var buttons = new List<Button>();
-
 
             // This tests dynamically adding buttons; ensuring the dialog resizes if needed and 
             // the buttons are laid out correctly
@@ -389,6 +381,84 @@ namespace TMPFT.Display
         }
         private partial class Graphs
         {
+            static List<PointF> PriceLine = new List<PointF>();
+            static List<PointF> BuyOrders = new List<PointF>();
+            static List<PointF> SellOrders = new List<PointF>();
+
+            public static void updateLiveGraph(GraphView GraphView, float newPrice) {
+
+                var white = Application.Driver.MakeAttribute(Color.White, Color.Black);
+                var red = Application.Driver.MakeAttribute(Color.BrightRed, Color.Black);
+
+                GraphView.Reset();
+                BuyOrders.Clear();
+                SellOrders.Clear();
+
+                // 1. Get orders as types
+                IEnumerable<double> MakeOrders = Exchange.OrdersList.Where(x => x.OrderType == "BUY").Select(x => x.Price);
+                IEnumerable<double> TakeOrders = Exchange.OrdersList.Where(x => x.OrderType == "SELL").Select(x => x.Price);
+                
+                // 2. Add Enumrables as PointF
+                for (int i = 0; i < MakeOrders.Count(); i++)
+                {
+                    BuyOrders.Add(new PointF(i, (float)MakeOrders.ElementAt(i)));
+                }
+                for (int i = 0; i < TakeOrders.Count(); i++)
+                {
+                    BuyOrders.Add(new PointF(i, (float)TakeOrders.ElementAt(i)));
+                }
+
+                // 3. Series of Take
+                var Take = new ScatterSeries()
+                {
+                    Points = BuyOrders,
+                    Fill = new GraphCellToRender('x')
+
+                };
+
+                // 4. Series of Make
+                var Make = new ScatterSeries()
+                {
+                    Points = SellOrders,
+                    Fill = new GraphCellToRender('x', red)
+                };
+
+                // 5. Get Coin collection 
+                IEnumerable<double> Prices = Exchange.CoinCollectionQueue.Select(x => x.getBaseValueRounded);
+
+                for (int i = 0; i < Prices.Count(); i++)
+                {
+                    PriceLine.Add(new PointF(i, (float)Prices.ElementAt(i)));
+                }
+
+                var Price = new PathAnnotation()
+                {
+                    LineColor = white,
+                    Points = PriceLine.OrderBy(p => p.X).ToList(),
+                    BeforeSeries = true,
+                };
+
+                GraphView.Series.Add(Take);
+                GraphView.Series.Add(Make);
+
+                // How much graph space each cell of the console depicts
+                GraphView.CellSize = new PointF(1, 2500);
+
+                // leave space for axis labels
+                GraphView.MarginBottom = 2;
+                GraphView.MarginLeft = 3;
+
+                // One axis tick/label per
+                GraphView.AxisX.Increment = 1000;
+                GraphView.AxisX.ShowLabelsEvery = 10;
+                GraphView.AxisX.Text = "Time →";
+
+                GraphView.AxisY.Increment = 2500;
+                GraphView.AxisY.ShowLabelsEvery = 3;
+                GraphView.AxisY.Text = "↑";
+
+                GraphView.SetNeedsDisplay();
+            }
             public static void setupLiveGraph(GraphView GraphView)
             {
                 GraphView.Reset();
@@ -414,7 +484,7 @@ namespace TMPFT.Display
                     PriceLine.Add(new PointF(r.Next(10000), r.Next(60000)));
                 }
 
-                var points = new ScatterSeries()
+                var Buys = new ScatterSeries()
                 {
                     Points = OrderPoints
                 };
@@ -426,7 +496,7 @@ namespace TMPFT.Display
                     BeforeSeries = true,
                 };
 
-                GraphView.Series.Add(points);
+                GraphView.Series.Add(Buys);
                 GraphView.Annotations.Add(line);
 
 
@@ -438,7 +508,7 @@ namespace TMPFT.Display
                 }
 
 
-                var points2 = new ScatterSeries()
+                var Sells = new ScatterSeries()
                 {
                     Points = OrderPoints,
                     Fill = new GraphCellToRender('x', red)
@@ -451,7 +521,7 @@ namespace TMPFT.Display
                     BeforeSeries = true,
                 };
 
-                GraphView.Series.Add(points2);
+                GraphView.Series.Add(Sells);
                 //graphView.Annotations.Add(line2);
 
                 // How much graph space each cell of the console depicts
@@ -466,9 +536,9 @@ namespace TMPFT.Display
                 GraphView.AxisX.ShowLabelsEvery = 10;
                 GraphView.AxisX.Text = "Time →";
 
-                GraphView.AxisY.Increment = 5000;
-                GraphView.AxisY.ShowLabelsEvery = 2;
-                GraphView.AxisY.Text = "↑ Y";
+                GraphView.AxisY.Increment = 2500;
+                GraphView.AxisY.ShowLabelsEvery = 3;
+                GraphView.AxisY.Text = "↑";
 
                 var max = line.Points.Union(line2.Points).OrderByDescending(p => p.Y).First();
                 GraphView.Annotations.Add(new TextAnnotation() { Text = "(Max)", GraphPosition = new PointF(max.X + (2 * GraphView.CellSize.X), max.Y) });
