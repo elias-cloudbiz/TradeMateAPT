@@ -5,19 +5,19 @@ using System.Text;
 using System.Threading;
 using Terminal.Gui;
 using TMPFT.Core;
+using TMPFT.Core.Events;
 
 namespace TMPFT.Display.Advanced.Views
 {
-    [ScenarioMetadata(Name: "Startup", Description: "View Prediction Data and Statistics")]
+    [ScenarioMetadata(Name: "Console", Description: "View Prediction Data and Statistics")]
     [ScenarioCategory("Debug")]
     [ScenarioCategory("Developer")]
     public class ConsoleWindow : Scenarios
     {
-        private static ListView _listView;
-        public static bool StartupCompleted = false;
+        private static ListView ListView;
         public override void Setup()
         {
-            _listView = new ListView()
+            ListView = new ListView()
             {
                 X = 1,
                 Y = 1,
@@ -28,13 +28,15 @@ namespace TMPFT.Display.Advanced.Views
                 AllowsMultipleSelection = false
             };
 
-            _listView.SetSource(CoreLib.ConsoleOut.ToList());
+            ListView.SetSource(CoreLib.ConsoleOut.ToList());
 
-            Win.Add(_listView);
+            Win.Add(ListView);
 
-            CoreLib.SoftwareEvents.onScreenUpdate += (sender, e) => Refresh(sender);
+            EventsReporter.SoftwareEvents.onScreenUpdate += (sender, e) => Refresh(sender);
+            EventsReporter.SoftwareEvents.onStartUpComplete += (sender, e) => RequestStop();
 
             CreateStatusBar();
+
         }
 
         private void CreateStatusBar()
@@ -50,9 +52,16 @@ namespace TMPFT.Display.Advanced.Views
 
         public void Refresh(object sender)
         {
-            _listView.SetSource(CoreLib.ConsoleOut.ToList());
+            ListView.SetSource(CoreLib.ConsoleOut.ToList());
         }
+        public override void RequestStop()
+        {
+            // Request 
+            Thread.Sleep(1000);
+            base.RequestStop();
+            RunStateMachine.CreateScenario(1);
 
+        }
         public void ClearWindow()
         {
             CoreLib.ConsoleOut.Clear();

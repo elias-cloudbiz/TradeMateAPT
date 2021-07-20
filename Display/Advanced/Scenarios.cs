@@ -90,7 +90,7 @@ namespace TMPFT.Display
         /// </remarks>
         public virtual void ModuleInit()
         {
-            Task.Run(() => _CoreLib.ConstructConnection());
+            Task.Run(() => _CoreLib.ConstructModule());
         }
 
         private async Task Refresh()

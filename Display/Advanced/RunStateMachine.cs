@@ -58,7 +58,8 @@ namespace TMPFT.Display
 			if (args.Length > 0 || true)
 			{
 				//var item = _scenarios.FindIndex(t => Scenarios.ScenarioMetadata.GetName(t).Equals("ConsoleWindow", StringComparison.OrdinalIgnoreCase));
-				_runningScenario = (Scenarios)Activator.CreateInstance(_scenarios[4]);
+				int index = _scenarios.FindIndex(x => x.Name == "ConsoleWindow");
+				_runningScenario = (Scenarios)Activator.CreateInstance(_scenarios[index]);
 				Application.UseSystemConsole = _useSystemConsole;
 				Application.Init();
 				_runningScenario.Init(Application.Top, Colors.TopLevel);
@@ -123,6 +124,21 @@ namespace TMPFT.Display
 			}
 			Responder.Instances.Clear ();
 			#endif
+		}
+
+		public static void CreateScenario(int index) {
+
+			index = _scenarios.FindIndex(x => x.Name == "MainWindow");
+			_runningScenario = (Scenarios)Activator.CreateInstance(_scenarios[index]);
+			Application.UseSystemConsole = _useSystemConsole;
+			Application.Init();
+			_runningScenario.Init(Application.Top, Colors.TopLevel);
+			_runningScenario.Setup();
+			_runningScenario.Run();
+			_runningScenario = null;
+
+			Application.Shutdown();
+			//return;
 		}
 		/// <summary>
 		/// This shows the selection UI. Each time it is run, it calls Application.Init to reset everything.

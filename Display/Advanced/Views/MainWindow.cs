@@ -7,6 +7,7 @@ using TMPFT.Display;
 using TMPFT.Core;
 using TMPFT.Core.Models;
 using TMPFT.Core.Exchanges;
+using TMPFT.Core.Events;
 using System.Data;
 using System.Globalization;
 using NStack;
@@ -174,11 +175,16 @@ namespace TMPFT.Display
 
             CreateStatusBar();
 
-            CoreLib.SoftwareEvents.onScreenUpdate += (sender, e) => UpdateMainWindowMetrics();
+            EventsReporter.SoftwareEvents.onScreenUpdate += (sender, e) => UpdateMainWindowMetrics();
+            EventsReporter.MethodEvents.Public.onPublicComplete += (sender, e) => Graphs.updateLiveGraph(this.GraphView);
 
-            Graphs.setupLiveGraph(GraphView);
+            //Graphs.setupLiveGraph(GraphView);
+
+            Graphs.updateLiveGraph(GraphView);
+
         }
-        public void UpdateMainWindowMetrics() {
+        public void UpdateMainWindowMetrics()
+        {
 
             string ConnectionState = $"0/{Parameters.API.PublicConnection}/{Parameters.API.PrivateConnection}";
             string LivePrice = $"{Exchange.LastCoin.getBaseValueRounded}";
@@ -385,7 +391,8 @@ namespace TMPFT.Display
             static List<PointF> BuyOrders = new List<PointF>();
             static List<PointF> SellOrders = new List<PointF>();
 
-            public static void updateLiveGraph(GraphView GraphView, float newPrice) {
+            public static void updateLiveGraph(GraphView GraphView)
+            {
 
                 var white = Application.Driver.MakeAttribute(Color.White, Color.Black);
                 var red = Application.Driver.MakeAttribute(Color.BrightRed, Color.Black);
@@ -395,9 +402,9 @@ namespace TMPFT.Display
                 SellOrders.Clear();
 
                 // 1. Get orders as types
-                IEnumerable<double> MakeOrders = Exchange.OrdersList.Where(x => x.OrderType == "BUY").Select(x => x.Price);
-                IEnumerable<double> TakeOrders = Exchange.OrdersList.Where(x => x.OrderType == "SELL").Select(x => x.Price);
-                
+                IEnumerable<double> MakeOrders = Exchange.OrdersList.Where(x => x.OrderType == "BUY").Select(x => x.Price).ToList();
+                IEnumerable<double> TakeOrders = Exchange.OrdersList.Where(x => x.OrderType == "SELL").Select(x => x.Price).ToList();
+
                 // 2. Add Enumrables as PointF
                 for (int i = 0; i < MakeOrders.Count(); i++)
                 {
@@ -405,7 +412,7 @@ namespace TMPFT.Display
                 }
                 for (int i = 0; i < TakeOrders.Count(); i++)
                 {
-                    BuyOrders.Add(new PointF(i, (float)TakeOrders.ElementAt(i)));
+                    SellOrders.Add(new PointF(i, (float)TakeOrders.ElementAt(i)));
                 }
 
                 // 3. Series of Take
@@ -424,11 +431,11 @@ namespace TMPFT.Display
                 };
 
                 // 5. Get Coin collection 
-                IEnumerable<double> Prices = Exchange.CoinCollectionQueue.Select(x => x.getBaseValueRounded);
+                IEnumerable<double> LivePrices = Exchange.CoinCollectionQueue.Select(x => x.getBaseValueRounded).ToList();
 
-                for (int i = 0; i < Prices.Count(); i++)
+                for (int i = 0; i < LivePrices.Count(); i++)
                 {
-                    PriceLine.Add(new PointF(i, (float)Prices.ElementAt(i)));
+                    PriceLine.Add(new PointF(i, (float)LivePrices.ElementAt(i)));
                 }
 
                 var Price = new PathAnnotation()
@@ -438,23 +445,25 @@ namespace TMPFT.Display
                     BeforeSeries = true,
                 };
 
+                GraphView.Annotations.Add(Price);
+
                 GraphView.Series.Add(Take);
                 GraphView.Series.Add(Make);
 
                 // How much graph space each cell of the console depicts
                 GraphView.CellSize = new PointF(1, 2500);
-
+  
                 // leave space for axis labels
                 GraphView.MarginBottom = 2;
                 GraphView.MarginLeft = 3;
 
                 // One axis tick/label per
-                GraphView.AxisX.Increment = 1000;
-                GraphView.AxisX.ShowLabelsEvery = 10;
+                GraphView.AxisX.Increment = 1;
+                GraphView.AxisX.ShowLabelsEvery = 5;
                 GraphView.AxisX.Text = "Time →";
 
                 GraphView.AxisY.Increment = 2500;
-                GraphView.AxisY.ShowLabelsEvery = 3;
+                GraphView.AxisY.ShowLabelsEvery = 5;
                 GraphView.AxisY.Text = "↑";
 
                 GraphView.SetNeedsDisplay();
@@ -497,7 +506,7 @@ namespace TMPFT.Display
                 };
 
                 GraphView.Series.Add(Buys);
-                GraphView.Annotations.Add(line);
+                //GraphView.Annotations.Add(line);
 
 
                 OrderPoints = new List<PointF>();
