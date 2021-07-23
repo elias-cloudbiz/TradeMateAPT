@@ -3,24 +3,20 @@
 </p>
 
 
-## TradeMate PFT (Predictive Frequency Trading)
-### Operator assisted automative analytics and position execution.
+## TradeMate APT (Assisted Predictive Trading)
+###
 
-####  The software is made with purpose to simplify life of hobby and regular analysts and in heavy volatile markets such as virtual assets.
+#####  Is a pure light weight .NET Core based software in 'pre-alpha state' is made with solid purpose to open possibilities for developers to extend the software with; new integrated dynamic libraries (.dll) and assist operators in heavy volatile markets such as virtual markets and tokens. TradeMate APT serves with default pre-integrated library and parameters freely customization for improved strategies. 
 
 **Table of content:**
 1. Introduction
-    * What is TradeMate
-    * How does it work
-2. Setup and configuration
-    * Authorization properties
-    * Configuring parameters
-    * Optimizing parameters
-3. Operators
-    * Recommended foreknowledge
-    * Prerequisites before use
-4. Developers
-    * Adding connections and extensions
+2. Operator Trainee
+    * Prerequisites
+    * Monitor
+3. Setup and configurations (Default core)
+    * Client Authentication
+    * Configuring Default Parameters
+4. Developer integration (To be released)
+    * Extension
+    * Exchanges
     
-
-*To be added..*

@@ -127,18 +127,16 @@ namespace TMPFT.Display
 		}
 
 		public static void CreateScenario(int index) {
-
 			index = _scenarios.FindIndex(x => x.Name == "MainWindow");
 			_runningScenario = (Scenarios)Activator.CreateInstance(_scenarios[index]);
 			Application.UseSystemConsole = _useSystemConsole;
 			Application.Init();
 			_runningScenario.Init(Application.Top, Colors.TopLevel);
 			_runningScenario.Setup();
+			_runningScenario.ModuleInit();
 			_runningScenario.Run();
 			_runningScenario = null;
 
-			Application.Shutdown();
-			//return;
 		}
 		/// <summary>
 		/// This shows the selection UI. Each time it is run, it calls Application.Init to reset everything.

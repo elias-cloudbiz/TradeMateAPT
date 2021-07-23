@@ -50,6 +50,8 @@ namespace TMPFT.Display
     /// </example>
     public class Scenarios : IDisposable
     {
+        public Scenarios() {  }
+
         /// <summary>
         /// Module Import for dynamic and static import of modules <see cref="ModuleImport"/>. This should be set to Import default function.
         /// </summary>
@@ -91,17 +93,18 @@ namespace TMPFT.Display
         public virtual void ModuleInit()
         {
             Task.Run(() => _CoreLib.ConstructModule());
+            Task.Run(() => Refresh());
         }
 
-        private async Task Refresh()
+        public async Task Refresh()
         {
             //Win.SetNeedsDisplay();
-            //Top.SetNeedsDisplay();
+            Top.SetNeedsDisplay();
             Application.Refresh();
 
             await Task.Delay(1000);
 
-            await Refresh();
+            //await Refresh();
         }
 
         public virtual void Init(Toplevel top, ColorScheme colorScheme)
@@ -123,8 +126,6 @@ namespace TMPFT.Display
                 ColorScheme = colorScheme,
             };
             Top.Add(Win);
-
-            Refresh();
         }
 
         /// <summary>

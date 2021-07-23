@@ -100,6 +100,7 @@ namespace TMPFT.Display
                 Y = 1,
                 Width = Dim.Fill(),
                 Height = Dim.Fill(),
+
             };
             Win.Add(FrameLeft);
             FrameLeft.Add(GraphView);
@@ -185,7 +186,6 @@ namespace TMPFT.Display
         }
         public void UpdateMainWindowMetrics()
         {
-
             string ConnectionState = $"0/{Parameters.API.PublicConnection}/{Parameters.API.PrivateConnection}";
             string LivePrice = $"{Exchange.LastCoin.getBaseValueRounded}";
             string Profit = $"{Parameters.Wallet.Profit}/{Parameters.Wallet.BalanceChangeValue}";
@@ -193,6 +193,7 @@ namespace TMPFT.Display
             UpdateTableCell(0, ConnectionState);
             UpdateTableCell(1, LivePrice);
             UpdateTableCell(2, Profit);
+            UpdateTableCell(3, GraphView.ScreenToGraphSpace(2, 2).Y.ToString());
         }
         private void UpdateTableCell(int ColNr = 0, string Value = "Default", int RowIndex = 0)
         {
@@ -391,13 +392,20 @@ namespace TMPFT.Display
             static List<PointF> BuyOrders = new List<PointF>();
             static List<PointF> SellOrders = new List<PointF>();
 
-            public static void updateLiveGraph(GraphView GraphView)
+            public static void updateLiveGraph(GraphView _GraphView)
             {
+                _GraphView.Reset();
+
+
+                var x = _GraphView.AxisX.GetAxisYPosition(_GraphView);
+                var y = _GraphView.AxisY.GetAxisXPosition(_GraphView);
+
+                var stg = _GraphView.ScreenToGraphSpace( x + 5,  y + 5);
+                var gts = _GraphView.GraphSpaceToScreen(new PointF(x + 100, - 10000));
 
                 var white = Application.Driver.MakeAttribute(Color.White, Color.Black);
                 var red = Application.Driver.MakeAttribute(Color.BrightRed, Color.Black);
 
-                GraphView.Reset();
                 BuyOrders.Clear();
                 SellOrders.Clear();
 
@@ -445,28 +453,38 @@ namespace TMPFT.Display
                     BeforeSeries = true,
                 };
 
-                GraphView.Annotations.Add(Price);
+                _GraphView.Annotations.Add(Price);
 
-                GraphView.Series.Add(Take);
-                GraphView.Series.Add(Make);
+                _GraphView.Series.Add(Take);
+                _GraphView.Series.Add(Make);
 
                 // How much graph space each cell of the console depicts
-                GraphView.CellSize = new PointF(1, 2500);
-  
+                _GraphView.CellSize = new PointF(1, 50);
+                
+                if(PriceLine.Count == 0)
+                    PriceLine.Add(new PointF(0,0));
+
+                _GraphView.ScrollOffset = new PointF(PriceLine.Last().X - 100, PriceLine.Last().Y - 250);
+                //_GraphView.SetClip(new Rect(2,2,4,4));
                 // leave space for axis labels
-                GraphView.MarginBottom = 2;
-                GraphView.MarginLeft = 3;
+                _GraphView.MarginBottom = 2;
+                _GraphView.MarginLeft = 8;
 
                 // One axis tick/label per
-                GraphView.AxisX.Increment = 1;
-                GraphView.AxisX.ShowLabelsEvery = 5;
-                GraphView.AxisX.Text = "Time →";
+                _GraphView.AxisX.Increment = 1;
+                _GraphView.AxisX.ShowLabelsEvery = 5;
+                _GraphView.AxisX.Text = "Time →";
 
-                GraphView.AxisY.Increment = 2500;
-                GraphView.AxisY.ShowLabelsEvery = 5;
-                GraphView.AxisY.Text = "↑";
+                ///_GraphView.AxisY.Minimum = 30000;
+                _GraphView.AxisY.Increment = 25;
+                _GraphView.AxisY.ShowLabelsEvery = 5;
+                _GraphView.AxisY.Text = "↑";
+                //_GraphView.AutoSize = true;
+                //GraphView.DrawLine(new PointF(0, 2), new PointF(2,6));
 
-                GraphView.SetNeedsDisplay();
+                _GraphView.SetNeedsDisplay();
+
+
             }
             public static void setupLiveGraph(GraphView GraphView)
             {
@@ -652,7 +670,7 @@ namespace TMPFT.Display
                 // One label every 5 atomic weight
                 GraphView.AxisY.Increment = 5;
                 GraphView.AxisY.ShowLabelsEvery = 1;
-                GraphView.AxisY.Minimum = 0;
+                GraphView.AxisY.Minimum = 25;
 
                 GraphView.SetNeedsDisplay();
             }
