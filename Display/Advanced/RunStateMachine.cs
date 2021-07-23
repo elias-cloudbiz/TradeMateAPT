@@ -35,13 +35,13 @@ namespace TMPFT.Display
 		private static int _categoryListViewItem;
 		private static int _scenarioListViewItem;
 
-		private static Scenarios _runningScenario = null;
+		private static Scenarios Scenario = null;
 		private static bool _useSystemConsole = false;
 		private static ConsoleDriver.DiagnosticFlags _diagnosticFlags;
 		private static bool _heightAsBuffer = false;
 		private static bool _alwaysSetPosition;
 
-		public void Start(string[] args)
+		public async Task Start(string[] args)
 		{
 			Console.OutputEncoding = Encoding.Default;
 
@@ -59,23 +59,24 @@ namespace TMPFT.Display
 			{
 				//var item = _scenarios.FindIndex(t => Scenarios.ScenarioMetadata.GetName(t).Equals("ConsoleWindow", StringComparison.OrdinalIgnoreCase));
 				int index = _scenarios.FindIndex(x => x.Name == "ConsoleWindow");
-				_runningScenario = (Scenarios)Activator.CreateInstance(_scenarios[index]);
+                RunStateMachine.Scenario = (Scenarios)Activator.CreateInstance(_scenarios[index]);
 				Application.UseSystemConsole = _useSystemConsole;
 				Application.Init();
-				_runningScenario.Init(Application.Top, Colors.TopLevel);
-				_runningScenario.Setup();
-				_runningScenario.ModuleInit();
-				_runningScenario.Run();
-				_runningScenario = null;
+                Scenario.Init(Application.Top, Colors.TopLevel);
+				Scenario.InitModule();
+				Scenario.LoopModule();
+				Scenario.Setup();
+				Scenario.Run();
+				Scenario = null;
 
 
-				Application.Shutdown();
+			//	Application.Shutdown();
 				//return;
 			}
 
-			Scenarios scenario;
+
 			// Run StateMachine
-			while ((scenario = ScenarioStateMachine()) != null)
+			while ((Scenario = ScenarioMainMachine()) != null)
 			{
 				#if DEBUG_IDISPOSABLE
 				// Validate there are no outstanding Responder-based instances gui 
@@ -88,12 +89,13 @@ namespace TMPFT.Display
 				Responder.Instances.Clear ();
 				#endif
 
-				scenario.Init(Application.Top, _baseColorScheme);
-				scenario.Setup();
-				scenario.Run();
+				Scenario.Init(Application.Top, _baseColorScheme);
+				Scenario.Setup();
 
-/*				if(scenario.CoreLibStateMachine.IsCompleted)
-					scenario.CoreLibStateMachine = Task.Run(() => scenario.CoreLib.ConstructAsync());*/
+				// 17. Application top layer Add
+				// 17. Application top layer Add
+				Scenario.Run();
+
 
 				static void LoadedHandler()
 				{
@@ -128,21 +130,24 @@ namespace TMPFT.Display
 
 		public static void CreateScenario(int index) {
 			index = _scenarios.FindIndex(x => x.Name == "MainWindow");
-			_runningScenario = (Scenarios)Activator.CreateInstance(_scenarios[index]);
+			Scenario = (Scenarios)Activator.CreateInstance(_scenarios[index]);
 			Application.UseSystemConsole = _useSystemConsole;
 			Application.Init();
-			_runningScenario.Init(Application.Top, Colors.TopLevel);
-			_runningScenario.Setup();
-			_runningScenario.Run();
-			_runningScenario = null;
+			Scenario.Init(Application.Top, Colors.TopLevel);
+			Scenario.Setup();
+			Scenario.Run();
+			Scenario = null;
 
 		}
 		/// <summary>
 		/// This shows the selection UI. Each time it is run, it calls Application.Init to reset everything.
 		/// </summary>
 		/// <returns></returns>
-		private static Scenarios ScenarioStateMachine()
+		private Scenarios ScenarioMainMachine()
 		{
+			// Create GUI first
+	
+
 			// 1. Set Console / Application settings
 			Application.UseSystemConsole = _useSystemConsole;
 			Application.Init();
@@ -265,12 +270,12 @@ namespace TMPFT.Display
 				_numlock,
 				_scrolllock,
 				new StatusItem(Key.Q | Key.CtrlMask, "~CTRL-Q~ Quit", () => {
-					if (_runningScenario is null){
+					if (Scenario is null){
 						// This causes GetScenarioToRun to return null
-						_runningScenario = null;
+						Scenario = null;
 						Application.RequestStop();
 					} else {
-						_runningScenario.RequestStop();
+						Scenario.RequestStop();
 					}
 				}),
 				new StatusItem(Key.F10, "~F10~ Hide/Show Status Bar", () => {
@@ -295,18 +300,15 @@ namespace TMPFT.Display
 			_top.Add(_statusBar);
 
 			_top.Loaded += () => {
-				if (_runningScenario != null)
+				if (Scenario != null)
 				{
-					_runningScenario = null;
+					Scenario = null;
 				}
 			};
 
-
-			// 17. Application top layer Add
 			Application.Run(_top);
 
-
-			return _runningScenario;
+			return Scenario;
 		}
 		static List<MenuItem[]> CreateDiagnosticMenuItems()
 		{
@@ -562,11 +564,11 @@ namespace TMPFT.Display
 		}
 		private static void _scenarioOpenSelectedItem(EventArgs e)
 		{
-			if (_runningScenario is null)
+			if (Scenario is null)
 			{
 				_scenarioListViewItem = _scenarioListView.SelectedItem;
 				var source = _scenarioListView.Source as ScenarioListDataSource;
-				_runningScenario = (Scenarios)Activator.CreateInstance(source.Scenarios[_scenarioListView.SelectedItem]);
+				Scenario = (Scenarios)Activator.CreateInstance(source.Scenarios[_scenarioListView.SelectedItem]);
 				Application.RequestStop();
 			}
 		}

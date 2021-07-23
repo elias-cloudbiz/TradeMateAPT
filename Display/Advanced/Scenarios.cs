@@ -50,7 +50,7 @@ namespace TMPFT.Display
     /// </example>
     public class Scenarios : IDisposable
     {
-        public Scenarios() {  }
+        public Scenarios() { }
 
         /// <summary>
         /// Module Import for dynamic and static import of modules <see cref="ModuleImport"/>. This should be set to Import default function.
@@ -60,7 +60,7 @@ namespace TMPFT.Display
         /// <summary>
         /// Used for development purposes only see cref="CoreLib"/>. 
         /// </summary>
-        public CoreLib _CoreLib = new CoreLib();
+        public CoreLib _CoreLib;
         ///
         private bool _disposedValue;
 
@@ -90,17 +90,21 @@ namespace TMPFT.Display
         /// Overrides that do not call the base.<see cref="Run"/>, must call <see cref="Application.Init "/> before creating any views or calling other Terminal.Gui APIs.
         /// </para>
         /// </remarks>
-        public virtual void ModuleInit()
+        public virtual void LoopModule()
         {
-            Task.Run(() => _CoreLib.ConstructModule());
+            _CoreLib.LoopModule();
             Task.Run(() => Refresh());
         }
-
+        public void InitModule()
+        {
+            if (_CoreLib == null)
+                _CoreLib = new CoreLib();
+        }
         public async Task Refresh()
         {
             //Win.SetNeedsDisplay();
             //Top.SetNeedsDisplay();
-            
+
             Application.Refresh();
 
             await Task.Delay(1000);
@@ -238,7 +242,7 @@ namespace TMPFT.Display
         public virtual void Run()
         {
             // Must explicit call Application.Shutdown method to shutdown.
-            
+
             Application.Run(Top);
         }
 

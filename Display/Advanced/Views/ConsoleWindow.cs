@@ -41,13 +41,12 @@ namespace TMPFT.Display.Advanced.Views
 
         private void CreateStatusBar()
         {
-            /*            var statusBar = new StatusBar(new StatusItem[] {
-                                       new StatusItem(Key.CtrlMask | Key.R, "~^R~ Refresh", null),
-                                       new StatusItem(Key.CtrlMask | Key.S, "~^S~ Sync",  () => Refresh("Eee")),
-                                       new StatusItem(Key.CtrlMask | Key.Q, "~^Q~ Quit", () => StopApplication()),
-                                   });
-                        statusBar.ColorScheme = Colors.TopLevel;
-                        Top.Add(statusBar);*/
+            var statusBar = new StatusBar(new StatusItem[] {
+                new StatusItem(Key.CtrlMask | Key.R, "~^R~ Construct Module", () => this.InitModule()),
+                new StatusItem(Key.CtrlMask | Key.S, "~^S~ Test 2",  () => this.GetName())
+            });
+            statusBar.ColorScheme = Colors.TopLevel;
+            Top.Add(statusBar);
         }
 
         public void Refresh(object sender)
@@ -61,7 +60,7 @@ namespace TMPFT.Display.Advanced.Views
             // Request 
             Thread.Sleep(1000);
             base.RequestStop();
-            RunStateMachine.CreateScenario(1);
+            //RunStateMachine.CreateScenario(1);
 
         }
         public void ClearWindow()

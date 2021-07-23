@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Terminal.Gui;
 using Terminal.Gui.Graphs;
 using TMPFT.Core;
@@ -16,10 +17,10 @@ namespace TMPFT
         static RunStateMachine StateMachineView = new RunStateMachine();
 
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
 
-            StateMachineView.Start(args);
+            await StateMachineView.Start(args);
 
             //CoreUI.Start();
         }
