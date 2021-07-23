@@ -52,7 +52,9 @@ namespace TMPFT.Display.Advanced.Views
 
         public void Refresh(object sender)
         {
-            ListView.SetSource(CoreLib.ConsoleOut.ToList());
+
+            if(CoreLib.ConsoleOut != null)
+                ListView.SetSource(CoreLib.ConsoleOut.ToList());
         }
         public override void RequestStop()
         {

@@ -397,11 +397,13 @@ namespace TMPFT.Display
                 _GraphView.Reset();
 
 
-                var x = _GraphView.AxisX.GetAxisYPosition(_GraphView);
-                var y = _GraphView.AxisY.GetAxisXPosition(_GraphView);
+                var y = _GraphView.Bounds.Height;
+                var x = _GraphView.Bounds.Width;
+                //var x1 = _GraphView.AxisY.GetAxisXPosition(_GraphView);
 
-                var stg = _GraphView.ScreenToGraphSpace( x + 5,  y + 5);
-                var gts = _GraphView.GraphSpaceToScreen(new PointF(x + 100, - 10000));
+               //var gts = _GraphView.GraphSpaceToScreen(new PointF(x, y));
+                var stg = _GraphView.ScreenToGraphSpace(8, 2);
+
 
                 var white = Application.Driver.MakeAttribute(Color.White, Color.Black);
                 var red = Application.Driver.MakeAttribute(Color.BrightRed, Color.Black);
@@ -461,10 +463,6 @@ namespace TMPFT.Display
                 // How much graph space each cell of the console depicts
                 _GraphView.CellSize = new PointF(1, 50);
                 
-                if(PriceLine.Count == 0)
-                    PriceLine.Add(new PointF(0,0));
-
-                _GraphView.ScrollOffset = new PointF(PriceLine.Last().X - 100, PriceLine.Last().Y - 250);
                 //_GraphView.SetClip(new Rect(2,2,4,4));
                 // leave space for axis labels
                 _GraphView.MarginBottom = 2;
@@ -479,9 +477,15 @@ namespace TMPFT.Display
                 _GraphView.AxisY.Increment = 25;
                 _GraphView.AxisY.ShowLabelsEvery = 5;
                 _GraphView.AxisY.Text = "↑";
+
+                if (PriceLine.Count == 0)
+                    PriceLine.Add(new PointF(0, 0));
+
+                var yp = ((y * 25) / 2);
+                _GraphView.ScrollOffset = new PointF(PriceLine.Last().X - (x/2) + 8, PriceLine.Last().Y - yp);
+
                 //_GraphView.AutoSize = true;
                 //GraphView.DrawLine(new PointF(0, 2), new PointF(2,6));
-
                 _GraphView.SetNeedsDisplay();
 
 

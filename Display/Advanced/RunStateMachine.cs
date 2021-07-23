@@ -133,7 +133,6 @@ namespace TMPFT.Display
 			Application.Init();
 			_runningScenario.Init(Application.Top, Colors.TopLevel);
 			_runningScenario.Setup();
-			_runningScenario.ModuleInit();
 			_runningScenario.Run();
 			_runningScenario = null;
 
@@ -294,12 +293,14 @@ namespace TMPFT.Display
 			_top.Add(_leftPane);
 			_top.Add(_rightPane);
 			_top.Add(_statusBar);
+
 			_top.Loaded += () => {
 				if (_runningScenario != null)
 				{
 					_runningScenario = null;
 				}
 			};
+
 
 			// 17. Application top layer Add
 			Application.Run(_top);

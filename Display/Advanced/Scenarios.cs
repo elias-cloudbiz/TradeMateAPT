@@ -99,12 +99,14 @@ namespace TMPFT.Display
         public async Task Refresh()
         {
             //Win.SetNeedsDisplay();
-            Top.SetNeedsDisplay();
+            //Top.SetNeedsDisplay();
+            
             Application.Refresh();
 
             await Task.Delay(1000);
 
-            //await Refresh();
+            await Refresh();
+
         }
 
         public virtual void Init(Toplevel top, ColorScheme colorScheme)
@@ -236,6 +238,7 @@ namespace TMPFT.Display
         public virtual void Run()
         {
             // Must explicit call Application.Shutdown method to shutdown.
+            
             Application.Run(Top);
         }
 
