@@ -90,12 +90,13 @@ namespace TMPFT.Display
         /// Overrides that do not call the base.<see cref="Run"/>, must call <see cref="Application.Init "/> before creating any views or calling other Terminal.Gui APIs.
         /// </para>
         /// </remarks>
-        public virtual void LoopModule()
+        public virtual void ModuleLoop()
         {
             _CoreLib.LoopModule();
             Task.Run(() => Refresh());
+
         }
-        public void InitModule()
+        public void ModuleInit()
         {
             if (_CoreLib == null)
                 _CoreLib = new CoreLib();
@@ -104,13 +105,18 @@ namespace TMPFT.Display
         {
             //Win.SetNeedsDisplay();
             //Top.SetNeedsDisplay();
+            try
+            {
+                await Task.Delay(500);
 
-            Application.Refresh();
+                Application.Refresh();
 
-            await Task.Delay(1000);
-
-            await Refresh();
-
+                await Refresh();
+            }
+            catch (Exception ex)
+            {
+                return;
+            }
         }
 
         public virtual void Init(Toplevel top, ColorScheme colorScheme)
@@ -230,6 +236,10 @@ namespace TMPFT.Display
         /// <remarks>This is typically the best place to put scenario logic code.</remarks>
         public virtual void Setup()
         {
+            Application.MainLoop.Invoke(() => {
+                //Application.Refresh();
+            });
+
         }
 
         /// <summary>
@@ -244,6 +254,7 @@ namespace TMPFT.Display
             // Must explicit call Application.Shutdown method to shutdown.
 
             Application.Run(Top);
+
         }
 
         /// <summary>

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Terminal.Gui;
 using TMPFT.Core;
@@ -63,8 +64,10 @@ namespace TMPFT.Display
 				Application.UseSystemConsole = _useSystemConsole;
 				Application.Init();
                 Scenario.Init(Application.Top, Colors.TopLevel);
-				Scenario.InitModule();
-				Scenario.LoopModule();
+
+				Scenario.ModuleInit();
+			    Scenario.ModuleLoop();
+
 				Scenario.Setup();
 				Scenario.Run();
 				Scenario = null;
@@ -76,7 +79,7 @@ namespace TMPFT.Display
 
 
 			// Run StateMachine
-			while ((Scenario = ScenarioMainMachine()) != null)
+			while ((Scenario = await ScenarioMainMachine()) != null)
 			{
 				#if DEBUG_IDISPOSABLE
 				// Validate there are no outstanding Responder-based instances gui 
@@ -91,8 +94,6 @@ namespace TMPFT.Display
 
 				Scenario.Init(Application.Top, _baseColorScheme);
 				Scenario.Setup();
-
-				// 17. Application top layer Add
 				// 17. Application top layer Add
 				Scenario.Run();
 
@@ -126,6 +127,7 @@ namespace TMPFT.Display
 			}
 			Responder.Instances.Clear ();
 			#endif
+			
 		}
 
 		public static void CreateScenario(int index) {
@@ -143,7 +145,7 @@ namespace TMPFT.Display
 		/// This shows the selection UI. Each time it is run, it calls Application.Init to reset everything.
 		/// </summary>
 		/// <returns></returns>
-		private Scenarios ScenarioMainMachine()
+		private async Task<Scenarios> ScenarioMainMachine()
 		{
 			// Create GUI first
 	
@@ -305,6 +307,8 @@ namespace TMPFT.Display
 					Scenario = null;
 				}
 			};
+
+
 
 			Application.Run(_top);
 

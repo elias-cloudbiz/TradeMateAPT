@@ -26,35 +26,61 @@ namespace TMPFT.Display.Advanced.Views
         };
         public override void Setup()
         {
-			var dt = new DataTable();
+            var dt = new DataTable();
 
-			dt.Columns.Add(new DataColumn("Connection (Cl/Pb/Pr)", typeof(string)));
-			dt.Columns.Add(new DataColumn("Live Bid/Ask (AVG)", typeof(string)));
-			dt.Columns.Add(new DataColumn("$Live Profit", typeof(string)));
-			dt.Columns.Add(new DataColumn("$Balance ($/%)", typeof(string)));
-			dt.Columns.Add(new DataColumn("$Change ($/%)", typeof(double)));
+            dt.Columns.Add(new DataColumn("Connection (Cl/Pb/Pr)", typeof(string)));
+            dt.Columns.Add(new DataColumn("Live Bid/Ask (AVG)", typeof(string)));
+            dt.Columns.Add(new DataColumn("$Live Profit", typeof(string)));
+            dt.Columns.Add(new DataColumn("$Balance ($/%)", typeof(string)));
+            dt.Columns.Add(new DataColumn("$Change ($/%)", typeof(double)));
 
 
-			tableView.Table = dt;
+            tableView.Table = dt;
 
-			Win.Add(tableView);
+            addData();
 
-			SetupScrollBar();
+            Win.Add(tableView);
+
+            SetupScrollBar();
+
+            base.Setup();
         }
-		private void SetupScrollBar()
-		{
-			var _scrollBar = new ScrollBarView(tableView, true);
 
-			_scrollBar.ChangedPosition += () => {
-				tableView.RowOffset = _scrollBar.Position;
-				if (tableView.RowOffset != _scrollBar.Position)
-				{
-					_scrollBar.Position = tableView.RowOffset;
-				}
-				tableView.SetNeedsDisplay();
-			};
+        private void addData()
+        {
+            var DataTable = new DataTable();
 
-			/*
+            List<object> rowOne = new List<object>(){
+                    "1/1/1",
+                    "9999999.00",
+                    "45$/-5%",
+                    "44$/-23%", /*add some negatives to demo styles*/
+                    "2.2/32%",
+                    "8/5/9234$",
+                    "8/3/4234$",
+                    "45235Y/353X",
+                    "23253.1/92342.2",
+                   };
+
+            DataTable.Rows.Add(rowOne.ToArray());
+
+            tableView.Table = DataTable;
+        }
+        private void SetupScrollBar()
+        {
+            var _scrollBar = new ScrollBarView(tableView, true);
+
+            _scrollBar.ChangedPosition += () =>
+            {
+                tableView.RowOffset = _scrollBar.Position;
+                if (tableView.RowOffset != _scrollBar.Position)
+                {
+                    _scrollBar.Position = tableView.RowOffset;
+                }
+                tableView.SetNeedsDisplay();
+            };
+
+            /*
 			_scrollBar.OtherScrollBarView.ChangedPosition += () => {
 				_listView.LeftItem = _scrollBar.OtherScrollBarView.Position;
 				if (_listView.LeftItem != _scrollBar.OtherScrollBarView.Position) {
@@ -64,15 +90,16 @@ namespace TMPFT.Display.Advanced.Views
 			};
 			*/
 
-			tableView.DrawContent += (e) => {
-				_scrollBar.Size = tableView.Table?.Rows?.Count ?? 0;
-				_scrollBar.Position = tableView.RowOffset;
-				//	_scrollBar.OtherScrollBarView.Size = _listView.Maxlength - 1;
-				//	_scrollBar.OtherScrollBarView.Position = _listView.LeftItem;
-				_scrollBar.Refresh();
-			};
+            tableView.DrawContent += (e) =>
+            {
+                _scrollBar.Size = tableView.Table?.Rows?.Count ?? 0;
+                _scrollBar.Position = tableView.RowOffset;
+                //	_scrollBar.OtherScrollBarView.Size = _listView.Maxlength - 1;
+                //	_scrollBar.OtherScrollBarView.Position = _listView.LeftItem;
+                _scrollBar.Refresh();
+            };
 
-		}
+        }
 
         private partial class Table
         {

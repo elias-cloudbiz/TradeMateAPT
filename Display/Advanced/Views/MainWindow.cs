@@ -18,7 +18,7 @@ namespace TMPFT.Display
     [ScenarioCategory("Main Controls")]
     class MainWindow : Scenarios
     {
-        public GraphView GraphView { get; set; }
+        public static GraphView _GraphView { get; set; }
         private FrameView FrameTop { get; set; }
         private FrameView FrameLeft { get; set; }
         private FrameView FrameRight { get; set; }
@@ -44,14 +44,14 @@ namespace TMPFT.Display
         {
             var menu = new MenuBar(new MenuBarItem[] {
                 new MenuBarItem ("_File", new MenuItem [] {
-                    new MenuItem ("Scatter _Plot", "",()=>Graphs.SetupPeriodicTableScatterPlot(GraphView)),
-                    new MenuItem ("_Line Graph","",()=>Graphs.setupLiveGraph(GraphView)),
-                    new MenuItem ("_Multi Bar Graph","",()=>Graphs.SetupPeriodicTableScatterPlot(GraphView)),
+                    new MenuItem ("Scatter _Plot", "",()=>Graphs.SetupPeriodicTableScatterPlot(_GraphView)),
+                    new MenuItem ("_Line Graph","",()=>Graphs.setupLiveGraph(_GraphView)),
+                    new MenuItem ("_Multi Bar Graph","",()=>Graphs.SetupPeriodicTableScatterPlot(_GraphView)),
                     new MenuItem ("_Quit", "", () => QuitWindow()),
                 }),
                 new MenuBarItem ("_View", new MenuItem [] {
-                    new MenuItem ("Zoom _In", "", () => Misc.Zoom(GraphView, 0.5f)),
-                     new MenuItem ("Zoom _Out", "", () =>  Misc.Zoom(GraphView, 2f)),
+                    new MenuItem ("Zoom _In", "", () => Misc.Zoom(_GraphView, 0.5f)),
+                     new MenuItem ("Zoom _Out", "", () =>  Misc.Zoom(_GraphView, 2f)),
                 }),
 
                 });
@@ -66,9 +66,9 @@ namespace TMPFT.Display
             Top.LayoutSubviews();
 
             graphs = new Action[] {
-                 () => Graphs.SetupPeriodicTableScatterPlot(GraphView),    //0
-				 () => Graphs.setupLiveGraph(GraphView),                   //4
-				 () => Graphs.MultiBarGraph(GraphView)                     //7
+                 () => Graphs.SetupPeriodicTableScatterPlot(_GraphView),    //0
+				 () => Graphs.setupLiveGraph(_GraphView),                   //4
+				 () => Graphs.MultiBarGraph(_GraphView)                     //7
 			};
 
             createMenuBar();
@@ -94,7 +94,7 @@ namespace TMPFT.Display
                 Height = Dim.Fill(),
             };
             /// Add Graph
-            GraphView = new GraphView()
+            _GraphView = new GraphView()
             {
                 X = 0,
                 Y = 1,
@@ -103,7 +103,7 @@ namespace TMPFT.Display
 
             };
             Win.Add(FrameLeft);
-            FrameLeft.Add(GraphView);
+            FrameLeft.Add(_GraphView);
 
             // Create orders frame
             FrameRight = new FrameView("Orders")
@@ -176,15 +176,16 @@ namespace TMPFT.Display
 
             CreateStatusBar();
 
-            EventsReporter.SoftwareEvents.onScreenUpdate += (sender, e) => UpdateMainWindowMetrics();
-            EventsReporter.MethodEvents.Public.onPublicComplete += (sender, e) => Graphs.updateLiveGraph(this.GraphView);
+            EventsReporter.SoftwareEvents.onScreenUpdate += (sender, e) => UpdateMetricsWindow();
+            EventsReporter.MethodEvents.Public.onPublicComplete += (sender, e) => Graphs.updateLiveGraph();
 
             //Graphs.setupLiveGraph(GraphView);
 
-            Graphs.updateLiveGraph(GraphView);
+            Graphs.updateLiveGraph();
 
+            base.Setup();
         }
-        public void UpdateMainWindowMetrics()
+        public void UpdateMetricsWindow()
         {
             string ConnectionState = $"0/{Parameters.API.PublicConnection}/{Parameters.API.PrivateConnection}";
             string LivePrice = $"{Exchange.LastCoin.getBaseValueRounded}";
@@ -193,7 +194,7 @@ namespace TMPFT.Display
             UpdateTableCell(0, ConnectionState);
             UpdateTableCell(1, LivePrice);
             UpdateTableCell(2, Profit);
-            UpdateTableCell(3, GraphView.ScreenToGraphSpace(2, 2).Y.ToString());
+            UpdateTableCell(3, _GraphView.ScreenToGraphSpace(2, 2).Y.ToString());
         }
         private void UpdateTableCell(int ColNr = 0, string Value = "Default", int RowIndex = 0)
         {
@@ -388,14 +389,13 @@ namespace TMPFT.Display
         }
         private partial class Graphs
         {
-            static List<PointF> PriceLine = new List<PointF>();
+            static Queue<PointF> PriceLine = new Queue<PointF>();
             static List<PointF> BuyOrders = new List<PointF>();
             static List<PointF> SellOrders = new List<PointF>();
 
-            public static void updateLiveGraph(GraphView _GraphView)
+            public static void updateLiveGraph()
             {
-                _GraphView.Reset();
-
+                //_GraphView.Reset();
 
                 var y = _GraphView.Bounds.Height;
                 var x = _GraphView.Bounds.Width;
@@ -407,6 +407,8 @@ namespace TMPFT.Display
 
                 var white = Application.Driver.MakeAttribute(Color.White, Color.Black);
                 var red = Application.Driver.MakeAttribute(Color.BrightRed, Color.Black);
+                var green = Application.Driver.MakeAttribute(Color.BrightGreen, Color.Black);
+
 
                 BuyOrders.Clear();
                 SellOrders.Clear();
@@ -432,7 +434,7 @@ namespace TMPFT.Display
                     Fill = new GraphCellToRender('x')
 
                 };
-
+                
                 // 4. Series of Make
                 var Make = new ScatterSeries()
                 {
@@ -441,11 +443,20 @@ namespace TMPFT.Display
                 };
 
                 // 5. Get Coin collection 
+                if (PriceLine.Count == 0)
+                    PriceLine.Enqueue(new PointF(0, 0));
+
                 IEnumerable<double> LivePrices = Exchange.CoinCollectionQueue.Select(x => x.getBaseValueRounded).ToList();
 
-                for (int i = 0; i < LivePrices.Count(); i++)
+                for (int i = 0; i < PriceLine.Count(); i++)
                 {
-                    PriceLine.Add(new PointF(i, (float)LivePrices.ElementAt(i)));
+                    if (i <= 50)
+                        PriceLine.Enqueue(new PointF(i, (float)LivePrices.ElementAt(i)));
+                    else 
+                    {
+                        PriceLine.Dequeue();
+                        PriceLine.Enqueue(new PointF(i, (float)LivePrices.ElementAt(i)));
+                    }
                 }
 
                 var Price = new PathAnnotation()
@@ -472,22 +483,19 @@ namespace TMPFT.Display
                 _GraphView.AxisX.Increment = 1;
                 _GraphView.AxisX.ShowLabelsEvery = 5;
                 _GraphView.AxisX.Text = "Time →";
+                //_GraphView.AxisX.l
 
                 ///_GraphView.AxisY.Minimum = 30000;
                 _GraphView.AxisY.Increment = 25;
                 _GraphView.AxisY.ShowLabelsEvery = 5;
                 _GraphView.AxisY.Text = "↑";
 
-                if (PriceLine.Count == 0)
-                    PriceLine.Add(new PointF(0, 0));
-
                 var yp = ((y * 25) / 2);
-                _GraphView.ScrollOffset = new PointF(PriceLine.Last().X - (x/2) + 8, PriceLine.Last().Y - yp);
+                _GraphView.ScrollOffset = new PointF(0, PriceLine.Last().Y - yp);
 
                 //_GraphView.AutoSize = true;
                 //GraphView.DrawLine(new PointF(0, 2), new PointF(2,6));
                 _GraphView.SetNeedsDisplay();
-
 
             }
             public static void setupLiveGraph(GraphView GraphView)

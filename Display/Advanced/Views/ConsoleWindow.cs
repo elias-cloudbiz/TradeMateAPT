@@ -6,6 +6,7 @@ using System.Threading;
 using Terminal.Gui;
 using TMPFT.Core;
 using TMPFT.Core.Events;
+using TMPFT.Core.Intell;
 
 namespace TMPFT.Display.Advanced.Views
 {
@@ -28,7 +29,7 @@ namespace TMPFT.Display.Advanced.Views
                 AllowsMultipleSelection = false
             };
 
-            ListView.SetSource(CoreLib.ConsoleOut.ToList());
+            ListView.SetSource(CoreLib.getConsoleList().Result);
 
             Win.Add(ListView);
 
@@ -37,13 +38,14 @@ namespace TMPFT.Display.Advanced.Views
 
             CreateStatusBar();
 
+            base.Setup();
         }
 
         private void CreateStatusBar()
         {
             var statusBar = new StatusBar(new StatusItem[] {
-                new StatusItem(Key.CtrlMask | Key.R, "~^R~ Construct Module", () => this.InitModule()),
-                new StatusItem(Key.CtrlMask | Key.S, "~^S~ Test 2",  () => this.GetName())
+                new StatusItem(Key.CtrlMask | Key.R, "~^R~ Construct Module", () => this.ModuleInit()),
+                new StatusItem(Key.CtrlMask | Key.S, "~^S~ Predictor",  () => IntellUI.PredictByNeuralDynamic())
             });
             statusBar.ColorScheme = Colors.TopLevel;
             Top.Add(statusBar);
@@ -53,7 +55,7 @@ namespace TMPFT.Display.Advanced.Views
         {
 
             if(CoreLib.ConsoleOut != null)
-                ListView.SetSource(CoreLib.ConsoleOut.ToList());
+               ListView.SetSource(CoreLib.getConsoleList().Result);
         }
         public override void RequestStop()
         {
