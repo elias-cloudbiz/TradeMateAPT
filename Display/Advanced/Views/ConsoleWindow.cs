@@ -56,8 +56,6 @@ namespace TMPFT.Display.Advanced.Views
             if (CoreLib.ConsoleOut != null)
                 ListView.SetSource(CoreLib.getConsoleList().Result);
 
-            Rect r = new Rect(0,0, 25,25);
-            Win.Redraw(r);
         }
         public override void RequestStop()
         {
