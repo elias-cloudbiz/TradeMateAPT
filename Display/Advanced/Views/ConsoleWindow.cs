@@ -53,14 +53,16 @@ namespace TMPFT.Display.Advanced.Views
 
         public void Refresh(object sender)
         {
+            if (CoreLib.ConsoleOut != null)
+                ListView.SetSource(CoreLib.getConsoleList().Result);
 
-            if(CoreLib.ConsoleOut != null)
-               ListView.SetSource(CoreLib.getConsoleList().Result);
+            Rect r = new Rect(0,0, 25,25);
+            Win.Redraw(r);
         }
         public override void RequestStop()
         {
             // Request 
-            Thread.Sleep(1000);
+            //Thread.Sleep(1000);
             base.RequestStop();
             //RunStateMachine.CreateScenario(1);
 

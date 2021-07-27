@@ -93,7 +93,7 @@ namespace TMPFT.Display
         public virtual void ModuleLoop()
         {
             _CoreLib.LoopModule();
-            Task.Run(() => Refresh());
+            //Task.Run(() => Refresh());
 
         }
         public void ModuleInit()
@@ -237,9 +237,8 @@ namespace TMPFT.Display
         public virtual void Setup()
         {
             Application.MainLoop.Invoke(() => {
-                //Application.Refresh();
+                //Refresh();
             });
-
         }
 
         /// <summary>

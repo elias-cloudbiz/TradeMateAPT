@@ -64,9 +64,9 @@ namespace TMPFT.Display
 				Application.UseSystemConsole = _useSystemConsole;
 				Application.Init();
                 Scenario.Init(Application.Top, Colors.TopLevel);
-
+				
 				Scenario.ModuleInit();
-			    Scenario.ModuleLoop();
+				Scenario.ModuleLoop();
 
 				Scenario.Setup();
 				Scenario.Run();

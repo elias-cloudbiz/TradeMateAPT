@@ -11,17 +11,37 @@ using TMPFT.Core.Events;
 using System.Data;
 using System.Globalization;
 using NStack;
+using Attribute = Terminal.Gui.Attribute;
+using System.Threading.Tasks;
 
 namespace TMPFT.Display
 {
     [ScenarioMetadata(Name: "Main Window", Description: "Main Window Live Graph and Orders")]
     [ScenarioCategory("Main Controls")]
-    class MainWindow : Scenarios
+    class GraphWindow : Scenarios
     {
-        public static GraphView _GraphView { get; set; }
-        private FrameView FrameTop { get; set; }
-        private FrameView FrameLeft { get; set; }
-        private FrameView FrameRight { get; set; }
+        private Graph _Graph = new Graph();
+        private static FrameView FrameTop { get; set; } = new FrameView("Data")
+        {
+                X = 1,
+                Y = 2,
+                Width = Dim.Fill(1),
+                Height = Dim.Sized(4),
+        };
+        private static FrameView FrameLeft { get; set; } = new FrameView("Live")
+        {
+            X = 0,
+                Y = 5,
+                Width = Dim.Percent(75),
+                Height = Dim.Fill(),
+        };
+        private static FrameView FrameRight { get; set; } = new FrameView("Orders")
+        {
+            X = Pos.Right(FrameLeft) + 1,
+                Y = 5,
+                Width = Dim.Percent(25),
+                Height = Dim.Fill(),
+            };
         private int SelectedItemIndex { get; set; }
         private TableView TableView { get; set; } = new TableView()
         {
@@ -34,7 +54,7 @@ namespace TMPFT.Display
         private void CreateStatusBar()
         {
             var statusBar = new StatusBar(new StatusItem[] {
-                new StatusItem(Key.CtrlMask | Key.R, "~^R~ Test 1", () => UpdateTableCell(0, "D1")),
+                new StatusItem(Key.CtrlMask | Key.R, "~^R~ Test 1", () => UpdateMainWindow()),
                 new StatusItem(Key.CtrlMask | Key.S, "~^S~ Test 2",  () => UpdateTableCell(0, "! D3 !"))
             });
             statusBar.ColorScheme = Colors.TopLevel;
@@ -44,14 +64,14 @@ namespace TMPFT.Display
         {
             var menu = new MenuBar(new MenuBarItem[] {
                 new MenuBarItem ("_File", new MenuItem [] {
-                    new MenuItem ("Scatter _Plot", "",()=>Graphs.SetupPeriodicTableScatterPlot(_GraphView)),
-                    new MenuItem ("_Line Graph","",()=>Graphs.setupLiveGraph(_GraphView)),
-                    new MenuItem ("_Multi Bar Graph","",()=>Graphs.SetupPeriodicTableScatterPlot(_GraphView)),
+                    new MenuItem ("Scatter _Plot", "",()=>Graph.SetupPeriodicTableScatterPlot(_Graph._GraphView)),
+                    new MenuItem ("_Line Graph","",()=>Graph.setupLiveGraph(_Graph._GraphView)),
+                    new MenuItem ("_Multi Bar Graph","",()=>Graph.SetupPeriodicTableScatterPlot(_Graph._GraphView)),
                     new MenuItem ("_Quit", "", () => QuitWindow()),
                 }),
                 new MenuBarItem ("_View", new MenuItem [] {
-                    new MenuItem ("Zoom _In", "", () => Misc.Zoom(_GraphView, 0.5f)),
-                     new MenuItem ("Zoom _Out", "", () =>  Misc.Zoom(_GraphView, 2f)),
+                    new MenuItem ("Zoom _In", "", () => Misc.Zoom(_Graph._GraphView, 0.5f)),
+                     new MenuItem ("Zoom _Out", "", () =>  Misc.Zoom(_Graph._GraphView, 2f)),
                 }),
 
                 });
@@ -66,53 +86,23 @@ namespace TMPFT.Display
             Top.LayoutSubviews();
 
             graphs = new Action[] {
-                 () => Graphs.SetupPeriodicTableScatterPlot(_GraphView),    //0
-				 () => Graphs.setupLiveGraph(_GraphView),                   //4
-				 () => Graphs.MultiBarGraph(_GraphView)                     //7
+                 () => Graph.SetupPeriodicTableScatterPlot(_Graph._GraphView),    //0
+				 () => Graph.setupLiveGraph(_Graph._GraphView),                   //4
+				 () => Graph.MultiBarGraph(_Graph._GraphView)                     //7
 			};
 
             createMenuBar();
-
-            FrameTop = new FrameView("Data")
-            {
-                X = 1,
-                Y = 2,
-                Width = Dim.Fill(1),
-                Height = Dim.Sized(4),
-            };
 
             // Create default table
             Table.BuildDefaultTable(TableView);
             Win.Add(TableView);
 
             // Create Frame for Graph
-            FrameLeft = new FrameView("Live")
-            {
-                X = 0,
-                Y = 5,
-                Width = Dim.Percent(75),
-                Height = Dim.Fill(),
-            };
             /// Add Graph
-            _GraphView = new GraphView()
-            {
-                X = 0,
-                Y = 1,
-                Width = Dim.Fill(),
-                Height = Dim.Fill(),
-
-            };
             Win.Add(FrameLeft);
-            FrameLeft.Add(_GraphView);
+            FrameLeft.Add(_Graph._GraphView);
 
             // Create orders frame
-            FrameRight = new FrameView("Orders")
-            {
-                X = Pos.Right(FrameLeft) + 1,
-                Y = 5,
-                Width = Dim.Percent(25),
-                Height = Dim.Fill(),
-            };
             Win.Add(FrameRight);
 
             var labelHL = new Label($"Syncinc in {" X "} sec.") { X = 0, Y = 0, Width = Dim.Fill(), Height = 1, TextAlignment = TextAlignment.Centered, /**ColorScheme = Colors.ColorSchemes["Base"]**/ };
@@ -176,16 +166,15 @@ namespace TMPFT.Display
 
             CreateStatusBar();
 
-            EventsReporter.SoftwareEvents.onScreenUpdate += (sender, e) => UpdateMetricsWindow();
-            EventsReporter.MethodEvents.Public.onPublicComplete += (sender, e) => Graphs.updateLiveGraph();
+            EventsReporter.MethodEvents.Public.PublicMethodComplete += (sender, e) => UpdateMainWindow();
 
             //Graphs.setupLiveGraph(GraphView);
 
-            Graphs.updateLiveGraph();
+            _Graph.SetupGraph();
 
             base.Setup();
         }
-        public void UpdateMetricsWindow()
+        public void UpdateMainWindow()
         {
             string ConnectionState = $"0/{Parameters.API.PublicConnection}/{Parameters.API.PrivateConnection}";
             string LivePrice = $"{Exchange.LastCoin.getBaseValueRounded}";
@@ -194,7 +183,9 @@ namespace TMPFT.Display
             UpdateTableCell(0, ConnectionState);
             UpdateTableCell(1, LivePrice);
             UpdateTableCell(2, Profit);
-            UpdateTableCell(3, _GraphView.ScreenToGraphSpace(2, 2).Y.ToString());
+            UpdateTableCell(3, _Graph._GraphView.ScreenToGraphSpace(2, 2).Y.ToString());
+
+            Task.Run(() => _Graph.UpdateLiveGraph());
         }
         private void UpdateTableCell(int ColNr = 0, string Value = "Default", int RowIndex = 0)
         {
@@ -286,132 +277,37 @@ namespace TMPFT.Display
             Application.RequestStop();
         }
 
-        private partial class Table
+        private partial class Graph
         {
-            public static void BuildDefaultTable(TableView tableView)
+            public GraphView _GraphView { get; set; } = new GraphView()
             {
-                var Table = new DataTable();
+                X = 0,
+                Y = 1,
+                Width = Dim.Fill(),
+                Height = Dim.Fill(),
 
-                Table.Columns.Add(new DataColumn("Connection (Cl/Pb/Pr)", typeof(string)));
-                Table.Columns.Add(new DataColumn("Live Bid/Ask", typeof(string)));
-                Table.Columns.Add(new DataColumn("Live Profit", typeof(string)));
-                Table.Columns.Add(new DataColumn("Balance ($/%)", typeof(string)));
-                Table.Columns.Add(new DataColumn("Change ($/%)", typeof(string)));
-                Table.Columns.Add(new DataColumn("Active (B/S/$)", typeof(string)));
-                Table.Columns.Add(new DataColumn("Filled (B/S/$)", typeof(string)));
-                Table.Columns.Add(new DataColumn("Pred. NN (Y/X)", typeof(string)));
-                Table.Columns.Add(new DataColumn("Pred. ML (LB/UP)", typeof(string)));
+            };
+            //
+            static Queue<PointF> PointPriceData = new Queue<PointF>();
+            static List<PointF> PointMakeData = new List<PointF>();
+            static List<PointF> PointTakeData = new List<PointF>();
+            //
+            Attribute white = Application.Driver.MakeAttribute(Color.White, Color.Black);
+            Attribute red = Application.Driver.MakeAttribute(Color.BrightRed, Color.Black);
+            Attribute green = Application.Driver.MakeAttribute(Color.BrightGreen, Color.Black);
+            //
+            // 3. Series of Take
+            ScatterSeries TakeSeriesGraph { get; set; }
+            ScatterSeries MakeSeriesGraph { get; set; }
+            PathAnnotation PricePathAnnotation { get; set; }
 
-                List<object> rowOne = new List<object>(){
-                    "1/1/1",
-                    "9999999.00",
-                    "45$/-5%",
-                    "44$/-23%", /*add some negatives to demo styles*/
-                    "2.2/32%",
-                    "8/5/9234$",
-                    "8/3/4234$",
-                    "45235Y/353X",
-                    "23253.1/92342.2",
-                   };
-
-                List<object> rowTwo = new List<object>(){
-                    "Crypt",
-                    "LW:{}/UP:{}",
-                    "45",
-                    "4/23%", /*add some negatives to demo styles*/
-                    "4/32%",
-                    "8/5/92342",
-                    "8/3/42342",
-                    "45235/353",
-                    "23253/92342",
-                   };
-
-
-                /*                
-                 for (int j = 0; j < cols - explicitCols; j++)
-                {
-                    row.Add("SomeValue" + r.Next(100));
-                }
-                */
-
-                Table.Rows.Add(rowOne.ToArray());
-
-                tableView.Table = Table;
-            }
-            public static DataTable UpdateDataTable(DataTable Table)
-            {
-
-
-                Table.Rows[0]["Connection (Cl/Pb/Pr)"] = "cde";
-
-
-                return Table;
-
-            }
-            private static void SetTableViewStyle(TableView tableView)
-            {
-                var alignMid = new TableView.ColumnStyle()
-                {
-                    Alignment = TextAlignment.Centered
-                };
-                var alignRight = new TableView.ColumnStyle()
-                {
-                    Alignment = TextAlignment.Right
-                };
-
-                var dateFormatStyle = new TableView.ColumnStyle()
-                {
-                    Alignment = TextAlignment.Right,
-                    RepresentationGetter = (v) => v is DateTime d ? d.ToString("yyyy-MM-dd") : v.ToString()
-                };
-
-                var negativeRight = new TableView.ColumnStyle()
-                {
-
-                    Format = "0.##",
-                    MinWidth = 10,
-                    AlignmentGetter = (v) => v is double d ?
-                                    // align negative values right
-                                    d < 0 ? TextAlignment.Right :
-                                    // align positive values left
-                                    TextAlignment.Left :
-                                    // not a double
-                                    TextAlignment.Left
-                };
-
-                tableView.Style.ColumnStyles.Add(tableView.Table.Columns["AVG"], dateFormatStyle);
-                tableView.Style.ColumnStyles.Add(tableView.Table.Columns["CC"], negativeRight);
-                tableView.Style.ColumnStyles.Add(tableView.Table.Columns["Pred. UP"], alignMid);
-                tableView.Style.ColumnStyles.Add(tableView.Table.Columns["Pred. LB"], alignRight);
-
-                tableView.Update();
-            }
-        }
-        private partial class Graphs
-        {
-            static Queue<PointF> PriceLine = new Queue<PointF>();
-            static List<PointF> BuyOrders = new List<PointF>();
-            static List<PointF> SellOrders = new List<PointF>();
-
-            public static void updateLiveGraph()
+            public void SetupGraph()
             {
                 //_GraphView.Reset();
-
-                var y = _GraphView.Bounds.Height;
-                var x = _GraphView.Bounds.Width;
                 //var x1 = _GraphView.AxisY.GetAxisXPosition(_GraphView);
-
                //var gts = _GraphView.GraphSpaceToScreen(new PointF(x, y));
+
                 var stg = _GraphView.ScreenToGraphSpace(8, 2);
-
-
-                var white = Application.Driver.MakeAttribute(Color.White, Color.Black);
-                var red = Application.Driver.MakeAttribute(Color.BrightRed, Color.Black);
-                var green = Application.Driver.MakeAttribute(Color.BrightGreen, Color.Black);
-
-
-                BuyOrders.Clear();
-                SellOrders.Clear();
 
                 // 1. Get orders as types
                 IEnumerable<double> MakeOrders = Exchange.OrdersList.Where(x => x.OrderType == "BUY").Select(x => x.Price).ToList();
@@ -420,59 +316,39 @@ namespace TMPFT.Display
                 // 2. Add Enumrables as PointF
                 for (int i = 0; i < MakeOrders.Count(); i++)
                 {
-                    BuyOrders.Add(new PointF(i, (float)MakeOrders.ElementAt(i)));
+                    PointMakeData.Add(new PointF(i, (float)MakeOrders.ElementAt(i)));
                 }
                 for (int i = 0; i < TakeOrders.Count(); i++)
                 {
-                    SellOrders.Add(new PointF(i, (float)TakeOrders.ElementAt(i)));
+                    PointTakeData.Add(new PointF(i, (float)TakeOrders.ElementAt(i)));
                 }
 
-                // 3. Series of Take
-                var Take = new ScatterSeries()
-                {
-                    Points = BuyOrders,
-                    Fill = new GraphCellToRender('x')
-
+                TakeSeriesGraph = new ScatterSeries {
+                        Points = PointMakeData,
+                        Fill = new GraphCellToRender('x')
                 };
-                
+
                 // 4. Series of Make
-                var Make = new ScatterSeries()
+                MakeSeriesGraph = new ScatterSeries()
                 {
-                    Points = SellOrders,
+                    Points = PointTakeData,
                     Fill = new GraphCellToRender('x', red)
                 };
 
-                // 5. Get Coin collection 
-                if (PriceLine.Count == 0)
-                    PriceLine.Enqueue(new PointF(0, 0));
-
-                IEnumerable<double> LivePrices = Exchange.CoinCollectionQueue.Select(x => x.getBaseValueRounded).ToList();
-
-                for (int i = 0; i < PriceLine.Count(); i++)
-                {
-                    if (i <= 50)
-                        PriceLine.Enqueue(new PointF(i, (float)LivePrices.ElementAt(i)));
-                    else 
-                    {
-                        PriceLine.Dequeue();
-                        PriceLine.Enqueue(new PointF(i, (float)LivePrices.ElementAt(i)));
-                    }
-                }
-
-                var Price = new PathAnnotation()
+                PricePathAnnotation = new PathAnnotation()
                 {
                     LineColor = white,
-                    Points = PriceLine.OrderBy(p => p.X).ToList(),
+                    Points = PointPriceData.OrderBy(p => p.X).ToList(),
                     BeforeSeries = true,
-                };
+                }; 
 
-                _GraphView.Annotations.Add(Price);
+                _GraphView.Annotations.Add(PricePathAnnotation);
 
-                _GraphView.Series.Add(Take);
-                _GraphView.Series.Add(Make);
+                _GraphView.Series.Add(TakeSeriesGraph);
+                _GraphView.Series.Add(MakeSeriesGraph);
 
                 // How much graph space each cell of the console depicts
-                _GraphView.CellSize = new PointF(1, 50);
+                _GraphView.CellSize = new PointF(1, 500);
                 
                 //_GraphView.SetClip(new Rect(2,2,4,4));
                 // leave space for axis labels
@@ -490,13 +366,68 @@ namespace TMPFT.Display
                 _GraphView.AxisY.ShowLabelsEvery = 5;
                 _GraphView.AxisY.Text = "↑";
 
-                var yp = ((y * 25) / 2);
-                _GraphView.ScrollOffset = new PointF(0, PriceLine.Last().Y - yp);
-
                 //_GraphView.AutoSize = true;
                 //GraphView.DrawLine(new PointF(0, 2), new PointF(2,6));
                 _GraphView.SetNeedsDisplay();
+            }
+            public async Task UpdateLiveGraph()
+            {
+                //_GraphView.Reset();
 
+                var y = _GraphView.Bounds.Height;
+                var x = _GraphView.Bounds.Width;
+
+                // Get Coin collection 
+                IEnumerable<double> LivePrices = Exchange.CoinCollectionQueue.Select(x => x.getBaseValueRounded).ToList();
+                IEnumerable<double> MakeOrders = Exchange.OrdersList.Where(x => x.OrderType == "BUY").Select(x => x.Price).ToList();
+                IEnumerable<double> TakeOrders = Exchange.OrdersList.Where(x => x.OrderType == "SELL").Select(x => x.Price).ToList();
+
+                // 1. Count Price
+                int LiveCount = LivePrices.Count();
+                int fromPoint = (LiveCount >= x) ? LiveCount - x : 0;
+                for (int i = 0; i < x; i++)
+                {
+                    if (fromPoint == 0)
+                        break;
+
+                    if (PointPriceData.Count < x)
+                        PointPriceData.Enqueue(new PointF(i, (float)LivePrices.ElementAt(fromPoint)));
+                    else
+                    {
+                        PointPriceData.Dequeue();
+                        PointPriceData.Enqueue(new PointF(i, (float)LivePrices.ElementAt(fromPoint)));
+                    }
+                    fromPoint++;
+                }
+
+                // 2. Add Enumrables as PointF
+                for (int i = 0; i < MakeOrders.Count(); i++)
+                {
+                    PointMakeData.Add(new PointF(i, (float)MakeOrders.ElementAt(i)));
+                }
+
+                for (int i = 0; i < TakeOrders.Count(); i++)
+                {
+                    PointTakeData.Add(new PointF(i, (float)TakeOrders.ElementAt(i)));
+                }
+
+                // Connect refresh
+                PricePathAnnotation.Points = PointPriceData.ToList();
+                
+                MakeSeriesGraph.Points = PointMakeData.ToList();
+                TakeSeriesGraph.Points = PointTakeData.ToList();
+
+                var yp = ((y * 25) * 8);
+                
+                if(PointPriceData.Count() > 0)
+                    _GraphView.ScrollOffset = new PointF(0, PointPriceData.Last().Y - yp);
+
+                PricePathAnnotation.Render(_GraphView);
+
+                _GraphView.SetNeedsDisplay();
+
+                PointMakeData.Clear();
+                PointTakeData.Clear();
             }
             public static void setupLiveGraph(GraphView GraphView)
             {
@@ -700,6 +631,97 @@ namespace TMPFT.Display
                 graphView.AxisY.Increment *= factor;
 
                 graphView.SetNeedsDisplay();
+            }
+        }
+        private partial class Table
+        {
+            public static void BuildDefaultTable(TableView tableView)
+            {
+                var Table = new DataTable();
+
+                Table.Columns.Add(new DataColumn("Connection (Cl/Pb/Pr)", typeof(string)));
+                Table.Columns.Add(new DataColumn("Live Bid/Ask", typeof(string)));
+                Table.Columns.Add(new DataColumn("Live Profit", typeof(string)));
+                Table.Columns.Add(new DataColumn("Balance ($/%)", typeof(string)));
+                Table.Columns.Add(new DataColumn("Change ($/%)", typeof(string)));
+                Table.Columns.Add(new DataColumn("Active (B/S/$)", typeof(string)));
+                Table.Columns.Add(new DataColumn("Filled (B/S/$)", typeof(string)));
+                Table.Columns.Add(new DataColumn("Pred. NN (Y/X)", typeof(string)));
+                Table.Columns.Add(new DataColumn("Pred. ML (LB/UP)", typeof(string)));
+
+                List<object> rowOne = new List<object>(){
+                    "1/1/1",
+                    "9999999.00",
+                    "45$/-5%",
+                    "44$/-23%", /*add some negatives to demo styles*/
+                    "2.2/32%",
+                    "8/5/9234$",
+                    "8/3/4234$",
+                    "45235Y/353X",
+                    "23253.1/92342.2",
+                   };
+
+                List<object> rowTwo = new List<object>(){
+                    "Crypt",
+                    "LW:{}/UP:{}",
+                    "45",
+                    "4/23%", /*add some negatives to demo styles*/
+                    "4/32%",
+                    "8/5/92342",
+                    "8/3/42342",
+                    "45235/353",
+                    "23253/92342",
+                   };
+
+
+                /*                
+                 for (int j = 0; j < cols - explicitCols; j++)
+                {
+                    row.Add("SomeValue" + r.Next(100));
+                }
+                */
+
+                Table.Rows.Add(rowOne.ToArray());
+
+                tableView.Table = Table;
+            }
+            private static void SetTableViewStyle(TableView tableView)
+            {
+                var alignMid = new TableView.ColumnStyle()
+                {
+                    Alignment = TextAlignment.Centered
+                };
+                var alignRight = new TableView.ColumnStyle()
+                {
+                    Alignment = TextAlignment.Right
+                };
+
+                var dateFormatStyle = new TableView.ColumnStyle()
+                {
+                    Alignment = TextAlignment.Right,
+                    RepresentationGetter = (v) => v is DateTime d ? d.ToString("yyyy-MM-dd") : v.ToString()
+                };
+
+                var negativeRight = new TableView.ColumnStyle()
+                {
+
+                    Format = "0.##",
+                    MinWidth = 10,
+                    AlignmentGetter = (v) => v is double d ?
+                                    // align negative values right
+                                    d < 0 ? TextAlignment.Right :
+                                    // align positive values left
+                                    TextAlignment.Left :
+                                    // not a double
+                                    TextAlignment.Left
+                };
+
+                tableView.Style.ColumnStyles.Add(tableView.Table.Columns["AVG"], dateFormatStyle);
+                tableView.Style.ColumnStyles.Add(tableView.Table.Columns["CC"], negativeRight);
+                tableView.Style.ColumnStyles.Add(tableView.Table.Columns["Pred. UP"], alignMid);
+                tableView.Style.ColumnStyles.Add(tableView.Table.Columns["Pred. LB"], alignRight);
+
+                tableView.Update();
             }
         }
     }

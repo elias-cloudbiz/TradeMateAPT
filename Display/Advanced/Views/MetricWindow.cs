@@ -8,38 +8,68 @@ namespace TMPFT.Display.Advanced.Views
 {
     [ScenarioMetadata(Name: "Performance Metrics", Description: "Performance Data and Statistics")]
     [ScenarioCategory("Statistics")]
-    public class MetricDataView : Scenarios
+    public class MetricWindow : Scenarios
     {
-        private FrameView View { get; set; } = new FrameView("Metrics/Statistics")
+        private FrameView frameView { get; set; } = new FrameView("Metrics/Statistics")
         {
             X = 0,
             Y = 0,
             Width = Dim.Percent(100),
             Height = Dim.Fill(),
         };
-        private TableView tableView { get; set; } = new TableView()
-        {
-            X = 0,
-            Y = 0,
-            Width = Dim.Fill(),
-            Height = Dim.Fill(),
-        };
+        private TableView tableView { get; set; } 
+        private TableView tableView2 { get; set; } 
         public override void Setup()
         {
-            var dt = new DataTable();
+            tableView = new TableView()
+            {
+                X = 0,
+                Y = 0,
+                Width = Dim.Fill(),
+                Height = Dim.Percent(50)
+            };
 
-            dt.Columns.Add(new DataColumn("Connection (Cl/Pb/Pr)", typeof(string)));
-            dt.Columns.Add(new DataColumn("Live Bid/Ask (AVG)", typeof(string)));
-            dt.Columns.Add(new DataColumn("$Live Profit", typeof(string)));
-            dt.Columns.Add(new DataColumn("$Balance ($/%)", typeof(string)));
-            dt.Columns.Add(new DataColumn("$Change ($/%)", typeof(double)));
+            var y = Pos.Bottom(tableView) + 1;
+
+            tableView2 = new TableView()
+            {
+                X = 0,
+                Y = y,
+                Width = Dim.Fill(),
+                Height = Dim.Percent(50),
+            };
 
 
-            tableView.Table = dt;
+            //tableView.Style.ShowHorizontalHeaderUnderline = false;
+            //tableView.Update();
+
+            DataTable Table1 = new DataTable();
+
+            Table1.Columns.Add(new DataColumn("Conn (Cl/Pb/Pr)", typeof(string)));
+            Table1.Columns.Add(new DataColumn("Live Bid/Ask (AVG)", typeof(string)));
+            Table1.Columns.Add(new DataColumn("$Live Profit", typeof(string)));
+            Table1.Columns.Add(new DataColumn("$Balance ($/%)", typeof(string)));
+            Table1.Columns.Add(new DataColumn("$Change ($/%)", typeof(string)));
+
+            tableView.Table = Table1;
 
             addData();
 
+
+            DataTable Table2 = new DataTable();
+
+            Table2.Columns.Add(new DataColumn("Conn (Cl/Pb/Pr)", typeof(string)));
+            Table2.Columns.Add(new DataColumn("Live Bid/Ask (AVG)", typeof(string)));
+            Table2.Columns.Add(new DataColumn("$Live Profit", typeof(string)));
+            Table2.Columns.Add(new DataColumn("$Balance ($/%)", typeof(string)));
+            Table2.Columns.Add(new DataColumn("$Change ($/%)", typeof(string)));
+
+            tableView2.Table = Table2;
+
+            //Win.Add(frameView);
+
             Win.Add(tableView);
+            Win.Add(tableView2);
 
             SetupScrollBar();
 
@@ -48,23 +78,16 @@ namespace TMPFT.Display.Advanced.Views
 
         private void addData()
         {
-            var DataTable = new DataTable();
 
             List<object> rowOne = new List<object>(){
                     "1/1/1",
                     "9999999.00",
                     "45$/-5%",
                     "44$/-23%", /*add some negatives to demo styles*/
-                    "2.2/32%",
-                    "8/5/9234$",
-                    "8/3/4234$",
-                    "45235Y/353X",
-                    "23253.1/92342.2",
+                    "2.2/32%"
                    };
 
-            DataTable.Rows.Add(rowOne.ToArray());
-
-            tableView.Table = DataTable;
+            tableView.Table.Rows.Add(rowOne.ToArray());
         }
         private void SetupScrollBar()
         {
@@ -103,65 +126,9 @@ namespace TMPFT.Display.Advanced.Views
 
         private partial class Table
         {
-
-            public static void BuildDefaultTable(TableView tableView)
-            {
-                var Table = new DataTable();
-
-                Table.Columns.Add(new DataColumn("Connection (Cl/Pb/Pr)", typeof(string)));
-                Table.Columns.Add(new DataColumn("Live Bid/Ask (AVG)", typeof(string)));
-                Table.Columns.Add(new DataColumn("$Live Profit", typeof(string)));
-                Table.Columns.Add(new DataColumn("$Balance ($/%)", typeof(string)));
-                Table.Columns.Add(new DataColumn("$Change ($/%)", typeof(string)));
-                Table.Columns.Add(new DataColumn("Active (B/S/$)", typeof(string)));
-                Table.Columns.Add(new DataColumn("Filled (B/S/$)", typeof(string)));
-                Table.Columns.Add(new DataColumn("Pred. NN (Y/X)", typeof(string)));
-                Table.Columns.Add(new DataColumn("Pred. ML (LB/UP)", typeof(string)));
-
-                List<object> rowOne = new List<object>(){
-                    "1/1/1",
-                    "9999999",
-                    "45",
-                    "4/23%", /*add some negatives to demo styles*/
-                    "4/32%",
-                    "8/5/92342",
-                    "8/3/42342",
-                    "45235/353",
-                    "23253/92342",
-                   };
-
-                List<object> rowTwo = new List<object>(){
-                    "Crypt",
-                    "LW:{}/UP:{}",
-                    "45",
-                    "4/23%", /*add some negatives to demo styles*/
-                    "4/32%",
-                    "8/5/92342",
-                    "8/3/42342",
-                    "45235/353",
-                    "23253/92342",
-                   };
-
-
-                /*                
-                 for (int j = 0; j < cols - explicitCols; j++)
-                {
-                    row.Add("SomeValue" + r.Next(100));
-                }
-                */
-
-                Table.Rows.Add(rowOne.ToArray());
-
-                tableView.Table = Table;
-
-                Table.Rows[0]["Connection (Cl/Pb/Pr)"] = "cde";
-            }
             public static DataTable UpdateDataTable(DataTable Table)
             {
-
-
                 Table.Rows[0]["Connection (Cl/Pb/Pr)"] = "cde";
-
 
                 return Table;
 
