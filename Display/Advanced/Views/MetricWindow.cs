@@ -6,7 +6,7 @@ using Terminal.Gui;
 
 namespace TMPFT.Display.Advanced.Views
 {
-    [ScenarioMetadata(Name: "Performance Metrics", Description: "Performance Data and Statistics")]
+    [ScenarioMetadata(Name: "Metrics", Description: "Performance Data and Statistics")]
     [ScenarioCategory("Statistics")]
     public class MetricWindow : Scenarios
     {
@@ -72,8 +72,6 @@ namespace TMPFT.Display.Advanced.Views
             Win.Add(tableView2);
 
             SetupScrollBar();
-
-            base.Setup();
         }
 
         private void addData()

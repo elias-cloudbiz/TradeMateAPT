@@ -101,22 +101,21 @@ namespace TMPFT.Display
             if (_CoreLib == null)
                 _CoreLib = new CoreLib();
         }
-        public void Refresh()
+        public async Task Refresh()
         {
             //Win.SetNeedsDisplay();
             //Top.SetNeedsDisplay();
             try
             {
-                //await Task.Delay(1000);
+                await Task.Delay(1000);
 
                 Application.Refresh();
 
-                Thread.Sleep(1000);
-
-                Refresh();
+                await Refresh();
             }
             catch (Exception ex)
             {
+                CoreLib.NewLine(ex.ToString());
                 return;
             }
         }
@@ -239,7 +238,7 @@ namespace TMPFT.Display
         public virtual void Setup()
         {
             Application.MainLoop.Invoke(() => {
-                Refresh();
+                Task.Run(() => Refresh());
             });
         }
 

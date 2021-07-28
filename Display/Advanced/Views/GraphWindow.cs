@@ -13,6 +13,7 @@ using System.Globalization;
 using NStack;
 using Attribute = Terminal.Gui.Attribute;
 using System.Threading.Tasks;
+using TMPFT.Core.Intell.RAnalysis;
 
 namespace TMPFT.Display
 {
@@ -171,8 +172,6 @@ namespace TMPFT.Display
             //Graphs.setupLiveGraph(GraphView);
 
             _Graph.SetupGraph();
-
-            base.Setup();
         }
         public void UpdateMainWindow()
         {
@@ -346,9 +345,6 @@ namespace TMPFT.Display
 
                 _GraphView.Series.Add(TakeSeriesGraph);
                 _GraphView.Series.Add(MakeSeriesGraph);
-
-                // How much graph space each cell of the console depicts
-                _GraphView.CellSize = new PointF(1, 500);
                 
                 //_GraphView.SetClip(new Rect(2,2,4,4));
                 // leave space for axis labels
@@ -357,12 +353,12 @@ namespace TMPFT.Display
 
                 // One axis tick/label per
                 _GraphView.AxisX.Increment = 1;
-                _GraphView.AxisX.ShowLabelsEvery = 5;
+                _GraphView.AxisX.ShowLabelsEvery = 0;
                 _GraphView.AxisX.Text = "Time →";
                 //_GraphView.AxisX.l
 
                 ///_GraphView.AxisY.Minimum = 30000;
-                _GraphView.AxisY.Increment = 25;
+                _GraphView.AxisY.Increment = 10;
                 _GraphView.AxisY.ShowLabelsEvery = 5;
                 _GraphView.AxisY.Text = "↑";
 
@@ -370,7 +366,7 @@ namespace TMPFT.Display
                 //GraphView.DrawLine(new PointF(0, 2), new PointF(2,6));
                 _GraphView.SetNeedsDisplay();
             }
-            public async Task UpdateLiveGraph()
+            public Task UpdateLiveGraph()
             {
                 //_GraphView.Reset();
 
@@ -417,17 +413,23 @@ namespace TMPFT.Display
                 MakeSeriesGraph.Points = PointMakeData.ToList();
                 TakeSeriesGraph.Points = PointTakeData.ToList();
 
-                var yp = ((y * 25) * 8);
-                
-                if(PointPriceData.Count() > 0)
+                var yp = (y*10);
+
+                if (PointPriceData.Count() > 0)
+                {
                     _GraphView.ScrollOffset = new PointF(0, PointPriceData.Last().Y - yp);
+                    // How much graph space each cell of the console depicts
+                    _GraphView.CellSize = new PointF(1, y);
+                }
 
                 PricePathAnnotation.Render(_GraphView);
-
+                
                 _GraphView.SetNeedsDisplay();
 
                 PointMakeData.Clear();
                 PointTakeData.Clear();
+
+                return Task.CompletedTask;
             }
             public static void setupLiveGraph(GraphView GraphView)
             {
