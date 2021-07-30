@@ -29,6 +29,8 @@ namespace TMPFT.Display.Advanced.Views
                 AllowsMultipleSelection = false
             };
 
+
+
             ListView.SetSource(CoreLib.getConsoleList().Result);
 
             Win.Add(ListView);
@@ -39,6 +41,9 @@ namespace TMPFT.Display.Advanced.Views
             CreateStatusBar();
 
             base.Setup();
+
+            //r.Width = ListView.Bounds.Width;
+            //r.Height = ListView.Bounds.Height;
         }
 
         private void CreateStatusBar()
@@ -55,6 +60,8 @@ namespace TMPFT.Display.Advanced.Views
         {
             if (CoreLib.ConsoleOut != null)
                 ListView.SetSource(CoreLib.getConsoleList().Result);
+
+            //Top.Redraw(r);
 
         }
         public override void RequestStop()
