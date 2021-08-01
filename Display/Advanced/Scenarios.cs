@@ -115,7 +115,7 @@ namespace TMPFT.Display
             }
             catch (Exception ex)
             {
-                CoreLib.NewLine(ex.ToString());
+                CoreLib.WriteLine(ex.ToString());
                 return;
             }
         }
