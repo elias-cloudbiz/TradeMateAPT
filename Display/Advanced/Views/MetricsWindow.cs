@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Text;
 using Terminal.Gui;
 
-namespace TMPFT.Display.Advanced.Views
+namespace TMAPT.Display.Advanced.Views
 {
     [ScenarioMetadata(Name: "Metrics", Description: "Performance Data and Statistics")]
     [ScenarioCategory("Statistics")]
-    public class MetricWindow : Scenarios
+    public class MetricsWindow : Scenario
     {
         private FrameView frameView { get; set; } = new FrameView("Metrics/Statistics")
         {

@@ -4,17 +4,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using Terminal.Gui;
 using Terminal.Gui.Graphs;
-using TMPFT.Core;
-using TMPFT.Display;
+using TMAPT.Core;
+using TMAPT.Display;
 
-namespace TMPFT
+namespace TMAPT
 {
 
     class Run
     {
 
         //static Library na = new Library();
-        static RunStateMachine StateMachineView = new RunStateMachine();
+        static StateMachine StateMachineView = new StateMachine();
 
 
         static async Task Main(string[] args)

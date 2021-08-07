@@ -4,13 +4,13 @@ using System.Data;
 using Terminal.Gui;
 using System.Linq;
 using System.Globalization;
-using TMPFT.Core.Intell;
+using TMAPT.Core.Intell;
 
-namespace TMPFT.Display.Advanced.Views
+namespace TMAPT.Display.Advanced.Views
 {
     [ScenarioMetadata(Name: "Prediction DataView (NN/ML)", Description: "View Prediction Data and Statistics")]
     [ScenarioCategory("Statistics")]
-    public class PredictionTableView : Scenarios
+    public class PredictionTableView : Scenario
     {
         TableView tableView;
         private MenuItem miAlwaysShowHeaders;
@@ -103,7 +103,6 @@ namespace TMPFT.Display.Advanced.Views
             dt.Columns.Add(new DataColumn("Linear Ratio", typeof(double)));
             dt.Columns.Add(new DataColumn("Final nnX", typeof(double)));
             dt.Columns.Add(new DataColumn("Final nnY", typeof(double)));
-            dt.Columns.Add(new DataColumn("Final lX", typeof(double)));
             dt.Columns.Add(new DataColumn("Final lY", typeof(double)));
             return dt;
         }
@@ -134,7 +133,6 @@ namespace TMPFT.Display.Advanced.Views
                         qRes[i],
                         IntellUI.Prediction.FinalnnPredictedX,
                         IntellUI.Prediction.FinalnnPredictedY,
-                        IntellUI.Prediction.FinalLinearPredictedX,
                         IntellUI.Prediction.FinalLinearPredictedY
                 };
 
@@ -376,10 +374,8 @@ namespace TMPFT.Display.Advanced.Views
                 tableView.Update();
             }
         }
-
         public partial class Table
-        {
-
+        { 
             TableView tableView;
         }
     }

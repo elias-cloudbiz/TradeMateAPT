@@ -3,23 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using Terminal.Gui;
 using Terminal.Gui.Graphs;
-using TMPFT.Display;
-using TMPFT.Core;
-using TMPFT.Core.Models;
-using TMPFT.Core.Exchanges;
-using TMPFT.Core.Events;
 using System.Data;
 using System.Globalization;
 using NStack;
-using Attribute = Terminal.Gui.Attribute;
 using System.Threading.Tasks;
-using TMPFT.Core.Intell.RAnalysis;
+using Attribute = Terminal.Gui.Attribute;
+using TMAPT.Core.Events;
+using TMAPT.Core.Models;
+using TMAPT.Core.Exchanges;
 
-namespace TMPFT.Display
+namespace TMAPT.Display
 {
     [ScenarioMetadata(Name: "Main Window", Description: "Main Window Live Graph and Orders")]
     [ScenarioCategory("Main Controls")]
-    class GraphWindow : Scenarios
+    class GraphWindow : Scenario
     {
         private Graph _Graph = new Graph();
         private static FrameView FrameTop { get; set; } = new FrameView("Data")
@@ -120,7 +117,7 @@ namespace TMPFT.Display
                 AllowsMarking = false,
                 AllowsMultipleSelection = false
             };
-            List<Type> Orders = Scenarios.GetDerivedClasses<Scenarios>().OrderBy(t => Scenarios.ScenarioMetadata.GetName(t)).ToList();
+            List<Type> Orders = Scenario.GetDerivedClasses<Scenario>().OrderBy(t => Scenario.ScenarioMetadata.GetName(t)).ToList();
 
             var createButton = new Button($"Create")
             {
@@ -167,7 +164,7 @@ namespace TMPFT.Display
 
             CreateStatusBar();
 
-            EventsReporter.MethodEvents.Public.PublicMethodComplete += (sender, e) => UpdateMainWindow();
+            Event.Methods.Public.PublicMethodComplete += (sender, e) => UpdateMainWindow();
 
             //Graphs.setupLiveGraph(GraphView);
 
@@ -176,7 +173,7 @@ namespace TMPFT.Display
         public void UpdateMainWindow()
         {
             string ConnectionState = $"0/{Parameters.API.PublicConnection}/{Parameters.API.PrivateConnection}";
-            string LivePrice = $"{Exchange.LastCoin.getBaseValueRounded}";
+            string LivePrice = $"{Exchange.getLastCoin.getBaseValueRounded}";
             string Profit = $"{Parameters.Wallet.Profit}/{Parameters.Wallet.BalanceChangeValue}";
 
             UpdateTableCell(0, ConnectionState);

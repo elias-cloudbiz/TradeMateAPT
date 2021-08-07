@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TMPFT.Extensions
+namespace TMAPT.Extensions
 {
     public class Extension
     {

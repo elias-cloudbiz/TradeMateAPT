@@ -11,15 +11,12 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Terminal.Gui;
-using TMPFT.Core;
 using Rune = System.Rune;
 
-namespace TMPFT.Display
+namespace TMAPT.Display
 {
-	class RunStateMachine
+	class StateMachine
 	{
-
-
 		private static Toplevel _top;
 		private static MenuBar _menu;
 		private static int _nameColumnWidth;
@@ -36,7 +33,7 @@ namespace TMPFT.Display
 		private static int _categoryListViewItem;
 		private static int _scenarioListViewItem;
 
-		private static Scenarios Scenario = null;
+		private static Scenario Scenario = null;
 		private static bool _useSystemConsole = false;
 		private static ConsoleDriver.DiagnosticFlags _diagnosticFlags;
 		private static bool _heightAsBuffer = false;
@@ -49,37 +46,33 @@ namespace TMPFT.Display
 			if (Debugger.IsAttached)
 				CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.GetCultureInfo("en-US");
 
-			_scenarios = Scenarios.GetDerivedClasses<Scenarios>().OrderBy(t => Scenarios.ScenarioMetadata.GetName(t)).ToList();
+			_scenarios = Scenario.GetDerivedClasses<Scenario>().OrderBy(t => Scenario.ScenarioMetadata.GetName(t)).ToList();
 
 			if (args.Length > 0 && args.Contains("-usc"))
 			{
 				_useSystemConsole = true;
 				args = args.Where(val => val != "-usc").ToArray();
 			}
-			if (args.Length > 0 || true)
+			if (args.Length > 0)
 			{
-				//var item = _scenarios.FindIndex(t => Scenarios.ScenarioMetadata.GetName(t).Equals("ConsoleWindow", StringComparison.OrdinalIgnoreCase));
-				int index = _scenarios.FindIndex(x => x.Name == "ConsoleWindow");
-                RunStateMachine.Scenario = (Scenarios)Activator.CreateInstance(_scenarios[index]);
-				Application.UseSystemConsole = _useSystemConsole;
-				Application.Init();
-                Scenario.Init(Application.Top, Colors.TopLevel);
-				
-				Scenario.ModuleInit();
-				Scenario.ModuleLoop();
-
-				Scenario.Setup();
-				Scenario.Run();
-				Scenario = null;
-
-
-			//	Application.Shutdown();
-				//return;
+				// Implement argument
 			}
 
+			// Default startup
+			int index = _scenarios.FindIndex(x => x.Name == "ConsoleWindow");
+			Scenario = Activator.CreateInstance(_scenarios[index]) as Scenario;
+			Application.UseSystemConsole = _useSystemConsole;
+			Application.Init();
+			Scenario.Init(Application.Top, Colors.TopLevel);
+
+			Scenario.ModuleInit();
+
+			Scenario.Setup();
+			Scenario.Run();
+			Scenario = null;
 
 			// Run StateMachine
-			while ((Scenario = await ScenarioMainMachine()) != null)
+			while ((Scenario = MainScenario()) != null)
 			{
 				#if DEBUG_IDISPOSABLE
 				// Validate there are no outstanding Responder-based instances gui 
@@ -113,8 +106,6 @@ namespace TMPFT.Display
 				}
 				Responder.Instances.Clear ();
 				#endif
-
-
 			}
 
 			Application.Shutdown();
@@ -126,13 +117,12 @@ namespace TMPFT.Display
 				Debug.Assert (inst.WasDisposed);
 			}
 			Responder.Instances.Clear ();
-			#endif
-			
+			#endif			
 		}
 
 		public static void CreateScenario(int index) {
 			index = _scenarios.FindIndex(x => x.Name == "MainWindow");
-			Scenario = (Scenarios)Activator.CreateInstance(_scenarios[index]);
+			Scenario = Activator.CreateInstance(_scenarios[index]) as Scenario;
 			Application.UseSystemConsole = _useSystemConsole;
 			Application.Init();
 			Scenario.Init(Application.Top, Colors.TopLevel);
@@ -145,7 +135,7 @@ namespace TMPFT.Display
 		/// This shows the selection UI. Each time it is run, it calls Application.Init to reset everything.
 		/// </summary>
 		/// <returns></returns>
-		private async Task<Scenarios> ScenarioMainMachine()
+		private Scenario MainScenario()
 		{
 			// Create GUI first
 	
@@ -170,7 +160,7 @@ namespace TMPFT.Display
 			aboutMessage.AppendLine(@" \__, |\__,_|_(_)___|___/");
 			aboutMessage.AppendLine(@" |___/                   ");
 			aboutMessage.AppendLine("");
-			aboutMessage.AppendLine($"Version: {typeof(RunStateMachine).Assembly.GetName().Version}");
+			aboutMessage.AppendLine($"Version: {typeof(StateMachine).Assembly.GetName().Version}");
 			aboutMessage.AppendLine($"Using Terminal.Gui Version: {FileVersionInfo.GetVersionInfo(typeof(Terminal.Gui.Application).Assembly.Location).ProductVersion}");
 			aboutMessage.AppendLine("");
 
@@ -202,7 +192,7 @@ namespace TMPFT.Display
 			_leftPane.ShortcutAction = () => _leftPane.SetFocus();
 
 			// 6. Get all categories
-			_categories = Scenarios.GetAllCategories().OrderBy(c => c).ToList();
+			_categories = Scenario.GetAllCategories().OrderBy(c => c).ToList();
 			_categoryListView = new ListView(_categories)
 			{
 				X = 0,
@@ -234,7 +224,7 @@ namespace TMPFT.Display
 			_rightPane.ShortcutAction = () => _rightPane.SetFocus();
 
 			// 8. Scenario metadata get name
-			_nameColumnWidth = Scenarios.ScenarioMetadata.GetName(_scenarios.OrderByDescending(t => Scenarios.ScenarioMetadata.GetName(t).Length).FirstOrDefault()).Length;
+			_nameColumnWidth = Scenario.ScenarioMetadata.GetName(_scenarios.OrderByDescending(t => Scenario.ScenarioMetadata.GetName(t).Length).FirstOrDefault()).Length;
 
 			// 9. All scenarios listview
 			_scenarioListView = new ListView()
@@ -560,7 +550,7 @@ namespace TMPFT.Display
 			}
 			else
 			{
-				newlist = _scenarios.Where(t => Scenarios.ScenarioCategory.GetCategories(t).Contains(item)).ToList();
+				newlist = _scenarios.Where(t => Scenario.ScenarioCategory.GetCategories(t).Contains(item)).ToList();
 			}
 			_scenarioListView.Source = new ScenarioListDataSource(newlist);
 			_scenarioListView.SelectedItem = _scenarioListViewItem;
@@ -572,7 +562,7 @@ namespace TMPFT.Display
 			{
 				_scenarioListViewItem = _scenarioListView.SelectedItem;
 				var source = _scenarioListView.Source as ScenarioListDataSource;
-				Scenario = (Scenarios)Activator.CreateInstance(source.Scenarios[_scenarioListView.SelectedItem]);
+				Scenario = (Scenario)Activator.CreateInstance(source.Scenarios[_scenarioListView.SelectedItem]);
 				Application.RequestStop();
 			}
 		}
@@ -669,8 +659,8 @@ namespace TMPFT.Display
 			{
 				container.Move(col, line);
 				// Equivalent to an interpolated string like $"{Scenarios[item].Name, -widtestname}"; if such a thing were possible
-				var s = string.Format(string.Format("{{0,{0}}}", -_nameColumnWidth), Display.Scenarios.ScenarioMetadata.GetName(Scenarios[item]));
-                RenderUstr(driver, $"{s}  {Display.Scenarios.ScenarioMetadata.GetDescription(Scenarios[item])}", col, line, width, start);
+				var s = string.Format(string.Format("{{0,{0}}}", -_nameColumnWidth), Display.Scenario.ScenarioMetadata.GetName(Scenarios[item]));
+                RenderUstr(driver, $"{s}  {Display.Scenario.ScenarioMetadata.GetDescription(Scenarios[item])}", col, line, width, start);
 			}
 			public void SetMark(int item, bool value)
 			{
@@ -685,8 +675,8 @@ namespace TMPFT.Display
 				int maxLength = 0;
 				for (int i = 0; i < Scenarios.Count; i++)
 				{
-					var s = string.Format(string.Format("{{0,{0}}}", -_nameColumnWidth), Display.Scenarios.ScenarioMetadata.GetName(Scenarios[i]));
-					var sc = $"{s}  {Display.Scenarios.ScenarioMetadata.GetDescription(Scenarios[i])}";
+					var s = string.Format(string.Format("{{0,{0}}}", -_nameColumnWidth), Display.Scenario.ScenarioMetadata.GetName(Scenarios[i]));
+					var sc = $"{s}  {Display.Scenario.ScenarioMetadata.GetDescription(Scenarios[i])}";
 					var l = sc.Length;
 					if (l > maxLength)
 					{

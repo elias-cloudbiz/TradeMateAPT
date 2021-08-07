@@ -4,16 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Terminal.Gui;
-using TMPFT.Core;
-using TMPFT.Core.Events;
-using TMPFT.Core.Intell;
+using TMAPT.Core;
+using TMAPT.Core.Events;
+using TMAPT.Core.Intell;
+using TMAPT.Module;
 
-namespace TMPFT.Display.Advanced.Views
+namespace TMAPT.Display.Advanced.Views
 {
     [ScenarioMetadata(Name: "Console", Description: "View Prediction Data and Statistics")]
     [ScenarioCategory("Debug")]
     [ScenarioCategory("Developer")]
-    public class ConsoleWindow : Scenarios
+    public class ConsoleWindow : Scenario
     {
         private static ListView ListView;
         public override void Setup()
@@ -29,14 +30,12 @@ namespace TMPFT.Display.Advanced.Views
                 AllowsMultipleSelection = false
             };
 
-
-
             ListView.SetSource(CoreLib.getConsoleList().Result);
 
             Win.Add(ListView);
 
-            EventsReporter.SoftwareEvents.onScreenUpdate += (sender, e) => Refresh(sender);
-            EventsReporter.SoftwareEvents.onStartUpComplete += (sender, e) => RequestStop();
+            Event.Software.onScreenUpdate += (sender, e) => Refresh(sender);
+            Event.Software.onStartUpComplete += (sender, e) => RequestStop();
 
             CreateStatusBar();
 
@@ -52,6 +51,7 @@ namespace TMPFT.Display.Advanced.Views
                 new StatusItem(Key.CtrlMask | Key.R, "~^R~ Construct Module", () => this.ModuleInit()),
                 new StatusItem(Key.CtrlMask | Key.S, "~^S~ Predictor",  () => IntellUI.PredictByNeuralDynamic())
             });
+
             statusBar.ColorScheme = Colors.TopLevel;
             Top.Add(statusBar);
         }
@@ -60,9 +60,6 @@ namespace TMPFT.Display.Advanced.Views
         {
             if (CoreLib.ConsoleOut != null)
                 ListView.SetSource(CoreLib.getConsoleList().Result);
-
-            //Top.Redraw(r);
-
         }
         public override void RequestStop()
         {
@@ -81,10 +78,5 @@ namespace TMPFT.Display.Advanced.Views
         {
             Application.RequestStop();
         }
-
-
-
-
-
     }
 }
