@@ -60,7 +60,7 @@ namespace TMAPT.Display
 			}
 
 			// Default startup
-			int index = _scenarios.FindIndex(x => x.Name == "ConsoleWindow");
+			int index = _scenarios.FindIndex(x => x.Name == "MetricsWindow");
 			Scenario = Activator.CreateInstance(_scenarios[index]) as Scenario;
 			Application.UseSystemConsole = _useSystemConsole;
 			Application.Init();

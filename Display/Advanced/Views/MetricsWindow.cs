@@ -16,25 +16,46 @@ namespace TMAPT.Display.Advanced.Views
             Width = Dim.Percent(100),
             Height = Dim.Fill(),
         };
-        private TableView tableView { get; set; } 
-        private TableView tableView2 { get; set; } 
+        private TableView Table00 { get; set; }
+        private TableView Table01 { get; set; }
+        private TableView Table10 { get; set; }
+        private TableView Table11 { get; set; }
+
         public override void Setup()
         {
-            tableView = new TableView()
+            Table00 = new TableView()
             {
                 X = 0,
                 Y = 0,
-                Width = Dim.Fill(),
+                Width = Dim.Percent(50),
                 Height = Dim.Percent(50)
             };
 
-            var y = Pos.Bottom(tableView) + 1;
+            var x = Pos.Right(Table00) + 1;
 
-            tableView2 = new TableView()
+            Table01 = new TableView()
+            {
+                X = x,
+                Y = 0,
+                Width = Dim.Fill(1),
+                Height = Dim.Percent(50),
+            };
+
+            var y = Pos.Bottom(Table00) + 1;
+
+            Table10 = new TableView()
             {
                 X = 0,
                 Y = y,
-                Width = Dim.Fill(),
+                Width = Dim.Percent(50),
+                Height = Dim.Percent(50),
+            };
+
+            Table11 = new TableView()
+            {
+                X = x,
+                Y = y,
+                Width = Dim.Fill(1),
                 Height = Dim.Percent(50),
             };
 
@@ -42,62 +63,90 @@ namespace TMAPT.Display.Advanced.Views
             //tableView.Style.ShowHorizontalHeaderUnderline = false;
             //tableView.Update();
 
-            DataTable Table1 = new DataTable();
+            DataTable OrderTable = new DataTable();
+            OrderTable.Columns.Add(new DataColumn("Profit/Order", typeof(string)));
+            Table00.Table = OrderTable;
 
-            Table1.Columns.Add(new DataColumn("Conn (Cl/Pb/Pr)", typeof(string)));
-            Table1.Columns.Add(new DataColumn("Live Bid/Ask (AVG)", typeof(string)));
-            Table1.Columns.Add(new DataColumn("$Live Profit", typeof(string)));
-            Table1.Columns.Add(new DataColumn("$Balance ($/%)", typeof(string)));
-            Table1.Columns.Add(new DataColumn("$Change ($/%)", typeof(string)));
+            DataTable PredictionTable = new DataTable();
+            PredictionTable.Columns.Add(new DataColumn("ML/NN Market", typeof(string)));
+            Table01.Table = PredictionTable;
 
-            tableView.Table = Table1;
+            DataTable SystemData = new DataTable();
+            SystemData.Columns.Add(new DataColumn("System/Data", typeof(string)));
+            Table10.Table = SystemData;
 
-            addData();
-
-
-            DataTable Table2 = new DataTable();
-
-            Table2.Columns.Add(new DataColumn("Conn (Cl/Pb/Pr)", typeof(string)));
-            Table2.Columns.Add(new DataColumn("Live Bid/Ask (AVG)", typeof(string)));
-            Table2.Columns.Add(new DataColumn("$Live Profit", typeof(string)));
-            Table2.Columns.Add(new DataColumn("$Balance ($/%)", typeof(string)));
-            Table2.Columns.Add(new DataColumn("$Change ($/%)", typeof(string)));
-
-            tableView2.Table = Table2;
-
+            DataTable API = new DataTable();
+            API.Columns.Add(new DataColumn("API/Live", typeof(string)));
+            Table11.Table = API;
             //Win.Add(frameView);
 
-            Win.Add(tableView);
-            Win.Add(tableView2);
+            Win.Add(Table00);
+            Win.Add(Table01);
+            Win.Add(Table10);
+            Win.Add(Table11);
+
+            addtestData();
 
             SetupScrollBar();
         }
-
-        private void addData()
+        private void addtestData()
         {
-
-            List<object> rowOne = new List<object>(){
-                    "1/1/1",
-                    "9999999.00",
-                    "45$/-5%",
-                    "44$/-23%", /*add some negatives to demo styles*/
-                    "2.2/32%"
+            for (int i = 0; i < 10; i++)
+            {
+                List<object> row00 = new List<object>(){
+                    "0 - Correlation/MH/UP/LB/t-Predicte",
                    };
 
-            tableView.Table.Rows.Add(rowOne.ToArray());
+                Table00.Table.Rows.Add(row00.ToArray());
+
+                List<object> row01 = new List<object>(){
+                    "1 - Prediction/Final/Price",
+                   };
+
+                Table01.Table.Rows.Add(row01.ToArray());
+
+                List<object> row10 = new List<object>(){
+                    "2 - System/Data/Report",
+                   };
+
+                Table10.Table.Rows.Add(row10.ToArray());
+
+                List<object> row11 = new List<object>(){
+                    "3 - API/Sync/Socket",
+                   };
+
+                Table11.Table.Rows.Add(row11.ToArray());
+            }
         }
+        private void UpdateOrderTable(string Value = "Order Table Default", int rowIndex = 0)
+        {
+            Table00.Table.Rows[rowIndex]["Profit/Order"] = Value;
+        }
+        private void UpdatePredTable(string Value = "Prediction Table Default", int rowIndex = 0)
+        {
+            Table01.Table.Rows[rowIndex]["ML/NN"] = Value;
+        }
+        private void UpdateSystemTable(string Value = "System Table Default", int rowIndex = 0)
+        {
+            Table00.Table.Rows[rowIndex]["System/Data"] = Value;
+        }
+        private void UpdateApiLiveTable(string Value = "ApiLive Table Default", int rowIndex = 0)
+        {
+            Table11.Table.Rows[rowIndex]["API/Live"] = Value;
+        }
+
         private void SetupScrollBar()
         {
-            var _scrollBar = new ScrollBarView(tableView, true);
+            var _scrollBar = new ScrollBarView(Table00, true);
 
             _scrollBar.ChangedPosition += () =>
             {
-                tableView.RowOffset = _scrollBar.Position;
-                if (tableView.RowOffset != _scrollBar.Position)
+                Table00.RowOffset = _scrollBar.Position;
+                if (Table00.RowOffset != _scrollBar.Position)
                 {
-                    _scrollBar.Position = tableView.RowOffset;
+                    _scrollBar.Position = Table00.RowOffset;
                 }
-                tableView.SetNeedsDisplay();
+                Table00.SetNeedsDisplay();
             };
 
             /*
@@ -110,10 +159,10 @@ namespace TMAPT.Display.Advanced.Views
 			};
 			*/
 
-            tableView.DrawContent += (e) =>
+            Table00.DrawContent += (e) =>
             {
-                _scrollBar.Size = tableView.Table?.Rows?.Count ?? 0;
-                _scrollBar.Position = tableView.RowOffset;
+                _scrollBar.Size = Table00.Table?.Rows?.Count ?? 0;
+                _scrollBar.Position = Table00.RowOffset;
                 //	_scrollBar.OtherScrollBarView.Size = _listView.Maxlength - 1;
                 //	_scrollBar.OtherScrollBarView.Position = _listView.LeftItem;
                 _scrollBar.Refresh();
@@ -128,7 +177,6 @@ namespace TMAPT.Display.Advanced.Views
                 Table.Rows[0]["Connection (Cl/Pb/Pr)"] = "cde";
 
                 return Table;
-
             }
             private static void SetTableViewStyle(TableView tableView)
             {
