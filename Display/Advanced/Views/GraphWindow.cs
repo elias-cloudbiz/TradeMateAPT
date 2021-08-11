@@ -8,8 +8,9 @@ using System.Globalization;
 using NStack;
 using System.Threading.Tasks;
 using Attribute = Terminal.Gui.Attribute;
-using TMAPT.Core.Events;
+using TMAPT.Module;
 using TMAPT.Core.Models;
+using TMAPT.Core.Events;
 using TMAPT.Core.Exchanges;
 
 namespace TMAPT.Display

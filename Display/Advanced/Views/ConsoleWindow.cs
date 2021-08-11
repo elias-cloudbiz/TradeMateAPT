@@ -4,9 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Terminal.Gui;
-using TMAPT.Core;
 using TMAPT.Core.Events;
-using TMAPT.Core.Intell;
 using TMAPT.Module;
 
 namespace TMAPT.Display.Advanced.Views
@@ -16,6 +14,8 @@ namespace TMAPT.Display.Advanced.Views
     [ScenarioCategory("Developer")]
     public class ConsoleWindow : Scenario
     {
+        public ConsoleWindow() : base() { }
+
         private static ListView ListView;
         public override void Setup()
         {
@@ -30,7 +30,7 @@ namespace TMAPT.Display.Advanced.Views
                 AllowsMultipleSelection = false
             };
 
-            ListView.SetSource(CoreLib.getConsoleList().Result);
+            ListView.SetSource(ModuleExchange.Console);
 
             Win.Add(ListView);
 
@@ -48,8 +48,8 @@ namespace TMAPT.Display.Advanced.Views
         private void CreateStatusBar()
         {
             var statusBar = new StatusBar(new StatusItem[] {
-                new StatusItem(Key.CtrlMask | Key.R, "~^R~ Construct Module", () => this.ModuleInit()),
-                new StatusItem(Key.CtrlMask | Key.S, "~^S~ Predictor",  () => IntellUI.PredictByNeuralDynamic())
+                new StatusItem(Key.CtrlMask | Key.R, "~^R~ Construct Module", () => throw new Exception()),
+                new StatusItem(Key.CtrlMask | Key.S, "~^S~ Predictor",  () => throw new Exception())
             });
 
             statusBar.ColorScheme = Colors.TopLevel;
@@ -58,8 +58,7 @@ namespace TMAPT.Display.Advanced.Views
 
         public void Refresh(object sender)
         {
-            if (CoreLib.ConsoleOut != null)
-                ListView.SetSource(CoreLib.getConsoleList().Result);
+            Application.Refresh();
         }
         public override void RequestStop()
         {
@@ -71,7 +70,7 @@ namespace TMAPT.Display.Advanced.Views
         }
         public void ClearWindow()
         {
-            CoreLib.ConsoleOut.Clear();
+            ModuleExchange.Console.Clear();
         }
 
         public void StopApplication()

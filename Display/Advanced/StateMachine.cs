@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Terminal.Gui;
+using TMAPT.Core;
 using Rune = System.Rune;
 
 namespace TMAPT.Display
@@ -65,7 +66,10 @@ namespace TMAPT.Display
 			Application.Init();
 			Scenario.Init(Application.Top, Colors.TopLevel);
 
-			Scenario.ModuleInit();
+			Application.MainLoop.Invoke(() => {
+				new CoreLib();
+			});
+
 
 			Scenario.Setup();
 			Scenario.Run();

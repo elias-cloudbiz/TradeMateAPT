@@ -56,12 +56,11 @@ namespace TMAPT.Display
         /// <summary>
         /// Module Import for dynamic and static import of modules <see cref="ModuleExchange"/>. This should be set to Import default function.
         /// </summary>
-        public ModuleExchange Module = new ModuleExchange();
+        public ModuleExchange Module { get; set; } = new ModuleExchange();
 
         /// <summary>
         /// Used for development purposes only see cref="CoreLib"/>. 
         /// </summary>
-        public CoreLib _CoreLib;
         ///
         private bool _disposedValue;
 
@@ -91,49 +90,7 @@ namespace TMAPT.Display
         /// Overrides that do not call the base.<see cref="Run"/>, must call <see cref="Application.Init "/> before creating any views or calling other Terminal.Gui APIs.
         /// </para>
         /// </remarks>
-        public virtual void ModuleLoop()
-        {
-            //_CoreLib.LoopModule();
-            //Task.Run(() => _CoreLib.LoopModule());
-
-        }
-        public void ModuleInit()
-        {
-            if (_CoreLib == null)
-                _CoreLib = new CoreLib();
-        }
-        public async Task RefreshAsync()
-        {
-            try
-            {
-                await Task.Delay(1000);
-
-                Application.Refresh();
-
-                await Task.Factory.StartNew(() => RefreshAsync());
-            }
-            catch (Exception ex)
-            {
-                CoreLib.WriteLine(ex.ToString());
-                return;
-            }
-        }
-        public void Refresh()
-        {
-            try
-            {
-                Thread.Sleep(1000);
-
-                Application.Refresh();
-
-              //  Refresh();
-            }
-            catch (Exception ex)
-            {
-                CoreLib.WriteLine(ex.ToString());
-                return;
-            }
-        }
+        
         public virtual void Init(Toplevel top, ColorScheme colorScheme)
         {
             Application.Init();
@@ -251,10 +208,6 @@ namespace TMAPT.Display
         /// <remarks>This is typically the best place to put scenario logic code.</remarks>
         public virtual void Setup()
         {
-            Application.MainLoop.Invoke(() => {
-                //Task.Run(() => RefreshAsync());
-                Task.Run(() => RefreshAsync());
-            });
         }
 
         /// <summary>
