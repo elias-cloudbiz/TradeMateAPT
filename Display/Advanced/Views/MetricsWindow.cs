@@ -64,11 +64,11 @@ namespace TMAPT.Display.Advanced.Views
             //tableView.Update();
 
             DataTable OrderTable = new DataTable();
-            OrderTable.Columns.Add(new DataColumn("Profit/Order", typeof(string)));
+            OrderTable.Columns.Add(new DataColumn("Profit/Balance/Orders", typeof(string)));
             Table00.Table = OrderTable;
 
             DataTable PredictionTable = new DataTable();
-            PredictionTable.Columns.Add(new DataColumn("ML/NN Market", typeof(string)));
+            PredictionTable.Columns.Add(new DataColumn("Predictions/Market", typeof(string)));
             Table01.Table = PredictionTable;
 
             DataTable SystemData = new DataTable();
@@ -87,11 +87,13 @@ namespace TMAPT.Display.Advanced.Views
 
             addtestData();
 
+            UpdateBalanceTable();
+
             SetupScrollBar();
         }
         private void addtestData()
         {
-            for (int i = 0; i < 10; i++)
+            for (int i = 0; i < 5; i++)
             {
                 List<object> row00 = new List<object>(){
                     "0 - Correlation/MH/UP/LB/t-Predicte",
@@ -118,20 +120,24 @@ namespace TMAPT.Display.Advanced.Views
                 Table11.Table.Rows.Add(row11.ToArray());
             }
         }
-        private void UpdateOrderTable(string Value = "Order Table Default", int rowIndex = 0)
+        private void UpdateBalanceTable(string Value = "Order Table Default", int rowIndex = 0)
         {
-            Table00.Table.Rows[rowIndex]["Profit/Order"] = Value;
+            // Rows, 1,2,3,4,5
+            Table00.Table.Rows[rowIndex]["Profit/Balance/Orders"] = Value;
         }
         private void UpdatePredTable(string Value = "Prediction Table Default", int rowIndex = 0)
         {
-            Table01.Table.Rows[rowIndex]["ML/NN"] = Value;
+            // Rows, 1,2,3,4,5
+            Table01.Table.Rows[rowIndex]["Predictions/Market"] = Value;
         }
         private void UpdateSystemTable(string Value = "System Table Default", int rowIndex = 0)
         {
+            // Rows, 1,2,3,4,5
             Table00.Table.Rows[rowIndex]["System/Data"] = Value;
         }
         private void UpdateApiLiveTable(string Value = "ApiLive Table Default", int rowIndex = 0)
         {
+            // Rows, 1,2,3,4,5
             Table11.Table.Rows[rowIndex]["API/Live"] = Value;
         }
 
