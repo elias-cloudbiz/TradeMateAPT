@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+	  <AssemblyName>TMAPT.TradeMate</AssemblyName>
+    <RootNamespace>TMAPT</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Display\Advanced\Views\StartupWindow.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Terminal.Gui" Version="1.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Logs\" />
+    <Folder Include="Module\" />
+    <Folder Include="Software\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="TMAPT.Core\TMAPT.Core.csproj" />
+  </ItemGroup>
+
+</Project>

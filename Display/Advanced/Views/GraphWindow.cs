@@ -66,14 +66,14 @@ namespace TMAPT.Display
         {
             var menu = new MenuBar(new MenuBarItem[] {
                 new MenuBarItem ("_File", new MenuItem [] {
-                    new MenuItem ("Scatter _Plot", "",()=>Graph.SetupPeriodicTableScatterPlot(_Graph._GraphView)),
-                    new MenuItem ("_Line Graph","",()=>Graph.setupLiveGraph(_Graph._GraphView)),
-                    new MenuItem ("_Multi Bar Graph","",()=>Graph.SetupPeriodicTableScatterPlot(_Graph._GraphView)),
+                    new MenuItem ("Scatter _Plot", "",()=>Graph.SetupPeriodicTableScatterPlot(_Graph.graphView)),
+                    new MenuItem ("_Line Graph","",()=>Graph.setupLiveGraph(_Graph.graphView)),
+                    new MenuItem ("_Multi Bar Graph","",()=>Graph.SetupPeriodicTableScatterPlot(_Graph.graphView)),
                     new MenuItem ("_Quit", "", () => QuitWindow()),
                 }),
                 new MenuBarItem ("_View", new MenuItem [] {
-                    new MenuItem ("Zoom _In", "", () => Misc.Zoom(_Graph._GraphView, 0.5f)),
-                     new MenuItem ("Zoom _Out", "", () =>  Misc.Zoom(_Graph._GraphView, 2f)),
+                    new MenuItem ("Zoom _In", "", () => Misc.Zoom(_Graph.graphView, 0.5f)),
+                     new MenuItem ("Zoom _Out", "", () =>  Misc.Zoom(_Graph.graphView, 2f)),
                 }),
 
                 });
@@ -88,9 +88,9 @@ namespace TMAPT.Display
             Top.LayoutSubviews();
 
             graphs = new Action[] {
-                 () => Graph.SetupPeriodicTableScatterPlot(_Graph._GraphView),    //0
-				 () => Graph.setupLiveGraph(_Graph._GraphView),                   //4
-				 () => Graph.MultiBarGraph(_Graph._GraphView)                     //7
+                 () => Graph.SetupPeriodicTableScatterPlot(_Graph.graphView),    //0
+				 () => Graph.setupLiveGraph(_Graph.graphView),                   //4
+				 () => Graph.MultiBarGraph(_Graph.graphView)                     //7
 			};
 
             createMenuBar();
@@ -102,7 +102,7 @@ namespace TMAPT.Display
             // Create Frame for Graph
             /// Add Graph
             Win.Add(FrameLeft);
-            FrameLeft.Add(_Graph._GraphView);
+            FrameLeft.Add(_Graph.graphView);
 
             // Create orders frame
             Win.Add(FrameRight);
@@ -168,11 +168,11 @@ namespace TMAPT.Display
 
             CreateStatusBar();
 
-            Event.Methods.Public.PublicMethodComplete += (sender, e) => UpdateMainWindow();
-
-            //Graphs.setupLiveGraph(GraphView);
+            //Event.Methods.Public.PublicMethodComplete += (sender, e) => UpdateMainWindow();
 
             _Graph.SetupGraph();
+
+            
         }
         public void UpdateMainWindow()
         {
@@ -183,9 +183,9 @@ namespace TMAPT.Display
             UpdateTableCell(0, ConnectionState);
             UpdateTableCell(1, LivePrice);
             UpdateTableCell(2, Profit);
-            UpdateTableCell(3, _Graph._GraphView.ScreenToGraphSpace(2, 2).Y.ToString());
+            UpdateTableCell(3, _Graph.graphView.ScreenToGraphSpace(2, 2).Y.ToString());
 
-            Task.Run(() => _Graph.UpdateLiveGraph());
+            _Graph.UpdateLiveGraph();
         }
         private void UpdateTableCell(int ColNr = 0, string Value = "Default", int RowIndex = 0)
         {
@@ -279,7 +279,7 @@ namespace TMAPT.Display
 
         private partial class Graph
         {
-            public GraphView _GraphView { get; set; } = new GraphView()
+            public GraphView graphView { get; set; } = new GraphView()
             {
                 X = 0,
                 Y = 1,
@@ -306,8 +306,6 @@ namespace TMAPT.Display
                 //_GraphView.Reset();
                 //var x1 = _GraphView.AxisY.GetAxisXPosition(_GraphView);
                //var gts = _GraphView.GraphSpaceToScreen(new PointF(x, y));
-
-                var stg = _GraphView.ScreenToGraphSpace(8, 2);
 
                 // 1. Get orders as types
                 IEnumerable<double> MakeOrders = Exchange.OrdersList.Where(x => x.OrderType == "BUY").Select(x => x.Price).ToList();
@@ -342,37 +340,37 @@ namespace TMAPT.Display
                     BeforeSeries = true,
                 }; 
 
-                _GraphView.Annotations.Add(PricePathAnnotation);
+                graphView.Annotations.Add(PricePathAnnotation);
 
-                _GraphView.Series.Add(TakeSeriesGraph);
-                _GraphView.Series.Add(MakeSeriesGraph);
+                graphView.Series.Add(TakeSeriesGraph);
+                graphView.Series.Add(MakeSeriesGraph);
                 
                 //_GraphView.SetClip(new Rect(2,2,4,4));
                 // leave space for axis labels
-                _GraphView.MarginBottom = 2;
-                _GraphView.MarginLeft = 8;
+                graphView.MarginBottom = 2;
+                graphView.MarginLeft = 8;
 
                 // One axis tick/label per
-                _GraphView.AxisX.Increment = 1;
-                _GraphView.AxisX.ShowLabelsEvery = 0;
-                _GraphView.AxisX.Text = "Time →";
+                graphView.AxisX.Increment = 1;
+                graphView.AxisX.ShowLabelsEvery = 0;
+                graphView.AxisX.Text = "Time →";
                 //_GraphView.AxisX.l
 
                 ///_GraphView.AxisY.Minimum = 30000;
-                _GraphView.AxisY.Increment = 10;
-                _GraphView.AxisY.ShowLabelsEvery = 5;
-                _GraphView.AxisY.Text = "↑";
+                graphView.AxisY.Increment = 10;
+                graphView.AxisY.ShowLabelsEvery = 5;
+                graphView.AxisY.Text = "↑";
 
                 //_GraphView.AutoSize = true;
                 //GraphView.DrawLine(new PointF(0, 2), new PointF(2,6));
-                _GraphView.SetNeedsDisplay();
+                graphView.SetNeedsDisplay();
             }
             public Task UpdateLiveGraph()
             {
                 //_GraphView.Reset();
 
-                var y = _GraphView.Bounds.Height;
-                var x = _GraphView.Bounds.Width;
+                var y = graphView.Bounds.Height;
+                var x = graphView.Bounds.Width;
 
                 // Get Coin collection 
                 IEnumerable<double> LivePrices = Exchange.CoinCollectionQueue.Select(x => x.getBaseValueRounded).ToList();
@@ -418,14 +416,14 @@ namespace TMAPT.Display
 
                 if (PointPriceData.Count() > 0)
                 {
-                    _GraphView.ScrollOffset = new PointF(0, PointPriceData.Last().Y - yp);
+                    graphView.ScrollOffset = new PointF(0, PointPriceData.Last().Y - yp);
                     // How much graph space each cell of the console depicts
-                    _GraphView.CellSize = new PointF(1, y);
+                    graphView.CellSize = new PointF(1, y);
                 }
 
-                PricePathAnnotation.Render(_GraphView);
+                PricePathAnnotation.Render(graphView);
                 
-                _GraphView.SetNeedsDisplay();
+                graphView.SetNeedsDisplay();
 
                 PointMakeData.Clear();
                 PointTakeData.Clear();

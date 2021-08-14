@@ -64,7 +64,7 @@ namespace TMAPT.Display
             else
             {
 				// Default startup
-				int index = _scenarios.FindIndex(x => x.Name == "FullMetricWindow");
+				int index = _scenarios.FindIndex(x => x.Name == "GraphWindow");
 				Scenario = new ConsoleWindow();
 				Application.UseSystemConsole = _useSystemConsole;
 				Application.Init();
@@ -206,7 +206,7 @@ namespace TMAPT.Display
 			};
 
 			// Event listener
-			_categoryListView.SelectedItemChanged += categoryList_SelectedChanged;
+			 _categoryListView.SelectedItemChanged += categoryList_SelectedChanged;
 			_leftPane.Add(_categoryListView);
 
 			// 7. Rightpane scenariolist
@@ -562,6 +562,11 @@ namespace TMAPT.Display
 				var source = _scenarioListView.Source as ScenarioListDataSource;
 				Scenario = (Scenario)Activator.CreateInstance(source.Scenarios[_scenarioListView.SelectedItem], Core);
 				Application.RequestStop();
+			}
+			else
+			{
+				Scenario.RequestStop();
+				Scenario.Dispose();
 			}
 		}
 		/// <summary>
