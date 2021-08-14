@@ -7,7 +7,7 @@ using Terminal.Gui;
 using TMAPT.Core;
 using TMAPT.Core.Exchanges;
 using TMAPT.Core.Intell;
-using TMAPT.Core.Intelligence.Position;
+using TMAPT.Core.Intell.Position;
 using TMAPT.Core.Simulation;
 
 namespace TMAPT.Module

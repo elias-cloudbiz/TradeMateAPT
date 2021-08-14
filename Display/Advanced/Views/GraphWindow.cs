@@ -12,6 +12,7 @@ using TMAPT.Module;
 using TMAPT.Core.Models;
 using TMAPT.Core.Events;
 using TMAPT.Core.Exchanges;
+using TMAPT.Core;
 
 namespace TMAPT.Display
 {
@@ -19,6 +20,8 @@ namespace TMAPT.Display
     [ScenarioCategory("Main Controls")]
     class GraphWindow : Scenario
     {
+        public GraphWindow(CoreLib Core) : base(Core) { }
+
         private Graph _Graph = new Graph();
         private static FrameView FrameTop { get; set; } = new FrameView("Data")
         {
@@ -77,7 +80,7 @@ namespace TMAPT.Display
             Top.Add(menu);
 
         }
-        public override void Setup()
+        public override void SetupWindow()
         {
             Win.Title = this.GetName();
             Win.Y = 1; // menu

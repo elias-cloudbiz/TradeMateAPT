@@ -5,6 +5,7 @@ using Terminal.Gui;
 using System.Linq;
 using System.Globalization;
 using TMAPT.Core.Intell;
+using TMAPT.Core;
 
 namespace TMAPT.Display.Advanced.Views
 {
@@ -12,6 +13,8 @@ namespace TMAPT.Display.Advanced.Views
     [ScenarioCategory("Statistics")]
     public class PredictionTableView : Scenario
     {
+        public PredictionTableView(CoreLib Core) : base(Core) { }
+
         TableView tableView;
         private MenuItem miAlwaysShowHeaders;
         private MenuItem miHeaderOverline;
@@ -21,7 +24,7 @@ namespace TMAPT.Display.Advanced.Views
         private MenuItem miFullRowSelect;
         private MenuItem miExpandLastColumn;
 
-        public override void Setup()
+        public override void SetupWindow()
         {
             Win.Title = this.GetName();
             Win.Y = 1; // menu

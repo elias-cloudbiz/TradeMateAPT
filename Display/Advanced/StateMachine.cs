@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Terminal.Gui;
 using TMAPT.Core;
+using TMAPT.Display.Advanced.Views;
 using Rune = System.Rune;
 
 namespace TMAPT.Display
@@ -40,9 +41,11 @@ namespace TMAPT.Display
 		private static bool _heightAsBuffer = false;
 		private static bool _alwaysSetPosition;
 
-		public async Task Start(string[] args)
-		{
-			Console.OutputEncoding = Encoding.Default;
+		private CoreLib Core { get; set; }
+
+		public Task Start(string[] args)
+        {
+            Console.OutputEncoding = Encoding.Default;
 
 			if (Debugger.IsAttached)
 				CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.GetCultureInfo("en-US");
@@ -58,22 +61,24 @@ namespace TMAPT.Display
 			{
 				// Implement argument
 			}
+            else
+            {
+				// Default startup
+				int index = _scenarios.FindIndex(x => x.Name == "FullMetricWindow");
+				Scenario = new ConsoleWindow();
+				Application.UseSystemConsole = _useSystemConsole;
+				Application.Init();
+				Scenario.Init(Application.Top, Colors.TopLevel);
 
-			// Default startup
-			int index = _scenarios.FindIndex(x => x.Name == "MetricsWindow");
-			Scenario = Activator.CreateInstance(_scenarios[index]) as Scenario;
-			Application.UseSystemConsole = _useSystemConsole;
-			Application.Init();
-			Scenario.Init(Application.Top, Colors.TopLevel);
+				Application.MainLoop.Invoke(() => {
+					Core = new CoreLib();
+				});
 
-			Application.MainLoop.Invoke(() => {
-				new CoreLib();
-			});
+				Scenario.SetupWindow();
+				Scenario.Run();
+				Scenario = null;
+			}
 
-
-			Scenario.Setup();
-			Scenario.Run();
-			Scenario = null;
 
 			// Run StateMachine
 			while ((Scenario = MainScenario()) != null)
@@ -90,7 +95,7 @@ namespace TMAPT.Display
 				#endif
 
 				Scenario.Init(Application.Top, _baseColorScheme);
-				Scenario.Setup();
+				Scenario.SetupWindow();
 				// 17. Application top layer Add
 				Scenario.Run();
 
@@ -113,24 +118,16 @@ namespace TMAPT.Display
 			}
 
 			Application.Shutdown();
+            return Task.CompletedTask;
+        }
 
-			#if DEBUG_IDISPOSABLE
-			// This proves that when the user exited the UI Catalog app
-			// it cleaned up properly.
-			foreach (var inst in Responder.Instances) {
-				Debug.Assert (inst.WasDisposed);
-			}
-			Responder.Instances.Clear ();
-			#endif			
-		}
-
-		public static void CreateScenario(int index) {
+        public void CreateScenario(int index) {
 			index = _scenarios.FindIndex(x => x.Name == "MainWindow");
-			Scenario = Activator.CreateInstance(_scenarios[index]) as Scenario;
+			Scenario = Activator.CreateInstance(_scenarios[index], Core) as Scenario;
 			Application.UseSystemConsole = _useSystemConsole;
 			Application.Init();
 			Scenario.Init(Application.Top, Colors.TopLevel);
-			Scenario.Setup();
+			Scenario.SetupWindow();
 			Scenario.Run();
 			Scenario = null;
 
@@ -142,8 +139,6 @@ namespace TMAPT.Display
 		private Scenario MainScenario()
 		{
 			// Create GUI first
-	
-
 			// 1. Set Console / Application settings
 			Application.UseSystemConsole = _useSystemConsole;
 			Application.Init();
@@ -272,6 +267,7 @@ namespace TMAPT.Display
 						Application.RequestStop();
 					} else {
 						Scenario.RequestStop();
+						Scenario.Dispose();
 					}
 				}),
 				new StatusItem(Key.F10, "~F10~ Hide/Show Status Bar", () => {
@@ -301,8 +297,6 @@ namespace TMAPT.Display
 					Scenario = null;
 				}
 			};
-
-
 
 			Application.Run(_top);
 
@@ -538,7 +532,7 @@ namespace TMAPT.Display
 			}
 			return menuItems.ToArray();
 		}
-		private static void categoryList_SelectedChanged(ListViewItemEventArgs e)
+		private void categoryList_SelectedChanged(ListViewItemEventArgs e)
 		{
 			if (_categoryListViewItem != _categoryListView.SelectedItem)
 			{
@@ -560,13 +554,13 @@ namespace TMAPT.Display
 			_scenarioListView.SelectedItem = _scenarioListViewItem;
 
 		}
-		private static void _scenarioOpenSelectedItem(EventArgs e)
+		private void _scenarioOpenSelectedItem(EventArgs e)
 		{
 			if (Scenario is null)
 			{
 				_scenarioListViewItem = _scenarioListView.SelectedItem;
 				var source = _scenarioListView.Source as ScenarioListDataSource;
-				Scenario = (Scenario)Activator.CreateInstance(source.Scenarios[_scenarioListView.SelectedItem]);
+				Scenario = (Scenario)Activator.CreateInstance(source.Scenarios[_scenarioListView.SelectedItem], Core);
 				Application.RequestStop();
 			}
 		}

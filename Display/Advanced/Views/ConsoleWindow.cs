@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Terminal.Gui;
+using TMAPT.Core;
 using TMAPT.Core.Events;
 using TMAPT.Module;
 
@@ -14,10 +15,11 @@ namespace TMAPT.Display.Advanced.Views
     [ScenarioCategory("Developer")]
     public class ConsoleWindow : Scenario
     {
-        public ConsoleWindow() : base() { }
+        public ConsoleWindow() { }
+        public ConsoleWindow(CoreLib Core) : base(Core) { }
 
         private static ListView ListView;
-        public override void Setup()
+        public override void SetupWindow()
         {
             ListView = new ListView()
             {
@@ -35,11 +37,11 @@ namespace TMAPT.Display.Advanced.Views
             Win.Add(ListView);
 
             Event.Software.onScreenUpdate += (sender, e) => Refresh(sender);
-            Event.Software.onStartUpComplete += (sender, e) => RequestStop();
+           // Event.Software.onStartUpComplete += (sender, e) => RequestStop();
 
             CreateStatusBar();
 
-            base.Setup();
+            base.SetupWindow();
 
             //r.Width = ListView.Bounds.Width;
             //r.Height = ListView.Bounds.Height;

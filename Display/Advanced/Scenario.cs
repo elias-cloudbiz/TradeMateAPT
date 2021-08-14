@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Terminal.Gui;
 using TMAPT.Core;
+using TMAPT.Core.Simulation;
 using TMAPT.Module;
 
 namespace TMAPT.Display
@@ -18,7 +19,7 @@ namespace TMAPT.Display
     ///  <item><description>Create a new <c>.cs</c> file in the <cs>Scenarios</cs> directory that derives from <see cref="Scenario"/>.</description></item>
     ///  <item><description>Annotate the <see cref="Scenario"/> derived class with a <see cref="Scenario.ScenarioMetaData"/> attribute specifying the scenario's name and description.</description></item>
     ///  <item><description>Add one or more <see cref="Scenario.ScenarioCategory"/> attributes to the class specifying which categories the sceanrio belongs to. If you don't specify a category the sceanrio will show up in "All".</description></item>
-    ///  <item><description>Implement the <see cref="Setup"/> override which will be called when a user selects the scenario to run.</description></item>
+    ///  <item><description>Implement the <see cref="SetupWindow"/> override which will be called when a user selects the scenario to run.</description></item>
     ///  <item><description>Optionally, implement the <see cref="Init(Toplevel)"/> and/or <see cref="Run"/> overrides to provide a custom implementation.</description></item>
     ///  </list>
     /// </para>
@@ -51,12 +52,20 @@ namespace TMAPT.Display
     /// </example>
     public class Scenario : IDisposable
     {
-        public Scenario() { }
+        public ModuleExchange Module { get; set; }
+        protected CoreLib Core { get; set; }
+
+        public Scenario( )
+        {
+        }
+
+        public Scenario(CoreLib Core) {
+            this.Core = Core;
+        }
 
         /// <summary>
         /// Module Import for dynamic and static import of modules <see cref="ModuleExchange"/>. This should be set to Import default function.
         /// </summary>
-        public ModuleExchange Module { get; set; } = new ModuleExchange();
 
         /// <summary>
         /// Used for development purposes only see cref="CoreLib"/>. 
@@ -206,7 +215,7 @@ namespace TMAPT.Display
         /// Override this to implement the <see cref="Scenario"/> setup logic (create controls, etc...). 
         /// </summary>
         /// <remarks>This is typically the best place to put scenario logic code.</remarks>
-        public virtual void Setup()
+        public virtual void SetupWindow()
         {
         }
 
