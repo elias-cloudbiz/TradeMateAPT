@@ -10,7 +10,7 @@
 *.userosscache
 *.sln.docstates
 Config.JSON
-TMPFT.Core
+TMAPT.Core
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

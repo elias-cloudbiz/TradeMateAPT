@@ -8,6 +8,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="TMAPT.Core\**" />
+    <Compile Remove="TMAPT.Exchanges\**" />
+    <Compile Remove="TMAPT.Extensions\**" />
+    <EmbeddedResource Remove="TMAPT.Core\**" />
+    <EmbeddedResource Remove="TMAPT.Exchanges\**" />
+    <EmbeddedResource Remove="TMAPT.Extensions\**" />
+    <None Remove="TMAPT.Core\**" />
+    <None Remove="TMAPT.Exchanges\**" />
+    <None Remove="TMAPT.Extensions\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Remove="Display\Advanced\Views\StartupWindow.cs" />
   </ItemGroup>
 
