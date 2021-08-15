@@ -65,7 +65,7 @@ namespace TMAPT.Display
             {
 				// Default startup
 				int index = _scenarios.FindIndex(x => x.Name == "GraphWindow");
-				Scenario = new FullMetricWindow();
+				Scenario = new FullMetricWindow(Core = new CoreLib());
 				Application.UseSystemConsole = _useSystemConsole;
 				Application.Init();
 				Scenario.Init(Application.Top, Colors.TopLevel);

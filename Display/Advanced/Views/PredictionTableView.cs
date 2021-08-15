@@ -118,7 +118,7 @@ namespace TMAPT.Display.Advanced.Views
         /// <returns></returns>
         private void TrainPredict()
         {
-            IntellUI.PredictByNeuralDynamic();
+            Core.Simulator.IntellUI.PredictByNeuralDynamic();
 
             var rPrices = IntellUI.Prediction.realPrices;
             var nWeights = IntellUI.Prediction.Normalize.nWeights;

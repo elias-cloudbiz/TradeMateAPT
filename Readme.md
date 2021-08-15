@@ -3,12 +3,12 @@
 </p>
 
 
-## TradeMate APT (Assisted Predictive Trading)
+## TradeMate APT 
 ###
 
-#####  Is a pure light weight .NET Core based software in 'pre-alpha state' is made with solid purpose to open possibilities for developers to extend the software with; new integrated dynamic libraries (.dll) and assist operators in heavy volatile markets such as virtual markets and tokens. TradeMate APT serves with default pre-integrated library and parameters freely customization for improved strategies. 
+#####  Assisted Trading Exensibility is a pure light weight .NET Core based software in early-alpha state is made with solid purpose to open possibilities for developers to extend the software with; new integrated dynamic libraries (.dll) and assist operators in heavy volatile markets such as virtual markets and tokens. TradeMate APT serves with default pre-integrated library and parameters freely customization for improved strategies. 
 
-**Table of content:**
+**Table of content:(To be continued)**
 1. Introduction
 2. Operator Trainee
     * Prerequisites

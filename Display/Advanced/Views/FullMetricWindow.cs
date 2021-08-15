@@ -32,8 +32,8 @@ namespace TMAPT.Display.Advanced.Views
             {
                 X = 0,
                 Y = 0,
-                Width = Dim.Percent(50),
-                Height = Dim.Percent(50),
+                Width = Dim.Percent(75),
+                Height = Dim.Percent(60),
             };
             var x = Pos.Right(Table00) + 1;
 
@@ -41,7 +41,7 @@ namespace TMAPT.Display.Advanced.Views
             {
                 X = x,
                 Y = 0,
-                Width = Dim.Percent(50),
+                Width = Dim.Percent(75),
                 Height = Dim.Fill(1)
             };
 
@@ -91,10 +91,10 @@ namespace TMAPT.Display.Advanced.Views
 
             addtestData();
 
-            UpdateMarketPredictionTable();
-            UpdateBalanceTable();
-            UpdateSystemTable();
-            UpdateApiLiveTable();
+            updateBalance();
+            updateMarketPredictionT();
+            updateSystemTable();
+            updateApiLiveTable();
 
             SetupScrollBar();
         }
@@ -103,16 +103,16 @@ namespace TMAPT.Display.Advanced.Views
         {
             for (int i = 0; i < rows; i++)
             {
-                // Market/Prediction
+                // Market/Prediction - Lastprice/Slope/StdY/Correlation/MaxMinJumpRate/MaxMinValue/BearBull/%MarketRates"
                 List<object> row00 = new List<object>(){
-                    $"{i} - Lastprice/Slope/StdY/Correlation/MaxMinJumpRate/MaxMinValue/BearBull/%MarketRates",
+                    $"{i} - ",
                    };
 
                 Table00.Table.Rows.Add(row00.ToArray());
 
-                // Balance/orders
+                // Balance/orders - PriceDev $Performance/$VAL/$CH - $Invest/Active(B/S)/Filled(B/S)
                 List<object> row01 = new List<object>(){
-                    $"{i} - PriceDev $Performance/$VAL/$CH - $Invest/Active(B/S)/Filled(B/S)",
+                    $"{i} - ",
                    };
 
                 Table01.Table.Rows.Add(row01.ToArray());
@@ -130,7 +130,7 @@ namespace TMAPT.Display.Advanced.Views
                 Table11.Table.Rows.Add(row11.ToArray());
             }
         }
-        private void UpdateMarketPredictionTable()
+        private void updateBalance()
         {
             // Rows, 1,2,3,4,5
             Table00.Table.Rows[0]["Market/Prediction"] = "";
@@ -142,21 +142,27 @@ namespace TMAPT.Display.Advanced.Views
             Table00.Table.Rows[5]["Market/Prediction"] = $"Max/Min Price";
             Table00.Table.Rows[6]["Market/Prediction"] = $"Bear/Bull";
         }
-        private void UpdateBalanceTable()
+        private void updateMarketPredictionT()
         {
             var lastPrice = Core.Simulator.getLastCoin.getBaseValueRounded;
             var maxPrice = Core.Simulator.getLastCoin.getMaxValue;
             var minPrice = Core.Simulator.getLastCoin.getMinValue;
             var upperBound = Core.Simulator.IntellUI.Predictive.upperBound;
             var lowerBound = Core.Simulator.IntellUI.Predictive.lowerBound;
+            var jumpRateUp = 0;
+            var jumpRateDw = 0;
+            var stdY = 0;
+            var stdX = 0;
+            var corr = 0;
+
 
             // Rows, 1,2,3,4,5
-            Table00.Table.Rows[0]["Market/Prediction"] = $"Last Bid/Ask: {lastPrice} | Max/Min: {maxPrice}{minPrice} | U/L Bounds: {upperBound}/{lowerBound}";
-            Table00.Table.Rows[1]["Market/Prediction"] = $"Slope";
-            Table00.Table.Rows[2]["Market/Prediction"] = $"StdY";
-            Table00.Table.Rows[3]["Market/Prediction"] = $"Correlation";
+            Table00.Table.Rows[0]["Market/Prediction"] = $"Bid/Ask: {lastPrice} | Max/Min: {maxPrice}/{minPrice}";
+            Table00.Table.Rows[1]["Market/Prediction"] = $"Pred. U/L Bounds: {upperBound}/{lowerBound} | U/L Rate: {jumpRateUp}/{jumpRateDw}";
+            Table00.Table.Rows[2]["Market/Prediction"] = $"Std Y/X: {stdY}/{stdX} | Corr: {corr}";
+
         }
-        private void UpdateSystemTable()
+        private void updateSystemTable()
         {
             // Rows, 1,2,3,4,5
             Table10.Table.Rows[0]["System/Data"] = $"1";
@@ -165,7 +171,7 @@ namespace TMAPT.Display.Advanced.Views
             Table10.Table.Rows[3]["System/Data"] = $"4";
             Table10.Table.Rows[4]["System/Data"] = $"5";
         }
-        private void UpdateApiLiveTable()
+        private void updateApiLiveTable()
         {
             // Rows, 1,2,3,4,5
             Table11.Table.Rows[0]["COM/Live"] = $"1";
