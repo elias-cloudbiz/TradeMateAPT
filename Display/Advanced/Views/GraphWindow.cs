@@ -16,13 +16,21 @@ using TMAPT.Core;
 
 namespace TMAPT.Display
 {
-    [ScenarioMetadata(Name: "Main Window", Description: "Main Window Live Graph and Orders")]
-    [ScenarioCategory("Main Controls")]
+    [ScenarioMetadata(Name: "Graph Window", Description: "Main Window Live Graph and Orders")]
+    [ScenarioCategory("Main")]
     class GraphWindow : Scenario
     {
-        public GraphWindow(CoreLib Core) : base(Core) { }
-
-        private Graph _Graph = new Graph();
+        public GraphView graphView { get; set; } = new GraphView()
+        {
+            X = 0,
+            Y = 1,
+            Width = Dim.Fill(),
+            Height = Dim.Fill(),
+        };
+        public GraphWindow(CoreLib Core) : base(Core) {
+            
+        }
+        private Graph graph = new Graph();
         private static FrameView FrameTop { get; set; } = new FrameView("Data")
         {
                 X = 1,
@@ -30,34 +38,16 @@ namespace TMAPT.Display
                 Width = Dim.Fill(1),
                 Height = Dim.Sized(4),
         };
-        private static FrameView FrameLeft { get; set; } = new FrameView("Live")
-        {
-            X = 0,
-                Y = 5,
-                Width = Dim.Percent(75),
-                Height = Dim.Fill(),
-        };
-        private static FrameView FrameRight { get; set; } = new FrameView("Orders")
-        {
-            X = Pos.Right(FrameLeft) + 1,
-                Y = 5,
-                Width = Dim.Percent(25),
-                Height = Dim.Fill(),
-            };
+        private FrameView frameLeft { get; set; } 
+        private FrameView frameRight { get; set; } 
         private int SelectedItemIndex { get; set; }
-        private TableView TableView { get; set; } = new TableView()
-        {
-            X = 0,
-            Y = 0,
-            Width = Dim.Fill(),
-            Height = Dim.Sized(5),
-        };
+        private TableView tableView { get; set; } 
         Action[] graphs;
         private void CreateStatusBar()
         {
             var statusBar = new StatusBar(new StatusItem[] {
-                new StatusItem(Key.CtrlMask | Key.R, "~^R~ Test 1", () => UpdateMainWindow()),
-                new StatusItem(Key.CtrlMask | Key.S, "~^S~ Test 2",  () => UpdateTableCell(0, "! D3 !"))
+                new StatusItem(Key.CtrlMask | Key.R, "~^R~ Test 1", () => updateMainWindow()),
+                new StatusItem(Key.CtrlMask | Key.S, "~^S~ Test 2",  () => updateTableCell(0, "! D3 !"))
             });
             statusBar.ColorScheme = Colors.TopLevel;
             Top.Add(statusBar);
@@ -66,21 +56,21 @@ namespace TMAPT.Display
         {
             var menu = new MenuBar(new MenuBarItem[] {
                 new MenuBarItem ("_File", new MenuItem [] {
-                    new MenuItem ("Scatter _Plot", "",()=>Graph.SetupPeriodicTableScatterPlot(_Graph.graphView)),
-                    new MenuItem ("_Line Graph","",()=>Graph.setupLiveGraph(_Graph.graphView)),
-                    new MenuItem ("_Multi Bar Graph","",()=>Graph.SetupPeriodicTableScatterPlot(_Graph.graphView)),
-                    new MenuItem ("_Quit", "", () => QuitWindow()),
+                    new MenuItem ("Scatter _Plot", "",()=>Graph.SetupPeriodicTableScatterPlot(graphView)),
+                    new MenuItem ("_Line Graph","",()=>Graph.setupLiveGraph(graphView)),
+                    new MenuItem ("_Multi Bar Graph","",()=>Graph.SetupPeriodicTableScatterPlot(graphView)),
+                    new MenuItem ("_Quit", "", () => quitWindow()),
                 }),
                 new MenuBarItem ("_View", new MenuItem [] {
-                    new MenuItem ("Zoom _In", "", () => Misc.Zoom(_Graph.graphView, 0.5f)),
-                     new MenuItem ("Zoom _Out", "", () =>  Misc.Zoom(_Graph.graphView, 2f)),
+                    new MenuItem ("Zoom _In", "", () => Misc.Zoom(graphView, 0.5f)),
+                     new MenuItem ("Zoom _Out", "", () =>  Misc.Zoom(graphView, 2f)),
                 }),
 
                 });
             Top.Add(menu);
 
         }
-        public override void SetupWindow()
+        public override void Setup()
         {
             Win.Title = this.GetName();
             Win.Y = 1; // menu
@@ -88,27 +78,49 @@ namespace TMAPT.Display
             Top.LayoutSubviews();
 
             graphs = new Action[] {
-                 () => Graph.SetupPeriodicTableScatterPlot(_Graph.graphView),    //0
-				 () => Graph.setupLiveGraph(_Graph.graphView),                   //4
-				 () => Graph.MultiBarGraph(_Graph.graphView)                     //7
+                 () => Graph.SetupPeriodicTableScatterPlot(graphView),    //0
+				 () => Graph.setupLiveGraph(graphView),                   //4
+				 () => Graph.MultiBarGraph(graphView)                     //7
 			};
 
             createMenuBar();
 
+            frameLeft = new FrameView("Live")
+            {
+                X = 0,
+                Y = 5,
+                Width = Dim.Percent(75),
+                Height = Dim.Fill(),
+            };
+
+            frameRight = new FrameView("Orders")
+            {
+                X = Pos.Right(frameLeft) + 1,
+                Y = 5,
+                Width = Dim.Percent(25),
+                Height = Dim.Fill(),
+            };
+            tableView = new TableView()
+            {
+                X = 0,
+                Y = 0,
+                Width = Dim.Fill(),
+                Height = Dim.Sized(5),
+            };
             // Create default table
-            Table.BuildDefaultTable(TableView);
-            Win.Add(TableView);
+            Table.BuildDefaultTable(tableView);
+            Win.Add(tableView);
 
             // Create Frame for Graph
             /// Add Graph
-            Win.Add(FrameLeft);
-            FrameLeft.Add(_Graph.graphView);
+            //Win.Add(FrameLeft);
+            frameLeft.Add(graphView);
 
             // Create orders frame
-            Win.Add(FrameRight);
+            Win.Add(frameRight);
 
             var labelHL = new Label($"Syncinc in {" X "} sec.") { X = 0, Y = 0, Width = Dim.Fill(), Height = 1, TextAlignment = TextAlignment.Centered, /**ColorScheme = Colors.ColorSchemes["Base"]**/ };
-            FrameRight.Add(labelHL);
+            frameRight.Add(labelHL);
 
             // Create ListView For orders
             ListView _listView = new ListView()
@@ -127,7 +139,7 @@ namespace TMAPT.Display
             {
                 //X = Pos.Right (prev) + 2,
                 X = 0,
-                Y = Pos.Y(_listView) + 1 + Orders.Count,
+                Y = Pos.Y(_listView) + 1, //+Orders.Count,
             };
 
             createButton.Clicked += () =>
@@ -140,7 +152,7 @@ namespace TMAPT.Display
             {
                 X = Pos.X(createButton) + 10,
                 //TODO: Change to use Pos.AnchorEnd()
-                Y = Pos.Y(_listView) + 1 + Orders.Count,
+                Y = Pos.Y(_listView) + 1,// + Orders.Count,
                 IsDefault = false,
             };
 
@@ -161,62 +173,59 @@ namespace TMAPT.Display
                 var q = MessageBox.Query(0, 0, "Cancel order request", $"Are you sure you to cancel order {SelectedItemIndex} ?", cancel, ignore);
             };
 
-            FrameRight.Add(_listView);
+            frameRight.Add(_listView);
 
-            FrameRight.Add(createButton);
-            FrameRight.Add(cancelButton);
+            frameRight.Add(createButton);
+            frameRight.Add(cancelButton);
 
             CreateStatusBar();
 
             //Event.Methods.Public.PublicMethodComplete += (sender, e) => UpdateMainWindow();
-
-            _Graph.SetupGraph();
-
-            
+            //_Graph.SetupGraph();        
         }
-        public void UpdateMainWindow()
+        public void updateMainWindow()
         {
             string ConnectionState = $"0/{Parameters.API.PublicConnection}/{Parameters.API.PrivateConnection}";
             string LivePrice = $"{Exchange.getLastCoin.getBaseValueRounded}";
             string Profit = $"{Parameters.Wallet.Profit}/{Parameters.Wallet.BalanceChangeValue}";
 
-            UpdateTableCell(0, ConnectionState);
-            UpdateTableCell(1, LivePrice);
-            UpdateTableCell(2, Profit);
-            UpdateTableCell(3, _Graph.graphView.ScreenToGraphSpace(2, 2).Y.ToString());
+            updateTableCell(0, ConnectionState);
+            updateTableCell(1, LivePrice);
+            updateTableCell(2, Profit);
+            updateTableCell(3, graphView.ScreenToGraphSpace(2, 2).Y.ToString());
 
-            _Graph.UpdateLiveGraph();
+            Graph.UpdateLiveGraph(graphView);
         }
-        private void UpdateTableCell(int ColNr = 0, string Value = "Default", int RowIndex = 0)
+        private void updateTableCell(int ColNr = 0, string Value = "Default", int RowIndex = 0)
         {
             switch (ColNr)
             {
                 case 0:
-                    TableView.Table.Rows[RowIndex]["Connection (Cl/Pb/Pr)"] = Value;
+                    tableView.Table.Rows[RowIndex]["Connection (Cl/Pb/Pr)"] = Value;
                     break;
                 case 1:
-                    TableView.Table.Rows[RowIndex]["Live Bid/Ask"] = Value;
+                    tableView.Table.Rows[RowIndex]["Live Bid/Ask"] = Value;
                     break;
                 case 2:
-                    TableView.Table.Rows[RowIndex]["Live Profit"] = Value;
+                    tableView.Table.Rows[RowIndex]["Live Profit"] = Value;
                     break;
                 case 3:
-                    TableView.Table.Rows[RowIndex]["Balance ($/%)"] = Value;
+                    tableView.Table.Rows[RowIndex]["Balance ($/%)"] = Value;
                     break;
                 case 4:
-                    TableView.Table.Rows[RowIndex]["Change ($/%)"] = Value;
+                    tableView.Table.Rows[RowIndex]["Change ($/%)"] = Value;
                     break;
                 case 5:
-                    TableView.Table.Rows[RowIndex]["Active (B/S/$)"] = Value;
+                    tableView.Table.Rows[RowIndex]["Active (B/S/$)"] = Value;
                     break;
                 case 6:
-                    TableView.Table.Rows[RowIndex]["Filled (B/S/$)"] = Value;
+                    tableView.Table.Rows[RowIndex]["Filled (B/S/$)"] = Value;
                     break;
                 case 7:
-                    TableView.Table.Rows[RowIndex]["Pred. NN (Y/X)"] = Value;
+                    tableView.Table.Rows[RowIndex]["Pred. NN (Y/X)"] = Value;
                     break;
                 case 8:
-                    TableView.Table.Rows[RowIndex]["Pred. ML (LB/UP)"] = Value;
+                    tableView.Table.Rows[RowIndex]["Pred. ML (LB/UP)"] = Value;
                     break;
                 default:
                     break;
@@ -272,40 +281,36 @@ namespace TMAPT.Display
             //MessageBox.ErrorQuery(0, 0, "Error Box", "MSG EDIT", defaultButton, btns.ToArray());
         }
         private void cancelOrder() { }
-        private void QuitWindow()
+        private void quitWindow()
         {
             Application.RequestStop();
         }
 
         private partial class Graph
         {
-            public GraphView graphView { get; set; } = new GraphView()
-            {
-                X = 0,
-                Y = 1,
-                Width = Dim.Fill(),
-                Height = Dim.Fill(),
 
-            };
+
             //
             static Queue<PointF> PointPriceData = new Queue<PointF>();
             static List<PointF> PointMakeData = new List<PointF>();
             static List<PointF> PointTakeData = new List<PointF>();
-            //
-            Attribute white = Application.Driver.MakeAttribute(Color.White, Color.Black);
-            Attribute red = Application.Driver.MakeAttribute(Color.BrightRed, Color.Black);
-            Attribute green = Application.Driver.MakeAttribute(Color.BrightGreen, Color.Black);
+            
             //
             // 3. Series of Take
-            ScatterSeries TakeSeriesGraph { get; set; }
-            ScatterSeries MakeSeriesGraph { get; set; }
-            PathAnnotation PricePathAnnotation { get; set; }
+            static ScatterSeries TakeSeriesGraph { get; set; }
+            static ScatterSeries MakeSeriesGraph { get; set; }
+            static PathAnnotation PricePathAnnotation { get; set; }
 
-            public void SetupGraph()
+            public static void SetupGraph(GraphView graphView)
             {
-                //_GraphView.Reset();
+
+                var cyan = Application.Driver.MakeAttribute(Color.BrightCyan, Color.Black);
+                var magenta = Application.Driver.MakeAttribute(Color.BrightMagenta, Color.Black);
+                var red = Application.Driver.MakeAttribute(Color.BrightRed, Color.Black);
+                var white = Application.Driver.MakeAttribute(Color.White, Color.Black);
+
                 //var x1 = _GraphView.AxisY.GetAxisXPosition(_GraphView);
-               //var gts = _GraphView.GraphSpaceToScreen(new PointF(x, y));
+                //var gts = _GraphView.GraphSpaceToScreen(new PointF(x, y));
 
                 // 1. Get orders as types
                 IEnumerable<double> MakeOrders = Exchange.OrdersList.Where(x => x.OrderType == "BUY").Select(x => x.Price).ToList();
@@ -365,7 +370,7 @@ namespace TMAPT.Display
                 //GraphView.DrawLine(new PointF(0, 2), new PointF(2,6));
                 graphView.SetNeedsDisplay();
             }
-            public Task UpdateLiveGraph()
+            public static Task UpdateLiveGraph(GraphView graphView)
             {
                 //_GraphView.Reset();
 

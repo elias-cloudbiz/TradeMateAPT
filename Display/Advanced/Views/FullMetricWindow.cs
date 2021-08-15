@@ -11,6 +11,7 @@ namespace TMAPT.Display.Advanced.Views
     [ScenarioCategory("Statistics")]
     public class FullMetricWindow : Scenario
     {
+        public FullMetricWindow() { }
         public FullMetricWindow(CoreLib Core) : base(Core) { }
         private FrameView frameView { get; set; } = new FrameView("Metrics/Statistics")
         {
@@ -24,7 +25,7 @@ namespace TMAPT.Display.Advanced.Views
         private TableView Table10 { get; set; }
         private TableView Table11 { get; set; }
 
-        public override void SetupWindow()
+        public override void Setup()
         {
 
             Table00 = new TableView()
@@ -143,8 +144,14 @@ namespace TMAPT.Display.Advanced.Views
         }
         private void UpdateBalanceTable()
         {
+            var lastPrice = Core.Simulator.getLastCoin.getBaseValueRounded;
+            var maxPrice = Core.Simulator.getLastCoin.getMaxValue;
+            var minPrice = Core.Simulator.getLastCoin.getMinValue;
+            var upperBound = Core.Simulator.IntellUI.Predictive.upperBound;
+            var lowerBound = Core.Simulator.IntellUI.Predictive.lowerBound;
+
             // Rows, 1,2,3,4,5
-            Table00.Table.Rows[0]["Market/Prediction"] = $"LastPrice";
+            Table00.Table.Rows[0]["Market/Prediction"] = $"Last Bid/Ask: {lastPrice} | Max/Min: {maxPrice}{minPrice} | U/L Bounds: {upperBound}/{lowerBound}";
             Table00.Table.Rows[1]["Market/Prediction"] = $"Slope";
             Table00.Table.Rows[2]["Market/Prediction"] = $"StdY";
             Table00.Table.Rows[3]["Market/Prediction"] = $"Correlation";

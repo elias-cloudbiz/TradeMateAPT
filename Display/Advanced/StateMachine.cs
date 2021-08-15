@@ -65,16 +65,16 @@ namespace TMAPT.Display
             {
 				// Default startup
 				int index = _scenarios.FindIndex(x => x.Name == "GraphWindow");
-				Scenario = new ConsoleWindow();
+				Scenario = new FullMetricWindow();
 				Application.UseSystemConsole = _useSystemConsole;
 				Application.Init();
 				Scenario.Init(Application.Top, Colors.TopLevel);
 
 				Application.MainLoop.Invoke(() => {
-					Core = new CoreLib();
+					//Core = new CoreLib();
 				});
 
-				Scenario.SetupWindow();
+				Scenario.Setup();
 				Scenario.Run();
 				Scenario = null;
 			}
@@ -95,7 +95,7 @@ namespace TMAPT.Display
 				#endif
 
 				Scenario.Init(Application.Top, _baseColorScheme);
-				Scenario.SetupWindow();
+				Scenario.Setup();
 				// 17. Application top layer Add
 				Scenario.Run();
 
@@ -127,7 +127,7 @@ namespace TMAPT.Display
 			Application.UseSystemConsole = _useSystemConsole;
 			Application.Init();
 			Scenario.Init(Application.Top, Colors.TopLevel);
-			Scenario.SetupWindow();
+			Scenario.Setup();
 			Scenario.Run();
 			Scenario = null;
 
@@ -267,7 +267,6 @@ namespace TMAPT.Display
 						Application.RequestStop();
 					} else {
 						Scenario.RequestStop();
-						Scenario.Dispose();
 					}
 				}),
 				new StatusItem(Key.F10, "~F10~ Hide/Show Status Bar", () => {
@@ -294,6 +293,7 @@ namespace TMAPT.Display
 			_top.Loaded += () => {
 				if (Scenario != null)
 				{
+					//Scenario.Dispose();
 					Scenario = null;
 				}
 			};
@@ -544,7 +544,6 @@ namespace TMAPT.Display
 			if (item.Equals("All"))
 			{
 				newlist = _scenarios;
-
 			}
 			else
 			{
@@ -562,12 +561,9 @@ namespace TMAPT.Display
 				var source = _scenarioListView.Source as ScenarioListDataSource;
 				Scenario = (Scenario)Activator.CreateInstance(source.Scenarios[_scenarioListView.SelectedItem], Core);
 				Application.RequestStop();
+
 			}
-			else
-			{
-				Scenario.RequestStop();
-				Scenario.Dispose();
-			}
+
 		}
 		/// <summary>
 		/// When Scenarios are running we need to override the behavior of the Menu 

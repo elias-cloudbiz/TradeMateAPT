@@ -19,7 +19,7 @@ namespace TMAPT.Display.Advanced.Views
         public ConsoleWindow(CoreLib Core) : base(Core) { }
 
         private static ListView ListView;
-        public override void SetupWindow()
+        public override void Setup()
         {
             ListView = new ListView()
             {
@@ -36,12 +36,12 @@ namespace TMAPT.Display.Advanced.Views
 
             Win.Add(ListView);
 
-            Event.Software.onScreenUpdate += (sender, e) => Refresh(sender);
+            //Event.Software.onScreenUpdate += (sender, e) => Refresh(sender);
            // Event.Software.onStartUpComplete += (sender, e) => RequestStop();
 
             CreateStatusBar();
 
-            base.SetupWindow();
+            base.Setup();
 
             //r.Width = ListView.Bounds.Width;
             //r.Height = ListView.Bounds.Height;
@@ -50,6 +50,7 @@ namespace TMAPT.Display.Advanced.Views
         private void CreateStatusBar()
         {
             var statusBar = new StatusBar(new StatusItem[] {
+                 new StatusItem(Key.CtrlMask | Key.R, "~^Q~ Quit", () => RequestStop()),
                 new StatusItem(Key.CtrlMask | Key.R, "~^R~ Construct Module", () => throw new Exception()),
                 new StatusItem(Key.CtrlMask | Key.S, "~^S~ Predictor",  () => throw new Exception())
             });

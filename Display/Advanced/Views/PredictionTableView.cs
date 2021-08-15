@@ -24,7 +24,7 @@ namespace TMAPT.Display.Advanced.Views
         private MenuItem miFullRowSelect;
         private MenuItem miExpandLastColumn;
 
-        public override void SetupWindow()
+        public override void Setup()
         {
             Win.Title = this.GetName();
             Win.Y = 1; // menu
