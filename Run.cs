@@ -12,10 +12,8 @@ namespace TMAPT
 
     class Run
     {
-
         //static Library na = new Library();
         static StateMachine StateMachineView = new StateMachine();
-
 
         static async Task Main(string[] args)
         {

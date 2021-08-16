@@ -105,42 +105,30 @@ namespace TMAPT.Display.Advanced.Views
             {
                 // Market/Prediction - Lastprice/Slope/StdY/Correlation/MaxMinJumpRate/MaxMinValue/BearBull/%MarketRates"
                 List<object> row00 = new List<object>(){
-                    $"{i} - ",
+                    $"",
                    };
 
                 Table00.Table.Rows.Add(row00.ToArray());
 
                 // Balance/orders - PriceDev $Performance/$VAL/$CH - $Invest/Active(B/S)/Filled(B/S)
                 List<object> row01 = new List<object>(){
-                    $"{i} - ",
+                    $"",
                    };
 
                 Table01.Table.Rows.Add(row01.ToArray());
 
                 List<object> row10 = new List<object>(){
-                    $"{i}",
+                    $"",
                    };
 
                 Table10.Table.Rows.Add(row10.ToArray());
 
                 List<object> row11 = new List<object>(){
-                    $"{i}",
+                    $"",
                    };
 
                 Table11.Table.Rows.Add(row11.ToArray());
             }
-        }
-        private void updateBalance()
-        {
-            // Rows, 1,2,3,4,5
-            Table00.Table.Rows[0]["Market/Prediction"] = "";
-            Table00.Table.Rows[1]["Market/Prediction"] = $"Slope";
-            Table00.Table.Rows[2]["Market/Prediction"] = $"StdY";
-            Table00.Table.Rows[3]["Market/Prediction"] = $"Correlation";
-            Table00.Table.Rows[6]["Market/Prediction"] = $"Marketrates";
-            Table00.Table.Rows[4]["Market/Prediction"] = $"Max/Min Jump";
-            Table00.Table.Rows[5]["Market/Prediction"] = $"Max/Min Price";
-            Table00.Table.Rows[6]["Market/Prediction"] = $"Bear/Bull";
         }
         private void updateMarketPredictionT()
         {
@@ -153,32 +141,42 @@ namespace TMAPT.Display.Advanced.Views
             var jumpRateDw = 0;
             var stdY = 0;
             var stdX = 0;
+            var slope = 0;
             var corr = 0;
 
+            var m3 = 0;
+            var m5 = 0;
+            var m10 = 0;
+            var m15 = 0;
+            var m30 = 0;
+            var m60 = 0;
+            var m90 = 0;
+            var m180 = 0;
+            var m360 = 0;
 
             // Rows, 1,2,3,4,5
             Table00.Table.Rows[0]["Market/Prediction"] = $"Bid/Ask: {lastPrice} | Max/Min: {maxPrice}/{minPrice}";
-            Table00.Table.Rows[1]["Market/Prediction"] = $"Pred. U/L Bounds: {upperBound}/{lowerBound} | U/L Rate: {jumpRateUp}/{jumpRateDw}";
-            Table00.Table.Rows[2]["Market/Prediction"] = $"Std Y/X: {stdY}/{stdX} | Corr: {corr}";
+            Table00.Table.Rows[1]["Market/Prediction"] = $"U/L Pred: {upperBound}/{lowerBound} | U/L Rate: {jumpRateUp}/{jumpRateDw}";
+            Table00.Table.Rows[2]["Market/Prediction"] = $"Std Y/X: {stdY}/{stdX} | Slope: {slope} | Corr: {corr}";
+            Table00.Table.Rows[3]["Market/Prediction"] = $"Rates: 3: {m3}, 5: {m5}, 10: {m10}, 15: {m15}, 30: {m30}, 60: {m60}, 90: {m90}, 180: {m180}, 360: {m360} ";
+        }
+        private void updateBalance()
+        {
+            // Rows, 1,2,3,4,5
+            Table01.Table.Rows[0]["Balance/Orders"] = "";
 
         }
         private void updateSystemTable()
         {
             // Rows, 1,2,3,4,5
-            Table10.Table.Rows[0]["System/Data"] = $"1";
-            Table10.Table.Rows[1]["System/Data"] = $"2";
-            Table10.Table.Rows[2]["System/Data"] = $"3";
-            Table10.Table.Rows[3]["System/Data"] = $"4";
-            Table10.Table.Rows[4]["System/Data"] = $"5";
+            Table10.Table.Rows[0]["System/Data"] = $"Sync Public : --";
+            Table10.Table.Rows[1]["System/Data"] = $"Sync Private: --";
         }
         private void updateApiLiveTable()
         {
             // Rows, 1,2,3,4,5
-            Table11.Table.Rows[0]["COM/Live"] = $"1";
-            Table11.Table.Rows[1]["COM/Live"] = $"2";
-            Table11.Table.Rows[2]["COM/Live"] = $"3";
-            Table11.Table.Rows[3]["COM/Live"] = $"5";
-            Table11.Table.Rows[4]["COM/Live"] = $"4";
+            Table11.Table.Rows[0]["COM/Live"] = $"Public state:  -- | Reconn : -- ";
+            Table11.Table.Rows[1]["COM/Live"] = $"Private state: -- | Reconn : -- ";
         }
 
         private void SetupScrollBar()
