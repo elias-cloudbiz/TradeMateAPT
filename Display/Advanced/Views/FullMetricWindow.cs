@@ -155,15 +155,24 @@ namespace TMAPT.Display.Advanced.Views
             var m360 = 0;
 
             // Rows, 1,2,3,4,5
-            Table00.Table.Rows[0]["Market/Prediction"] = $"Bid/Ask: {lastPrice} | Max/Min: {maxPrice}/{minPrice}";
+            Table00.Table.Rows[0]["Market/Prediction"] = $"B/Q: USDTBTC | Bid/Ask: {lastPrice} | Live Max/Min: 0/0 | Max/Min: {maxPrice}/{minPrice}";
             Table00.Table.Rows[1]["Market/Prediction"] = $"U/L Pred: {upperBound}/{lowerBound} | U/L Rate: {jumpRateUp}/{jumpRateDw}";
-            Table00.Table.Rows[2]["Market/Prediction"] = $"Std Y/X: {stdY}/{stdX} | Slope: {slope} | Corr: {corr}";
-            Table00.Table.Rows[3]["Market/Prediction"] = $"Rates: 3: {m3}, 5: {m5}, 10: {m10}, 15: {m15}, 30: {m30}, 60: {m60}, 90: {m90}, 180: {m180}, 360: {m360} ";
+            Table00.Table.Rows[2]["Market/Prediction"] = $"Std Y/X: {stdY}/{stdX} | Sx: {slope} | Corr: {corr} | MH: ";
+            Table00.Table.Rows[3]["Market/Prediction"] = $"MR1: (3): {m3}, (5): {m5}, (10): {m10}, (15): {m15}, (30): {m30}, (60): {m60}";
+            Table00.Table.Rows[4]["Market/Prediction"] = $"MR2: (90): {m90}, (180): {m180}, (360): {m360}, TR360; 0 ";
         }
         private void updateBalance()
         {
             // Rows, 1,2,3,4,5
-            Table01.Table.Rows[0]["Balance/Orders"] = "";
+            Table01.Table.Rows[0]["Balance/Orders"] = "Active   - Make/Take: 0/0";
+            Table01.Table.Rows[1]["Balance/Orders"] = "Filled   - Make/Take: 0/0";
+            Table01.Table.Rows[2]["Balance/Orders"] = "Credited - Make/Take: 0/0";
+            Table01.Table.Rows[3]["Balance/Orders"] = "Active   - $0";
+            Table01.Table.Rows[4]["Balance/Orders"] = "Filled   - $0";
+            Table01.Table.Rows[5]["Balance/Orders"] = "Credited - $0";
+            Table01.Table.Rows[6]["Balance/Orders"] = "Total    - $0";
+
+
 
         }
         private void updateSystemTable()
