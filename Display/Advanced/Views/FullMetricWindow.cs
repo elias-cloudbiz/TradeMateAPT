@@ -135,8 +135,8 @@ namespace TMAPT.Display.Advanced.Views
             var lastPrice = Core.Simulator.getLastCoin.getBaseValueRounded;
             var maxPrice = Core.Simulator.getLastCoin.getMaxValue;
             var minPrice = Core.Simulator.getLastCoin.getMinValue;
-            var upperBound = Core.Simulator.IntellUI.Predictive.upperBound;
-            var lowerBound = Core.Simulator.IntellUI.Predictive.lowerBound;
+            var upperBound = Core.Simulator.Intel.Predictive.upperBound;
+            var lowerBound = Core.Simulator.Intel.Predictive.lowerBound;
             var jumpRateUp = 0;
             var jumpRateDw = 0;
             var stdY = 0;
