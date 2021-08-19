@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 using Terminal.Gui;
 using TMAPT.Core;
-using TMAPT.Core.Simulation;
+using TMAPT.Core.Models;
+
 
 namespace TMAPT.Display.Advanced.Views
 {
@@ -137,40 +138,50 @@ namespace TMAPT.Display.Advanced.Views
             var minPrice = Core.Simulator.getLastCoin.getMinValue;
             var upperBound = Core.Simulator.Intel.Predictive.upperBound;
             var lowerBound = Core.Simulator.Intel.Predictive.lowerBound;
-            var jumpRateUp = 0;
-            var jumpRateDw = 0;
-            var stdY = 0;
-            var stdX = 0;
-            var slope = 0;
-            var corr = 0;
+            var jumpRateUp = Params.Market.maxJumpRate;
+            var jumpRateDw = Params.Market.maxFallRate;
+            var stdY = Core.Simulator.Intel.Predictive.stdY;
+            var stdX = Core.Simulator.Intel.Predictive.stdX;
+            var slope = Core.Simulator.Intel.Predictive.getSlope_B();
+            var corr = Core.Simulator.Intel.Predictive.correlation;
 
-            var m3 = 0;
-            var m5 = 0;
-            var m10 = 0;
-            var m15 = 0;
-            var m30 = 0;
-            var m60 = 0;
-            var m90 = 0;
-            var m180 = 0;
-            var m360 = 0;
+            var m3 = Params.Market.rMCRate03;
+            var m5 = Params.Market.rMCRate05;
+            var m10 = Params.Market.rMCRate10;
+            var m15 = Params.Market.rMCRate15;
+            var m30 = Params.Market.rMCRate30;
+            var m60 = Params.Market.rMCRate60;
+            var m120 = Params.Market.rMCRate120;
+            var m180 = Params.Market.rMCRate180;
+            var m360 = Params.Market.rMCRate360;
+
+            var TR360 = Params.Market.MarketRate360Traingle;
+            var MH = 0;
 
             // Rows, 1,2,3,4,5
-            Table00.Table.Rows[0]["Market/Prediction"] = $"B/Q: USDTBTC | Bid/Ask: {lastPrice} | Live Max/Min: 0/0 | Max/Min: {maxPrice}/{minPrice}";
-            Table00.Table.Rows[1]["Market/Prediction"] = $"U/L Pred: {upperBound}/{lowerBound} | U/L Rate: {jumpRateUp}/{jumpRateDw}";
+            Table00.Table.Rows[0]["Market/Prediction"] = $"B/Q: USDTBTC | Bid/Ask: {lastPrice} | Max/Min: {maxPrice}/{minPrice}";
+            Table00.Table.Rows[1]["Market/Prediction"] = $"Live Max/Min: 0/0 | U/L Pred: {upperBound}/{lowerBound} | U/L Rate: {jumpRateUp}/{jumpRateDw}";
             Table00.Table.Rows[2]["Market/Prediction"] = $"Std Y/X: {stdY}/{stdX} | Sx: {slope} | Corr: {corr} | MH: ";
             Table00.Table.Rows[3]["Market/Prediction"] = $"MR1: (3): {m3}, (5): {m5}, (10): {m10}, (15): {m15}, (30): {m30}, (60): {m60}";
-            Table00.Table.Rows[4]["Market/Prediction"] = $"MR2: (90): {m90}, (180): {m180}, (360): {m360}, TR360; 0 ";
+            Table00.Table.Rows[4]["Market/Prediction"] = $"MR2: (120): {m120}, (180): {m180}, (360): {m360}, TR360;  {TR360} ";
         }
         private void updateBalance()
         {
+            var active = $"{Params.Order.TotalActiveMakes}/{Params.Order.TotalActiveTakes}";
+            var filled = $"{Params.Order.TotalFilledMakes}/{Params.Order.TotalFilledTakes}";
+            var credited = $"{Params.Order.TotalCreditedMakes}/{Params.Order.TotalCreditedTakes}";
+            var activeeAmount = $"{Params.Wallet.InvestedValue}";
+            var filledAmount = $"{Params.Wallet.FilledValue}/{Params.Order.TotalFilledTakes}";
+            var totalAmount = $"{Params.Order.TotalFilledMakes}/{Params.Order.TotalFilledTakes}";
+
             // Rows, 1,2,3,4,5
-            Table01.Table.Rows[0]["Balance/Orders"] = "Active   - Make/Take: 0/0";
-            Table01.Table.Rows[1]["Balance/Orders"] = "Filled   - Make/Take: 0/0";
-            Table01.Table.Rows[2]["Balance/Orders"] = "Credited - Make/Take: 0/0";
-            Table01.Table.Rows[3]["Balance/Orders"] = "Active   - $0";
-            Table01.Table.Rows[4]["Balance/Orders"] = "Filled   - $0";
-            Table01.Table.Rows[5]["Balance/Orders"] = "Credited - $0";
-            Table01.Table.Rows[6]["Balance/Orders"] = "Total    - $0";
+            Table01.Table.Rows[0]["Balance/Orders"] = $"Active   - Make/Take: {active}";
+            Table01.Table.Rows[1]["Balance/Orders"] = $"Filled   - Make/Take: {filled}";
+            Table01.Table.Rows[2]["Balance/Orders"] = $"Credited - Make/Take: {credited}";
+            Table01.Table.Rows[3]["Balance/Orders"] = $"Active   - ${activeeAmount}";
+            Table01.Table.Rows[4]["Balance/Orders"] = $"Filled   - ${filledAmount}";
+            Table01.Table.Rows[5]["Balance/Orders"] = $"Credited - ${0}";
+            Table01.Table.Rows[6]["Balance/Orders"] = $"Total    - ${totalAmount}";
 
 
 

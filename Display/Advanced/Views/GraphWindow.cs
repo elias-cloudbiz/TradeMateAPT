@@ -185,9 +185,9 @@ namespace TMAPT.Display
         }
         public void updateMainWindow()
         {
-            string ConnectionState = $"0/{Parameters.API.PublicConnection}/{Parameters.API.PrivateConnection}";
+            string ConnectionState = $"0/{Params.API.PublicConnection}/{Params.API.PrivateConnection}";
             string LivePrice = $"{Core.Simulator.getLastCoin.getBaseValueRounded}";
-            string Profit = $"{Parameters.Wallet.Profit}/{Parameters.Wallet.BalanceChangeValue}";
+            string Profit = $"{Params.Wallet.Profit}/{Params.Wallet.BalanceChangeValue}";
 
             updateTableCell(0, ConnectionState);
             updateTableCell(1, LivePrice);
