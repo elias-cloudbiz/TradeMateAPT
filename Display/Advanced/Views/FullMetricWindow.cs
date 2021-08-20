@@ -8,7 +8,7 @@ using TMAPT.Core.Models;
 
 namespace TMAPT.Display.Advanced.Views
 {
-    [ScenarioMetadata(Name: "Metrics", Description: "Performance Data and Statistics")]
+    [ScenarioMetadata(Name: "Full Param", Description: "Performance Data and Statistics")]
     [ScenarioCategory("Statistics")]
     public class FullMetricWindow : Scenario
     {
@@ -99,7 +99,7 @@ namespace TMAPT.Display.Advanced.Views
 
             SetupScrollBar();
         }
-        private int rows { get; set; } = 10;
+        private int rows { get; set; } = 15;
         private void addtestData()
         {
             for (int i = 0; i < rows; i++)
@@ -154,49 +154,74 @@ namespace TMAPT.Display.Advanced.Views
             var m120 = Params.Market.rMCRate120;
             var m180 = Params.Market.rMCRate180;
             var m360 = Params.Market.rMCRate360;
-
             var TR360 = Params.Market.MarketRate360Traingle;
             var MH = 0;
+
 
             // Rows, 1,2,3,4,5
             Table00.Table.Rows[0]["Market/Prediction"] = $"B/Q: USDTBTC | Bid/Ask: {lastPrice} | Max/Min: {maxPrice}/{minPrice}";
             Table00.Table.Rows[1]["Market/Prediction"] = $"Live Max/Min: 0/0 | U/L Pred: {upperBound}/{lowerBound} | U/L Rate: {jumpRateUp}/{jumpRateDw}";
-            Table00.Table.Rows[2]["Market/Prediction"] = $"Std Y/X: {stdY}/{stdX} | Sx: {slope} | Corr: {corr} | MH: ";
+            Table00.Table.Rows[2]["Market/Prediction"] = $"Std Y/X: {stdY}/{stdX} | Sx: {slope} | Corr: {corr} | MH: {MH}";
             Table00.Table.Rows[3]["Market/Prediction"] = $"MR1: (3): {m3}, (5): {m5}, (10): {m10}, (15): {m15}, (30): {m30}, (60): {m60}";
-            Table00.Table.Rows[4]["Market/Prediction"] = $"MR2: (120): {m120}, (180): {m180}, (360): {m360}, TR360;  {TR360} ";
+            Table00.Table.Rows[4]["Market/Prediction"] = $"MR2: (120): {m120}, (180): {m180}, (360): {m360}, TR360; {TR360}, ";
+            
+            Table00.Table.Rows[5]["Market/Prediction"] = $"MakeSL: {Core.Simulator.Make.LiveSLState}";
+            Table00.Table.Rows[6]["Market/Prediction"] = $"TakeSL: {Core.Simulator.Take.LiveSLState}";
+            Table00.Table.Rows[7]["Market/Prediction"] = $"Make Feedback: {Core.Simulator.Make.MakeFeedback}";
+            Table00.Table.Rows[8]["Market/Prediction"] = $"Take Feedback: {Core.Simulator.Take.TakeFeedback}";
+            Table00.Table.Rows[9]["Market/Prediction"] =  $"ex.B. status: {Core.Simulator.BuyOrderState}";
+            Table00.Table.Rows[10]["Market/Prediction"] = $"ex.S. status: {Core.Simulator.SellOrderState}";
         }
         private void updateBalance()
         {
             var active = $"{Params.Order.TotalActiveMakes}/{Params.Order.TotalActiveTakes}";
             var filled = $"{Params.Order.TotalFilledMakes}/{Params.Order.TotalFilledTakes}";
             var credited = $"{Params.Order.TotalCreditedMakes}/{Params.Order.TotalCreditedTakes}";
-            var activeeAmount = $"{Params.Wallet.InvestedValue}";
-            var filledAmount = $"{Params.Wallet.FilledValue}/{Params.Order.TotalFilledTakes}";
-            var totalAmount = $"{Params.Order.TotalFilledMakes}/{Params.Order.TotalFilledTakes}";
+            var activeAmount = $"{Params.Wallet.InvestedValue}";
+            var filledAmount = $"{Params.Wallet.FilledValue}";
+            var creditedAmount = $"0";
+            var totalAmount = $"{0}";
+            var @base = 0;
+            var quota = 0;
+            var profit = 0;
+            var value = 0;
 
             // Rows, 1,2,3,4,5
-            Table01.Table.Rows[0]["Balance/Orders"] = $"Active   - Make/Take: {active}";
-            Table01.Table.Rows[1]["Balance/Orders"] = $"Filled   - Make/Take: {filled}";
-            Table01.Table.Rows[2]["Balance/Orders"] = $"Credited - Make/Take: {credited}";
-            Table01.Table.Rows[3]["Balance/Orders"] = $"Active   - ${activeeAmount}";
+            Table01.Table.Rows[0]["Balance/Orders"] = $"Active   - M/T: {active}";
+            Table01.Table.Rows[1]["Balance/Orders"] = $"Filled   - M/T: {filled}";
+            Table01.Table.Rows[2]["Balance/Orders"] = $"Credited - M/T: {credited}";
+            Table01.Table.Rows[3]["Balance/Orders"] = $"Active   - ${activeAmount}";
             Table01.Table.Rows[4]["Balance/Orders"] = $"Filled   - ${filledAmount}";
             Table01.Table.Rows[5]["Balance/Orders"] = $"Credited - ${0}";
-            Table01.Table.Rows[6]["Balance/Orders"] = $"Total    - ${totalAmount}";
-
+            Table01.Table.Rows[6]["Balance/Orders"] = $"Base     - ${@base}";
+            Table01.Table.Rows[7]["Balance/Orders"] = $"Qouta    - ${quota}";
+            Table01.Table.Rows[8]["Balance/Orders"] = $"Profit   - ${profit}";
+            Table01.Table.Rows[9]["Balance/Orders"] = $"Value    - ${value}";
 
 
         }
         private void updateSystemTable()
         {
+            var @public = Params.API.Public.ConnectionMessage;
+            var @private = Params.API.Private.ConnectionMessage;
+            var console = Core.getLastlineConsole();
+            var debug = Core.getLastlineDebug();
             // Rows, 1,2,3,4,5
-            Table10.Table.Rows[0]["System/Data"] = $"Sync Public : --";
-            Table10.Table.Rows[1]["System/Data"] = $"Sync Private: --";
+            Table10.Table.Rows[0]["System/Data"] = $"Public  Feedback: {@public}  | Exchange Data: ";
+            Table10.Table.Rows[1]["System/Data"] = $"Private Feedback: {@private} | Order Data: ";
+            Table10.Table.Rows[1]["System/Data"] = $"Console: {console} ";
+            Table10.Table.Rows[1]["System/Data"] = $"Debug  : {debug}";
         }
         private void updateApiLiveTable()
         {
+            var publicReconns = Params.API.Public.Reconnections;
+            var privateReconns = Params.API.Private.Reconnections;
+            var publicState = Params.API.Public.ConnectionState;
+            var privateState = Params.API.Private.ConnectionState;
+
             // Rows, 1,2,3,4,5
-            Table11.Table.Rows[0]["COM/Live"] = $"Public state:  -- | Reconn : -- ";
-            Table11.Table.Rows[1]["COM/Live"] = $"Private state: -- | Reconn : -- ";
+            Table11.Table.Rows[0]["COM/Live"] = $"Public state: {publicState}  | Reconn: {publicReconns} ";
+            Table11.Table.Rows[1]["COM/Live"] = $"Private state: {privateState} | Reconn: {privateReconns} ";
         }
 
         private void SetupScrollBar()

@@ -70,8 +70,8 @@ namespace TMAPT.Display
 				Application.Init();
 				Scenario.Init(Application.Top, Colors.TopLevel);
 
-				Application.MainLoop.Invoke(() => {
-					//Core = new CoreLib();
+				Application.MainLoop.Invoke(() => {				
+					Core.Initiate();
 				});
 
 				Scenario.Setup();

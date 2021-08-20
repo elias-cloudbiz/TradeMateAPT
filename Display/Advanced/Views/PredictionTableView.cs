@@ -9,7 +9,7 @@ using TMAPT.Core;
 
 namespace TMAPT.Display.Advanced.Views
 {
-    [ScenarioMetadata(Name: "Prediction DataView (NN/ML)", Description: "View Prediction Data and Statistics")]
+    [ScenarioMetadata(Name: "DataView (NN/ML)", Description: "View Prediction Data and Statistics")]
     [ScenarioCategory("Statistics")]
     public class PredictionTableView : Scenario
     {

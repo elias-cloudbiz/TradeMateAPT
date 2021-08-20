@@ -16,7 +16,7 @@ using TMAPT.Core;
 
 namespace TMAPT.Display
 {
-    [ScenarioMetadata(Name: "Graph Window", Description: "Main Window Live Graph and Orders")]
+    [ScenarioMetadata(Name: "Graph", Description: "Main Window Live Graph and Orders")]
     [ScenarioCategory("Main")]
     class GraphWindow : Scenario
     {
@@ -185,7 +185,7 @@ namespace TMAPT.Display
         }
         public void updateMainWindow()
         {
-            string ConnectionState = $"0/{Params.API.PublicConnection}/{Params.API.PrivateConnection}";
+            string ConnectionState = $"0/{Params.API.Public.Connection}/{Params.API.Private.Connection}";
             string LivePrice = $"{Core.Simulator.getLastCoin.getBaseValueRounded}";
             string Profit = $"{Params.Wallet.Profit}/{Params.Wallet.BalanceChangeValue}";
 
